@@ -23,6 +23,7 @@ Mako==1.1.5
 MarkupSafe==2.0.1
 mimerender==0.6.0
 # mysqlclient @ file:///E:/002.private/01.dev/03.mes/mes_sign/server/mysqlclient-1.4.2-cp37-cp37m-win32.whl
+mysqlclient == 2.0
 openpyxl==3.0.9
 python-dateutil==2.8.0
 python-editor==1.0.4

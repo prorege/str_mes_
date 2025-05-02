@@ -236,6 +236,23 @@ class LibProjectExcutionPlanItem(object):
         except:
             pass
         
+# 견적서 코드
+class LibProjectEstimateDocument(object):
+    @staticmethod
+    def delete_single_preprocessor(instance_id=None, **kw):
+        estimate_item = db.session.query(
+            ProjectEstimateDocument
+        ).filter(
+            ProjectEstimateDocument.id == instance_id
+        ).first()
+        if estimate_item is None:
+            return
+        if estimate_item.file_path:
+            file_path = os.path.join(app.config['UPLOAD_BASE_DIR'], estimate_item.file_path)
+            try:
+                os.remove(file_path)
+            except IsADirectoryError:
+                pass
 class LibProjectExcutionPlanSubcontract(object):
     @staticmethod
     def update_closing(excution_plan_subcontract_id):
@@ -259,6 +276,61 @@ class LibProjectExcutionPlanSubcontract(object):
             db.session.commit()
         except:
             pass
+
+
+    @staticmethod
+    def patch_single_preprocessor(instance_id=None, data=None, **kw):
+        if not data:
+            pass
+
+        item = db.session.query(ProjectExcutionPlanSubcontract).filter(
+            ProjectExcutionPlanSubcontract.id == instance_id).first()
+        
+        if item is None:
+            pass
+
+        # 견적서 수정 시 기존 파일 삭제
+        if 'estimate_document' in data and data['estimate_document'] != item.estimate_document:
+            if item.estimate_document_path:
+                file_path = os.path.join(app.config['UPLOAD_BASE_DIR'], item.estimate_document_path)
+                try:
+                    os.remove(file_path)
+                except Exception as e:
+                    print(f"[견적서 삭제 실패] {file_path}: {e}")
+
+        # 계약서 수정 시 기존 파일 삭제
+        if 'contract_document' in data and data['contract_document'] != item.contract_document:
+            if item.contract_document_path:
+                file_path = os.path.join(app.config['UPLOAD_BASE_DIR'], item.contract_document_path)
+                try:
+                    os.remove(file_path)
+                except Exception as e:
+                    print(f"[계약서 삭제 실패] {file_path}: {e}")
+                
+
+
+
+    @staticmethod
+    def delete_single_preprocessor(instance_id=None, **kw):
+        item = db.session.query(ProjectExcutionPlanSubcontract).filter(
+            ProjectExcutionPlanSubcontract.id == instance_id).first()
+        if item is None:
+            return
+
+        # 견적서 파일 삭제
+        if item.estimate_document_path:
+            file_path = os.path.join(app.config['UPLOAD_BASE_DIR'], item.estimate_document_path)
+            try:
+                os.remove(file_path)
+            except Exception:
+                pass
+        if item.contract_document_path:
+            file_path = os.path.join(app.config['UPLOAD_BASE_DIR'], item.contract_document_path)
+            try:
+                os.remove(file_path)
+            except Exception:
+                pass
+#여기까지
 
 class LibProjectBusinessQuote(object):
     @staticmethod

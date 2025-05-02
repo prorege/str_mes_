@@ -376,6 +376,8 @@ class ProjectExcutionPlanSubcontract(db.Model): # 프로젝트 - 실행계획 - 
     end_date = db.Column('end_date', db.DateTime, comment='종료일자')
     contract_document = db.Column('contract_document', db.String(256), comment='계약서')
     contract_document_path = db.Column('contract_document_path', db.String(256), comment='계약서경로')
+    estimate_document = db.Column('estimate_document', db.String(256), comment='견적서')
+    estimate_document_path = db.Column('estimate_document_path', db.String(256), comment='견적서경로')    
     contract_performance_bond = db.Column('contract_performance_bond', db.String(256), comment='계약이행증권')
     contract_performance_bond_path = db.Column('contract_performance_bond_path', db.String(256), comment='계약이행증권경로')
     defect_liability_bond = db.Column('defect_liability_bond', db.String(256), comment='하자이행증권')

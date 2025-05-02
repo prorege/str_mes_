@@ -538,6 +538,7 @@
                     />
                   </dx-column>
                   <dx-column data-field="vat" caption="부가세" data-type="number" format="currency" :allow-editing="false" />
+                  <dx-column data-field="estimate_document" caption="견적서" cell-template="downloadEstimateDocument" edit-cell-template="uploadEstimateDocument" />
                   <dx-column data-field="contract_document" caption="계약서" cell-template="downloadContractDocument" edit-cell-template="uploadContractDocument" />
                   <dx-column data-field="contract_performance_bond" caption="계약이행증권" cell-template="downloadContractPerformanceBond" edit-cell-template="uploadContractPerformanceBond" />
                   <dx-column data-field="defect_liability_bond" caption="하자이행증권" cell-template="downloadDefectLiabilityBond" edit-cell-template="uploadDefectLiabilityBond" />
@@ -545,6 +546,21 @@
                   <dx-column data-field="end_date" caption="종료일자" data-type="date" format="yyyy-MM-dd" />
                   <dx-column data-field="register" caption="등록자" :allow-editing="false"  />
                   <dx-column data-field="created" caption="등록일자" data-type="date" format="yyyy-MM-dd" :allow-editing="false" />
+                  <!-- 견적서 등록 -->
+                  <template #downloadEstimateDocument="{data}">
+                    <a :href="`/api/mes/v1/${data.data['estimate_document_path']}/${data.data['estimate_document']}`" download>{{data.data[data.column.dataField]}}</a>
+                  </template>
+                  <template #uploadEstimateDocument="{data}">
+                    <dx-text-box :value="data.data[data.column.dataField]">
+                      <dx-text-box-button location="after" name="upload"
+                        :options="{
+                          hint: '업로드', icon: 'upload',
+                          onClick: methods.addFile(data)
+                        }"
+                      />
+                    </dx-text-box>
+                  </template>
+                  <!-- 계약서 -->
                   <template #downloadContractDocument="{data}">
                     <a :href="`/api/mes/v1/${data.data['contract_document_path']}/${data.data['contract_document']}`" download>{{data.data[data.column.dataField]}}</a>
                   </template>
@@ -957,7 +973,7 @@ import { notifyInfo, notifyError } from '../../utils/notify';
 import { beforeExitConfirm, generateItemButtonOption, currentDateTime, calcPriceSummary} from '../../utils/util';
 import { loadEmployee, loadWarehouse, loadDepartment, loadClientManager } from '../../utils/data-loader';
 import { getStock, setupBasicStock } from '../../data-source/setup';
-import { projectBusinessCost } from '../../data-source/base';
+
 export default {
   components: {
     DxToolbar,
@@ -1445,6 +1461,10 @@ export default {
           '삭제 확인'
         );
         if (result) {
+          const rows = vars.grid.projectExcutionPlanSubcontract.getVisibleRows();
+          for (let row of rows){
+            await projectExcutionPlanSubcontract.remove(row.data.id);
+          }
           await projectExcutionPlan.remove(vars.formData.id);
           await alert('삭제되었습니다', '삭제 확인');
           methods.redirect();

@@ -202,6 +202,7 @@ def download_excution_plan_subcontract(filepath, filename):
     except FileNotFoundError:
         return make_response('file not found', 404)
 
+
 @app.route('/api/mes/v1/project-attachment/document', methods=['POST'])
 def upload_document():
     f = request.files['file']
@@ -1104,10 +1105,10 @@ manager.create_api(ProjectExcutionPlanSubcontract,
                    max_results_per_page=100000000,
                    preprocessors={
                        'POST': [check_token],
-                       'PATCH_SINGLE': [check_token],
+                       'PATCH_SINGLE': [check_token, LibProjectExcutionPlanSubcontract.patch_single_preprocessor],
                        'GET_SINGLE': [check_token],
                        'GET_MANY': [check_token],
-                       'DELETE_SINGLE': [check_token]
+                       'DELETE_SINGLE': [check_token, LibProjectExcutionPlanSubcontract.delete_single_preprocessor]
                    })
 
 
