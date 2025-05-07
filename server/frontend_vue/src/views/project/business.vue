@@ -526,11 +526,22 @@
                   >
           
                   <dx-grid-toolbar>
+                      <dx-grid-item template="costExportButton" location="after" />
                       <dx-grid-item template="costRate" location="after" />
                       <dx-grid-item template="addCostRowButton" location="after" :visible="!vars.formState.readOnly" />
                       <dx-grid-item template="costSaveButton" location="after" :visible="false" />
                       <dx-grid-item name="revertButton" location="after" />
                   </dx-grid-toolbar>
+                  <template #costExportButton>
+                    <dx-button
+                      icon="xlsxfile"
+                      hint="엑셀로 내보내기"
+                      @click="methods.exportCostToExcel"
+                      type="default"
+                      styling-mode="text"
+                    />
+                  </template>
+
                   <template #addCostRowButton>
                       <dx-button text="품목찾기" icon="add" @click="methods.showItemAddPopup" />
                   </template>
@@ -753,6 +764,8 @@ import DataLocationSelect from '../../components/base/data-location-select.vue';
 import ApiService from '../../utils/api-service';
 import FindAddressStore from '../../data-source/find-address';
 import PopupItem from '../../components/base/popup-item.vue';
+import ExcelJS from 'exceljs';
+
 export default {
   components: {
     DxTabPanel,
@@ -1580,6 +1593,35 @@ setup(props){
         return;
       }
     },
+    
+    exportCostToExcel() {
+      const grid = vars.grid.cost;
+      if (!grid) {
+        notifyError('원가검토 표가 초기화되지 않았습니다.');
+        return;
+      }
+
+      import('devextreme/excel_exporter').then(({ exportDataGrid }) => {
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('원가검토');
+
+        exportDataGrid({
+          component: grid,
+          worksheet: worksheet,
+          autoFilterEnabled: true,
+        }).then(() => {
+          workbook.xlsx.writeBuffer().then((buffer) => {
+            const blob = new Blob([buffer], { type: 'application/octet-stream' });
+            const fileName = `원가검토_${moment().format('YYYYMMDD_HHmmss')}.xlsx`;
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = fileName;
+            link.click();
+          });
+        });
+      });
+    }
+
    
   };
 
