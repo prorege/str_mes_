@@ -929,6 +929,55 @@
               </div>
             </template>
           </dx-item>
+          <dx-item title="참고사항">
+            <template #default>
+              <div class="pa-2">
+                <dx-data-grid
+                  class="fixed-header-table"
+                  height="calc(100vh - 516px)"
+                  data-serialization-format="yyyy-MM-ddTHH:mm:ss"
+                  column-resizing-mode="widget"
+                  :show-borders="true"
+                  :remote-operations="false"
+                  :column-auto-width="true"
+                  :focused-row-enabled="true"
+                  :allow-column-resizing="true"
+                  :allow-column-reordering="true"
+                  :row-alternation-enabled="true"
+                  :select-text-onedit-start="true"
+                  :data-source="vars.dataSource.note"
+                  :on-initialized="evt => methods.onGridInitialized(evt, 'note')"
+                  @saving="(e) => methods.onSavingItem(e, 'note')"
+                  @data-error-occurred="methods.onDataError"
+                  @focused-cell-changed="evt => methods.onFocusedCellChanged(evt, 'note')"
+                  @init-new-row="evt => methods.initNewRow(evt, 'note')"
+                  >
+                  <dx-grid-toolbar>
+                      <dx-grid-item template="addNoteRowButton" location="after" :visible="!vars.formState.readOnly" />
+                      <dx-grid-item template="noteSaveButton" location="after" :visible="false" />
+                      <dx-grid-item name="revertButton" location="after" />
+                  </dx-grid-toolbar>
+                  <template #addNoteRowButton>
+                      <dx-button text="참고사항 추가" icon="add" @click="methods.addItemRowButton('note')" />
+                  </template>
+                  <template #noteSaveButton>
+                      <dx-button text="저장" icon="save" @click="methods.itemSaveButton('note')" />
+                  </template>
+                  <dx-column type="buttons" :visible="!vars.formState.readOnly"/>
+                  <dx-column caption="등록자" data-field="note_manager" />
+                  <dx-column caption="등록일자" data-field="note_date" data-type="date" format="yyyy-MM-dd" />
+                  <dx-column caption="참고내용" data-field="note_detail" />
+                  <dx-scrolling mode="standard" />
+                  <dx-editing mode="batch"
+                    :use-icons="true"
+                    :allow-adding="!vars.formState.readOnly"
+                    :allow-updating="!vars.formState.readOnly"
+                    :allow-deleting="!vars.formState.readOnly"
+                    />
+                </dx-data-grid>
+              </div>
+            </template>
+          </dx-item>
         </dx-tab-panel>
       </div>
     </div>
@@ -1178,7 +1227,8 @@ import {
   getProjectCostLog,
   getProjectCompletion,
   getProjectBusinessCost,
-  getProjectCustomerInformation 
+  getProjectCustomerInformation,
+  getProjectBusinessNote
 } from '../../data-source/project';
 import {
   baseCodeLoader,
@@ -1382,6 +1432,11 @@ export default {
           name: 'fk_business_id', op: 'eq', val: props.id || 0 
         }
       ],
+      note : [
+        { 
+          name: 'fk_business_id', op: 'eq', val: props.id || 0 
+        }
+      ],
       businessCost: { fk_business_id : 0 },
       quoteItem: { fk_business_id : 0 },
     });
@@ -1407,6 +1462,8 @@ export default {
       work_type: null,
       
     });
+    vars.dataSource.note = getProjectBusinessNote(vars.filter.common);
+
     vars.dataSource.customer_information = getProjectCustomerInformation(vars.filter.common);
 
     vars.dataSource.items = getProjectItem(vars.filter.items);
