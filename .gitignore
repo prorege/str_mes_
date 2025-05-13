@@ -1,5 +1,5 @@
 *.pyc
 server/frontend_vue/node_modules/
 venv/
-dist/
-.sql
+server/frontend_vue/dist/
+*.sql

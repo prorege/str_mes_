@@ -220,6 +220,7 @@
           </dx-group-item>
         </dx-form>
       </div>
+      <!-- 시작 -->
       <div class="dx-card responsive-paddings mt-1">
         <dx-tab-panel
         v-model:selected-index="vars.tab.index"
@@ -281,6 +282,7 @@
               </div>
             </template>
           </dx-item>
+          <!-- 끝 -->
           <dx-item title="고객이력관리">
             <template #default>
               <div class="pa-2">

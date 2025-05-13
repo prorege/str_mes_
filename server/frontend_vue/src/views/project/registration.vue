@@ -297,7 +297,66 @@
       </div>
 
       <div class="dx-card responsive-paddings mt-1">
-        <dx-tab-panel :animation-enabled="false" :swipe-enabled="false" :defer-rendering="false" >
+        <dx-tab-panel 
+          :animation-enabled="false" 
+          :swipe-enabled="false" 
+          :defer-rendering="false" 
+        >
+          <dx-item title="고객정보관리">
+            <template #default>
+              <div class="pa-2">
+                <dx-data-grid
+                  class="fixed-header-table"
+                  height="calc(100vh - 516px)"
+                  data-serialization-format="yyyy-MM-ddTHH:mm:ss"
+                  column-resizing-mode="widget"
+                  :show-borders="true"
+                  :remote-operations="false"
+                  :column-auto-width="true"
+                  :focused-row-enabled="true"
+                  :allow-column-resizing="true"
+                  :allow-column-reordering="true"
+                  :row-alternation-enabled="true"
+                  :select-text-onedit-start="true"
+                  :data-source="vars.dataSource.customer_information"
+                  :on-initialized="evt => methods.onGridInitialized(evt, 'customer_information')"
+                  @saving="(e) => methods.onSavingItem(e, 'customer_information')"
+                  @data-error-occurred="methods.onDataError"
+                  @focused-cell-changed="evt => methods.onFocusedCellChanged(evt, 'customer_information')"
+                  @init-new-row="evt => methods.initNewRow(evt, 'customer_information')"
+                  >
+                  <dx-grid-toolbar>
+                      <dx-grid-item template="addCustomerInformationRowButton" location="after" :visible="!vars.formState.readOnly" />
+                      <dx-grid-item template="customerInformationSaveButton" location="after" :visible="false" />
+                      <dx-grid-item name="revertButton" location="after" />
+                  </dx-grid-toolbar>
+                  <template #addCustomerInformationRowButton>
+                      <dx-button text="고객정보 추가" icon="add" @click="methods.addItemRowButton('customer_information')" />
+                  </template>
+                  <template #customerInformationSaveButton>
+                      <dx-button text="저장" icon="save" @click="methods.itemSaveButton('customer_information')" />
+                  </template>
+                  <dx-column type="buttons" :visible="!vars.formState.readOnly"/>
+                  <dx-column caption="일자" data-field="information_date" data-type="date" format="yyyy-MM-dd" />
+                  <dx-column caption="고객담당자" data-field="manager">
+                    <!-- <dx-lookup value-expr="emp_name" display-expr="emp_name" :data-source="vars.dataSource.employee_list" /> -->
+                  </dx-column>
+                  <dx-column caption="연락처" data-field="manager_mobile" />
+                  <dx-column caption="이메일" data-field="manager_email" />
+                  <dx-column caption="메모" data-field="note" />
+                  <dx-column caption="등록자" data-field="register" :allow-editing="false" />
+                  <dx-column caption="등록일자" data-field="register_date" data-type="date" format="yyyy-MM-dd" :allow-editing="false" />
+                  <dx-scrolling mode="standard" />
+                  <dx-editing mode="batch"
+                    :use-icons="true"
+                    :allow-adding="!vars.formState.readOnly"
+                    :allow-updating="!vars.formState.readOnly"
+                    :allow-deleting="!vars.formState.readOnly"
+                    />
+                </dx-data-grid>
+              </div>
+            </template>
+          </dx-item>
           <dx-item title="계약품목">
             <template #default>
               <div class="pa-2">
@@ -399,61 +458,6 @@
                     mode="batch"
                   />
                   <dx-scrolling mode="standard" />
-                </dx-data-grid>
-              </div>
-            </template>
-          </dx-item>
-          <dx-item title="고객정보관리">
-            <template #default>
-              <div class="pa-2">
-                <dx-data-grid
-                  class="fixed-header-table"
-                  height="calc(100vh - 516px)"
-                  data-serialization-format="yyyy-MM-ddTHH:mm:ss"
-                  column-resizing-mode="widget"
-                  :show-borders="true"
-                  :remote-operations="false"
-                  :column-auto-width="true"
-                  :focused-row-enabled="true"
-                  :allow-column-resizing="true"
-                  :allow-column-reordering="true"
-                  :row-alternation-enabled="true"
-                  :select-text-onedit-start="true"
-                  :data-source="vars.dataSource.customer_information"
-                  :on-initialized="evt => methods.onGridInitialized(evt, 'customer_information')"
-                  @saving="(e) => methods.onSavingItem(e, 'customer_information')"
-                  @data-error-occurred="methods.onDataError"
-                  @focused-cell-changed="evt => methods.onFocusedCellChanged(evt, 'customer_information')"
-                  @init-new-row="evt => methods.initNewRow(evt, 'customer_information')"
-                  >
-                  <dx-grid-toolbar>
-                      <dx-grid-item template="addCustomerInformationRowButton" location="after" :visible="!vars.formState.readOnly" />
-                      <dx-grid-item template="customerInformationSaveButton" location="after" :visible="false" />
-                      <dx-grid-item name="revertButton" location="after" />
-                  </dx-grid-toolbar>
-                  <template #addCustomerInformationRowButton>
-                      <dx-button text="고객정보 추가" icon="add" @click="methods.addItemRowButton('customer_information')" />
-                  </template>
-                  <template #customerInformationSaveButton>
-                      <dx-button text="저장" icon="save" @click="methods.itemSaveButton('customer_information')" />
-                  </template>
-                  <dx-column type="buttons" :visible="!vars.formState.readOnly"/>
-                  <dx-column caption="일자" data-field="information_date" data-type="date" format="yyyy-MM-dd" />
-                  <dx-column caption="고객담당자" data-field="manager">
-                    <!-- <dx-lookup value-expr="emp_name" display-expr="emp_name" :data-source="vars.dataSource.employee_list" /> -->
-                  </dx-column>
-                  <dx-column caption="연락처" data-field="manager_mobile" />
-                  <dx-column caption="이메일" data-field="manager_email" />
-                  <dx-column caption="메모" data-field="note" />
-                  <dx-column caption="등록자" data-field="register" :allow-editing="false" />
-                  <dx-column caption="등록일자" data-field="register_date" data-type="date" format="yyyy-MM-dd" :allow-editing="false" />
-                  <dx-scrolling mode="standard" />
-                  <dx-editing mode="batch"
-                    :use-icons="true"
-                    :allow-adding="!vars.formState.readOnly"
-                    :allow-updating="!vars.formState.readOnly"
-                    :allow-deleting="!vars.formState.readOnly"
-                    />
                 </dx-data-grid>
               </div>
             </template>
@@ -1174,7 +1178,7 @@ import {
   getProjectCostLog,
   getProjectCompletion,
   getProjectBusinessCost,
-  getProjectCustomerInformation
+  getProjectCustomerInformation 
 } from '../../data-source/project';
 import {
   baseCodeLoader,
@@ -1277,8 +1281,8 @@ export default {
       projectDailyLog: null,
       projectCostLog: null,
       projectCompletion: null,
+      fk_project_management_id : null,
     };
-
     vars.dlg.addItem = reactive({ show: false });
     vars.dlg.addBusinessCost = reactive({ show: false });
     vars.dlg.addQuoteItem = reactive({ show: false });
@@ -1317,13 +1321,6 @@ export default {
     });
     vars.attchFiles = reactive({})
     vars.filter = reactive({
-      common : [
-        { 
-          name: 'fk_business_id', 
-          op: 'eq', 
-          val: props.id || 0
-        }
-      ],
       items: [
         {
           name: 'fk_project_management_id',
@@ -1380,6 +1377,11 @@ export default {
           val: props.id || 0,
         },
       ],
+      customer_information: [
+        { 
+          name: 'fk_business_id', op: 'eq', val: props.id || 0 
+        }
+      ],
       businessCost: { fk_business_id : 0 },
       quoteItem: { fk_business_id : 0 },
     });
@@ -1403,7 +1405,7 @@ export default {
       projectCostLog: null,
       projectCompletion: null,
       work_type: null,
-
+      
     });
     vars.dataSource.customer_information = getProjectCustomerInformation(vars.filter.common);
 
@@ -1455,7 +1457,7 @@ export default {
         methods.gridProjectDailyLogRefresh(id);
         methods.gridProjectCostLogRefresh(id);
         methods.gridProjectCompletionRefresh(id);
-
+        
         if (!id) {
           methods.clearFormData();
           methods.gridQuoteItemsRefresh();
