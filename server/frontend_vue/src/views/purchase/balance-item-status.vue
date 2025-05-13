@@ -12,23 +12,23 @@
         </div>
 
         <div v-if="commonInit">
-        <div class="search-status">
-            <span class="search-title">일자</span>
-            <dx-date-box v-model:value="formData.startDate" />
-            <span class="search-bar">~</span>
-            <dx-date-box v-model:value="formData.endDate" />
-            
-            <span class="search-tab"></span>
-            <span class="search-title">거래처</span>
-            <dx-text-box :value="formData.clientName">
-            <dx-text-box-button name="search" location="after"
-                :options="{ icon: 'search', stylingMode: 'text', onClick: () => (dlg.findClient.show = true) }"
-            />
-            </dx-text-box>
+            <div class="search-status">
+                <span class="search-title">일자</span>
+                <dx-date-box v-model:value="formData.startDate" />
+                <span class="search-bar">~</span>
+                <dx-date-box v-model:value="formData.endDate" />
+                
+                <span class="search-tab"></span>
+                <span class="search-title">거래처</span>
+                <dx-text-box :value="formData.clientName">
+                <dx-text-box-button name="search" location="after"
+                    :options="{ icon: 'search', stylingMode: 'text', onClick: () => (dlg.findClient.show = true) }"
+                />
+                </dx-text-box>
 
-            <span class="search-tab"></span>
-            <dx-button text="검색" icon="search" @click="searchDateRange()" />
-        </div>
+                <span class="search-tab"></span>
+                <dx-button text="검색" icon="search" @click="searchDateRange()" />
+            </div>
         </div>
 
     </div>

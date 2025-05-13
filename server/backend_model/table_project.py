@@ -74,20 +74,6 @@ class ProjectBusinessProgress(db.Model): # 프로젝트 - 영업관리 - 진행�
     fk_business_id = db.Column('fk_business_id', db.Integer, db.ForeignKey(ProjectBusiness.id, onupdate="CASCADE", ondelete="CASCADE"), comment='영업 FK')
     business = db.relationship('ProjectBusiness', foreign_keys=[fk_business_id], lazy='joined')
 
-class ProjectBusinessNote(db.Model): # 프로젝트 - 영업관리 - 참고사항목록
-    __tablename__ = 'project_business_note'
-    __table_args__ = {
-        'comment': '영업관리(영업참고사항)'
-    }
-    id = db.Column('id', db.Integer, primary_key=True, comment='UID')
-    created = db.Column('created', db.DateTime, default=datetime.now, comment='생성시간')
-    note_date = db.Column('note_date', db.DateTime, comment='등록일자')
-    note_manager = db.Column('note_manager', db.String(48), comment='등록자')
-    note_detail = db.Column('note_detail', db.String(256), comment='상세내용')
-    fk_business_id = db.Column('fk_business_id', db.Integer, db.ForeignKey(ProjectBusiness.id, onupdate="CASCADE", ondelete="CASCADE"), comment='영업 FK')
-    Business = db.relationship('ProjectBusiness', foreign_keys=[fk_business_id], lazy='joined')
-
-
 class ProjectBusinessQuote(db.Model): # 프로젝트 - 영업관리 - 견적현황
     __tablename__ = 'project_business_quote'
     __table_args__ = {
@@ -103,6 +89,20 @@ class ProjectBusinessQuote(db.Model): # 프로젝트 - 영업관리 - 견적현�
     fk_business_id = db.Column('fk_business_id', db.Integer, db.ForeignKey(ProjectBusiness.id, onupdate="CASCADE", ondelete="CASCADE"), comment='영업 FK')
     business = db.relationship('ProjectBusiness', foreign_keys=[fk_business_id], lazy='joined')
 
+
+class ProjectBusinessNote(db.Model): # 프로젝트 - 영업관리 - 참고사항목록
+    __tablename__ = 'project_business_note'
+    __table_args__ = {
+        'comment': '영업관리(영업참고사항)'
+    }
+    id = db.Column('id', db.Integer, primary_key=True, comment='UID')
+    created = db.Column('created', db.DateTime, default=datetime.now, comment='생성시간')
+    note_date = db.Column('note_date', db.DateTime, comment='등록일자')
+    note_manager = db.Column('note_manager', db.String(48), comment='등록자')
+    note_detail = db.Column('note_detail', db.String(256), comment='상세내용')
+    fk_business_id = db.Column('fk_business_id', db.Integer, db.ForeignKey(ProjectBusiness.id, onupdate="CASCADE", ondelete="CASCADE"), comment='영업 FK')
+    Business = db.relationship('ProjectBusiness', foreign_keys=[fk_business_id], lazy='joined')
+    
 class ProjectBusinessCost(db.Model): # 프로젝트 - 영업관리 - 원가검토
     __tablename__ = 'project_business_cost'
     __table_args__ = {

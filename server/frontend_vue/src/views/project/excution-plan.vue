@@ -1448,7 +1448,7 @@ export default {
             vars.warehouse = {};
           }
         }
-       
+
       },
 
       async deleteItem() {
