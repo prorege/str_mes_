@@ -156,6 +156,7 @@ class ProjectManagement(db.Model):  # 프로젝트관리 - 프로젝트
     contract_date = db.Column('contract_date', db.DateTime, comment='계약일자')
     defect_end_date = db.Column('defect_end_date', db.DateTime, comment='하자만기')
     contract_amount = db.Column('contract_amount', db.BigInteger, comment='원청금액')
+    commencement_date = db.Column('commencement_date', db.DateTime, comment='착공일자')
     contract_vat_type = db.Column('contract_vat_type', db.String(48), comment='원청금액부가세구분')
     completion_date = db.Column('completion_date', db.DateTime, comment='준공일자')
     defect_period = db.Column('defect_period', db.String(48), comment='하자기간')

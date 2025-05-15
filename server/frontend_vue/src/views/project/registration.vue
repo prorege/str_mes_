@@ -174,6 +174,20 @@
               >
                 <dx-label text="계약일자" :show-colon="false" />
               </dx-simple-item>
+
+              <dx-simple-item
+                data-field="commencement_date"
+                editor-type="dxDateBox"
+                :editor-options="{
+                  dateSerializationFormat: 'yyyy-MM-ddTHH:mm:ss',
+                  showClearButton: true,
+                  useMaskBehavior: true,
+                  ...vars.formState,
+                }"
+              >
+                <dx-label text="착공일자" :show-colon="false" />
+              </dx-simple-item>
+
               <dx-simple-item
                 data-field="defect_end_date"
                 editor-type="dxDateBox"
@@ -186,17 +200,7 @@
               >
                 <dx-label text="하자만기" :show-colon="false" />
               </dx-simple-item>
-              <dx-simple-item
-                data-field="contract_amount"
-                editor-type="dxNumberBox"
-                :editor-options="{
-                  format: 'currency',
-                  onValueChanged: methods.onContractAmountChanged,
-                  ...vars.formState,
-                }"
-              >
-                <dx-label text="원청금액" :show-colon="false" />
-              </dx-simple-item>
+
               <dx-simple-item data-field="contract_vat_type" editor-type="dxSelectBox"
                 :editor-options="{
                   dataSource: vars.dataSource.vat_type,
@@ -222,6 +226,17 @@
               >
                 <dx-label text="준공일자" :show-colon="false" />
               </dx-simple-item>
+              
+              <dx-simple-item
+                data-field="company_amount"
+                editor-type="dxNumberBox"
+                :editor-options="{
+                  format: 'currency',
+                  onValueChanged: methods.onCompanyAmountChanged,
+                }"
+              >
+                <dx-label text="계약금액" :show-colon="false" />
+              </dx-simple-item>
               <dx-simple-item
                 data-field="defect_period" editor-type="dxSelectBox"
                 :editor-options="{
@@ -233,16 +248,6 @@
                 }"
               >
                 <dx-label text="하자기간" :show-colon="false" />
-              </dx-simple-item>
-              <dx-simple-item
-                data-field="company_amount"
-                editor-type="dxNumberBox"
-                :editor-options="{
-                  format: 'currency',
-                  onValueChanged: methods.onCompanyAmountChanged,
-                }"
-              >
-                <dx-label text="계약금액" :show-colon="false" />
               </dx-simple-item>
               <dx-simple-item data-field="company_vat_type" editor-type="dxSelectBox"
                 :editor-options="{
@@ -1354,6 +1359,7 @@ export default {
       project_department: '', // 등록부서
       project_manager: '', // 등록담당자
       contract_date: '', // 계약일자
+      commencement_date: '', //착공일자
       defect_end_date: '', // 하자만기
       contract_amount: 0, // 원청금액
       non_invoice: 0,
@@ -1556,6 +1562,7 @@ export default {
         vars.formData.project_department = '', // 
         vars.formData.project_manager = '', // 
         vars.formData.contract_date = '', // 
+        vars.formData.commencement_date = '', // 
         vars.formData.defect_end_date = '', // 
         vars.formData.contract_amount = 0, // 
         vars.formData.non_invoice = 0, // 
@@ -1657,6 +1664,7 @@ export default {
         vars.formData.project_department = authService.getDepartmentName();
         vars.formData.project_manager = authService.getUserName();
         vars.formData.contract_date = currentDateTime();
+        vars.formData.commencement_date = currentDateTime();
         vars.formData.project_date = currentDateTime();
         vars.formData.defect_end_date = currentDateTime();
         vars.formData.completion_date = currentDateTime();
