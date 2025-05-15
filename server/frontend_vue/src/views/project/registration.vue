@@ -1429,12 +1429,12 @@ export default {
       ],
       customer_information: [
         { 
-          name: 'fk_business_id', op: 'eq', val: props.id || 0 
+          name: 'fk_business_id', op: 'eq', val: 0 
         }
       ],
       note : [
         { 
-          name: 'fk_business_id', op: 'eq', val: props.id || 0 
+          name: 'fk_business_id', op: 'eq', val: 0 
         }
       ],
       businessCost: { fk_business_id : 0 },
@@ -1462,9 +1462,9 @@ export default {
       work_type: null,
       
     });
-    vars.dataSource.note = getProjectBusinessNote(vars.filter.common);
+    vars.dataSource.note = getProjectBusinessNote(vars.filter.note);
 
-    vars.dataSource.customer_information = getProjectCustomerInformation(vars.filter.common);
+    vars.dataSource.customer_information = getProjectCustomerInformation(vars.filter.customer_information);
 
     vars.dataSource.items = getProjectItem(vars.filter.items);
     
@@ -1503,6 +1503,7 @@ export default {
 
     // public methods
     const methods = {
+      // 프로젝트 찾기를 누르면 돋보기 누르면 쭉 뜸. 프로젝트를 눌렀을 때 조회하는 method
       async initById(id) {
 
         vars.init.value = true;
@@ -1514,7 +1515,7 @@ export default {
         methods.gridProjectDailyLogRefresh(id);
         methods.gridProjectCostLogRefresh(id);
         methods.gridProjectCompletionRefresh(id);
-        
+        // 아이디 없으면 끝냄(props)
         if (!id) {
           methods.clearFormData();
           methods.gridQuoteItemsRefresh();
@@ -1526,6 +1527,13 @@ export default {
         }
 
         let { data } = await projectRegistration.byKey(id);
+        // 필터를 넣어줌
+        vars.filter.customer_information[0].val = data.fk_business_id ? data.fk_business_id : 0;
+        vars.filter.note[0].val = data.fk_business_id ? data.fk_business_id : 0;
+        // 이 시점에서 값을 조회되도록 해줌
+        vars.dataSource.customer_information = getProjectCustomerInformation(vars.filter.customer_information);
+        vars.dataSource.note = getProjectBusinessNote(vars.filter.note);
+
         Object.assign(vars.formData, data);
         methods.gridQuoteItemsRefresh();
         methods.gridBusinessCostRefresh();
