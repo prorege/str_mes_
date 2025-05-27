@@ -7,7 +7,7 @@ import {
 } from 'devextreme-vue/data-grid';
 import DxButton from 'devextreme-vue/button';
 import { DxSelectBox } from 'devextreme-vue/select-box'
-import { setupSgaExpense } from '@/data-source/setup'
+import { setupMD } from '@/data-source/setup'
 import { ref, watch } from 'vue'
 
 let grid = undefined
@@ -20,7 +20,7 @@ function initialized (component) {
 <template>
   
 <dx-data-grid
-  :data-source="setupSgaExpense"
+  :data-source="setupMD"
   :column-auto-width="true"
   :allow-column-reordering="true"
   :show-borders="true"
@@ -33,10 +33,9 @@ function initialized (component) {
     :allow-editing="true"
   />
   <dx-column
-    data-field="rate"
-    caption="비율"
+    data-field="md"
+    caption="M/D"
     data-type="number"
-    format="percent"
     :allow-editing="true"
     alignment="left"
   />

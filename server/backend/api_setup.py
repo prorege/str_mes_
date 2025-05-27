@@ -208,6 +208,20 @@ manager.create_api(SetupSgaExpense,
                        'DELETE_SINGLE': [check_token]
                    })
 
+manager.create_api(SetupMD,
+                   url_prefix='/api/mes/v1/setup',
+                   collection_name='md',
+                   methods=['GET', 'DELETE', 'PATCH', 'POST'],
+                   allow_patch_many=True,
+                   max_results_per_page=100000000,
+                   preprocessors={
+                       'POST': [check_token],
+                       'PATCH_SINGLE': [check_token],
+                       'GET_SINGLE': [check_token],
+                       'GET_MANY': [check_token],
+                       'DELETE_SINGLE': [check_token]
+                   })
+
 @app.route('/api/server/v1/logo-upload/<int:company_id>', methods=['POST'])
 def logo_upload(company_id):
     f = request.files['files[]']

@@ -61,6 +61,13 @@
               </div>
             </template>
           </dx-item>
+          <dx-item title="M/D관리" icon="money">
+            <template #default>
+              <div class="tab-setup">
+                <setup-MD/>
+              </div>
+            </template>
+          </dx-item>
         </dx-tab-panel>
 
       </div>
@@ -79,6 +86,7 @@ import SetupNumbering from './setup-numbering.vue';
 import setupProduceCost from './setup-produce-cost.vue';
 import setupControl from './setup-control.vue';
 import setupSgaExpense from './setup-sga-expense.vue';
+import setupMD from './setup-MD.vue';
 
 export default {
   components: {
@@ -91,7 +99,8 @@ export default {
     SetupNumbering,
     setupProduceCost,
     setupControl,
-    setupSgaExpense
+    setupSgaExpense,
+    setupMD
   },
   setup() {
     return {};

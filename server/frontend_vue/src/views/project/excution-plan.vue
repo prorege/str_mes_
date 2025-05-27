@@ -687,11 +687,11 @@
                   <dx-column data-field="expense_date" caption="지출일자" data-type="date" format="yyyy-MM-dd" />
                   <dx-column data-field="register" caption="등록자" :allow-editing="false"  />
                   <dx-column data-field="created" caption="등록일자" data-type="date" format="yyyy-MM-dd" :allow-editing="false" />
-                  <dx-summary :recalculate-while-editing="true" :calculate-custom-summary="methods.calcSummaryExpense">
+                  <!-- <dx-summary :recalculate-while-editing="true" :calculate-custom-summary="methods.calcSummaryExpense">
                     <dx-total-item name="expense_amount" summary-type="custom" />
                     <dx-total-item name="excution_amount" summary-type="custom" />
                     <dx-total-item name="vat" summary-type="custom" />
-                  </dx-summary>
+                  </dx-summary> -->
 
                   <dx-editing mode="batch"
                     :allow-adding="!vars.formState.readOnly"

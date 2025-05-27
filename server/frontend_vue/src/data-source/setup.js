@@ -16,6 +16,8 @@ const setupProduceCost = new RestlessStore(
   ['year', 'subfix', 'fk_company_id']
 );
 const setupSgaExpense = new RestlessStore('/api/mes/v1/setup/sga_expense');
+const setupMD = new RestlessStore('/api/mes/v1/setup/md');
+
 const getSetupBasicStock = (defaultFilters) => {
   const instance = new RestlessStore('/api/mes/v1/setup/basic_stock');
   instance.defaultFilters = defaultFilters;
@@ -79,6 +81,12 @@ const getSetupSgaExpense = (defaultFilters) => {
   return instance;
 };
 
+const getSetupMD = (defaultFilters) => {
+  const instance = new RestlessStore('/api/mes/v1/setup/md');
+  instance.defaultFilters = defaultFilters;
+  return instance;
+};
+
 // 데이터 변경
 // const setupMenu = new RestlessStore(
 //   '/api/mes/v1/setup/menu',
@@ -115,6 +123,7 @@ export {
   setupControl,
   setupProduceCost,
   setupSgaExpense,
+  setupMD,
   getSetupBasicStock,
   getSetupBasicBalance,
   getStock,
@@ -122,4 +131,5 @@ export {
   getSetupCodeChangeHistory,
   getSetupMenu,
   getSetupSgaExpense,
+  getSetupMD,
 };

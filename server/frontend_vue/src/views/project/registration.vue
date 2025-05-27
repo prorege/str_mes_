@@ -179,15 +179,12 @@
                 data-field="commencement_date"
                 editor-type="dxDateBox"
                 :editor-options="{
-                  dateSerializationFormat: 'yyyy-MM-ddTHH:mm:ss',
-                  showClearButton: true,
-                  useMaskBehavior: true,
+                  onValueChanged: methods.onContractAmountChanged,
                   ...vars.formState,
                 }"
               >
                 <dx-label text="착공일자" :show-colon="false" />
               </dx-simple-item>
-
               <dx-simple-item
                 data-field="defect_end_date"
                 editor-type="dxDateBox"
@@ -200,7 +197,7 @@
               >
                 <dx-label text="하자만기" :show-colon="false" />
               </dx-simple-item>
-
+            
               <dx-simple-item data-field="contract_vat_type" editor-type="dxSelectBox"
                 :editor-options="{
                   dataSource: vars.dataSource.vat_type,
@@ -237,6 +234,7 @@
               >
                 <dx-label text="계약금액" :show-colon="false" />
               </dx-simple-item>
+
               <dx-simple-item
                 data-field="defect_period" editor-type="dxSelectBox"
                 :editor-options="{
@@ -249,6 +247,7 @@
               >
                 <dx-label text="하자기간" :show-colon="false" />
               </dx-simple-item>
+              
               <dx-simple-item data-field="company_vat_type" editor-type="dxSelectBox"
                 :editor-options="{
                   dataSource: vars.dataSource.vat_type,
@@ -1359,9 +1358,9 @@ export default {
       project_department: '', // 등록부서
       project_manager: '', // 등록담당자
       contract_date: '', // 계약일자
-      commencement_date: '', //착공일자
       defect_end_date: '', // 하자만기
-      contract_amount: 0, // 원청금액
+      //contract_amount: 0, // 원청금액
+      commencement_date : '', //착공일자
       non_invoice: 0,
       contract_vat_type: '', // 부가세 구분
       company_vat_type: '', // 부가세 구분
@@ -1375,6 +1374,7 @@ export default {
       fk_business_id: null,
       fk_company_id: authService._user.fk_company_id,
     });
+    vars.formData.commencement_date = moment(vars.formData.commencement_date).format('YYYY-MM-DD');
     vars.attchFiles = reactive({})
     vars.filter = reactive({
       items: [
@@ -1497,6 +1497,7 @@ export default {
       exportToWorkOrder: false,
     });
 
+    
     onMounted(async () => {
       await loadDepartment(vars.dataSource);
       await methods.loadBaseCode();
@@ -1562,9 +1563,9 @@ export default {
         vars.formData.project_department = '', // 
         vars.formData.project_manager = '', // 
         vars.formData.contract_date = '', // 
-        vars.formData.commencement_date = '', // 
         vars.formData.defect_end_date = '', // 
-        vars.formData.contract_amount = 0, // 
+        //vars.formData.contract_amount = 0, // 
+        vars.formData.commencement_date = '', //착공일자
         vars.formData.non_invoice = 0, // 
         vars.formData.contract_vat_type = '', // 
         vars.formData.company_vat_type = '', // 
@@ -1664,7 +1665,6 @@ export default {
         vars.formData.project_department = authService.getDepartmentName();
         vars.formData.project_manager = authService.getUserName();
         vars.formData.contract_date = currentDateTime();
-        vars.formData.commencement_date = currentDateTime();
         vars.formData.project_date = currentDateTime();
         vars.formData.defect_end_date = currentDateTime();
         vars.formData.completion_date = currentDateTime();
@@ -2121,7 +2121,8 @@ export default {
         } finally {
           vars.loading.value = false;
         }
-        
+        console.log('저장 직전 날짜:', vars.formData.commencement_date);
+
       },
       selectDepartment(e) {
         const selectItem = e.component.option('selectedItem');
@@ -2246,38 +2247,76 @@ export default {
           }
         }
       },
-      onContractVatTypeChanged(e){
-        if(!e.event) return;
-        methods.calculateContractRatio();
-      },
+      // ❌ 삭제: 더 이상 사용되지 않음
+      // onContractVatTypeChanged(e) { ... }
+
+      // ✅ 유지
       onCompanyVatTypeChanged(e) {
-        if(!e.event) return;
+        if (!e.event) return;
         methods.calculateContractRatio();
       },
-      onContractAmountChanged(e){
-        if(!e.event) return;
-        methods.calculateContractRatio();
-      },
-      onCompanyAmountChanged(e){
-        if(!e.event) return;
+
+      // ❌ 삭제: contract_amount와 연결되었으므로 제거
+      // onContractAmountChanged(e) { ... }
+
+      // ✅ 유지
+      onCompanyAmountChanged(e) {
+        if (!e.event) return;
         vars.formData.non_invoice = e.value;
         methods.calculateContractRatio();
       },
+
+      // 🔄 수정된 계산 로직: company_amount만 사용
       calculateContractRatio() {
-          if (vars.formData.contract_amount === 0) {
-            vars.formData.subcontracting_rate = 0 + "%";
-            return;
-          }
-          const contract_response = calcPriceSummary(vars.formData.contract_vat_type, vars.formData.contract_amount);
-          const company_response = calcPriceSummary(vars.formData.company_vat_type, vars.formData.company_amount);
-
-          const ratio = (company_response.supply_price / contract_response.supply_price) * 100;
-
-          const roundedRatio = Math.ceil(ratio * 1000) / 1000;
-   
-          vars.formData.subcontracting_rate = roundedRatio.toFixed(2) + "%";
+        if (vars.formData.company_amount === 0) {
+          vars.formData.subcontracting_rate = '0.00%';
           return;
+        }
+
+        const company_response = calcPriceSummary(
+          vars.formData.company_vat_type,
+          vars.formData.company_amount
+        );
+
+        // 하도급률이 의미 있다면 하도급 금액 기준으로 계산 (예: company_amount 중 하도급 비율)
+        // 지금은 기준이 하나뿐이라 비율은 항상 100% (또는 0%로 설정할 수도 있음)
+        const ratio = 100;
+
+        vars.formData.subcontracting_rate = ratio.toFixed(2) + '%';
       },
+
+      // onContractVatTypeChanged(e){
+      //   if(!e.event) return;
+      //   methods.calculateContractRatio();
+      // },
+      // onCompanyVatTypeChanged(e) {
+      //   if(!e.event) return;
+      //   methods.calculateContractRatio();
+      // },
+      // onContractAmountChanged(e){
+      //   if(!e.event) return;
+      //   methods.calculateContractRatio();
+      // },
+      // onCompanyAmountChanged(e){
+      //   if(!e.event) return;
+      //   vars.formData.non_invoice = e.value;
+      //   methods.calculateContractRatio();
+      // },
+      // calculateContractRatio() {
+      //     if (vars.formData.contract_amount === 0) {
+      //       vars.formData.subcontracting_rate = 0 + "%";
+      //       return;
+      //     }
+      //     const contract_response = calcPriceSummary(vars.formData.contract_vat_type, vars.formData.contract_amount);
+      //     const company_response = calcPriceSummary(vars.formData.company_vat_type, vars.formData.company_amount);
+
+      //     const ratio = (company_response.supply_price / contract_response.supply_price) * 100;
+
+      //     const roundedRatio = Math.ceil(ratio * 1000) / 1000;
+   
+      //     vars.formData.subcontracting_rate = roundedRatio.toFixed(2) + "%";
+      //     return;
+      // },
       defectPeriodChanged(e){
         if(!vars.formData.completion_date) return;
         methods.calDefectPeriod(e.value);

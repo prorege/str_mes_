@@ -1,5 +1,88 @@
-*.pyc
-server/frontend_vue/node_modules/
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+*.egg
+*.log
+*.sqlite3
+*.db
+*.env
+.env
+.env.*
 venv/
-server/frontend_vue/dist/
+build/
+dist/
+pip-log.txt
+htmlcov/
+coverage.xml
+.tox/
+.mypy_cache/
+.pytest_cache/
+.dmypy.json
+.pyre/
+.cache/
+.pytype/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Node.js (Vue 포함)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-lock.yaml
+package-lock.json
+*.tsbuildinfo
+
+# Vue / Frontend
+dist/
+*.local
+.vite/
+*.map
+*.gz
+*.zip
+
+# ESLint / Prettier
+.eslintcache
+
+# OS Files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Icon?
+Desktop.ini
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Git
+*.orig
+
+# SQL/DB Dumps
 *.sql
+*.sqlite
+*.bak
+*.dump
+
+# Test / Coverage
+coverage/
+nosetests.xml
+test-results.xml
+junit-*.xml
+
+# Others
+*.log
+*.swp
+*.tmp
+*.bak
+*.old
+
+# Project Specific
+server/frontend_vue/node_modules/
+server/frontend_vue/dist/

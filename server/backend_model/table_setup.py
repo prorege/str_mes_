@@ -256,6 +256,17 @@ class SetupSgaExpense(db.Model):
     rate = db.Column('rate', db.Integer, comment='비율')
     fk_company_id = db.Column('fk_company_id', db.Integer, db.ForeignKey(Companies.id), comment='회사테이블 FK')
     
+class SetupMD(db.Model):
+    __tablename__ = 'setup_md'
+    __table_args__ = {
+        'comment': 'M/D'
+    }
+    id = db.Column('id', db.Integer, primary_key=True, comment='UID')
+    created = db.Column('created', db.DateTime, default=datetime.now, comment='생성시간')
+    name = db.Column('name', db.String(48), comment='비용명')
+    md = db.Column('md', db.Integer, comment='M/D')
+    fk_company_id = db.Column('fk_company_id', db.Integer, db.ForeignKey(Companies.id), comment='회사테이블 FK')
+        
     
 
 # ----------------------------------------------------------------------------------------------------------------------
