@@ -309,6 +309,7 @@ class ProjectExcutionPlan(db.Model): # 프로젝트 - 실행계획
     contract_amount = db.Column('contract_amount', db.BigInteger, comment='계약금액')
     expect_amount = db.Column('expect_amount', db.BigInteger, comment='예정금액')
     excution_amount = db.Column('excution_amount', db.BigInteger, comment='실행금액')
+    business_completion_amount = db.Column('business_completion_amount', db.BigInteger, comment='사업완료금액')
     contract_to_expect_rate = db.Column('contract_to_expect_rate', db.Float, comment='계약대비예정률')
     expect_to_excution_rate = db.Column('expect_to_excution_rate', db.Float, comment='예정대비실행률')
     contract_to_excution_rate = db.Column('contract_to_excution_rate', db.Float, comment='계약대비실행률')

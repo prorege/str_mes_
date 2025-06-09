@@ -31,7 +31,6 @@
                 text: '수정',
                 type: 'rename',
                 icon: 'rename',
-                disabled: vars.formData.approval_status == '최종승인' ? true : vars.disabled.edit,
                 onClick: methods.editItem,
               }"
             />
@@ -1085,9 +1084,6 @@ export default {
       expect_amount: 0,
       excution_amount: 0,
       business_completion_amount: 0,
-      day_amount: 0,
-      time_amount: 0,
-      plan_amount: 0,
       contract_to_expect_rate: 0,
       expect_to_excution_rate: 0,
       contract_to_excution_rate: 0,
@@ -1215,18 +1211,15 @@ export default {
         vars.formData.excution_plan_date = null, 
         vars.formData.excution_plan_department = '', 
         vars.formData.excution_plan_manager = '',
-        vars.formData.approval_status = '', 
-        vars.formData.reject_reason = '', 
+        vars.formData.approval_status = '',
+        vars.formData.reject_reason = '',
         vars.formData.contract_amount = 0,
         vars.formData.expect_amount = 0,
         vars.formData.excution_amount = 0,
-        vars.formData.plan_amount = 0,
-        vars.formData.time_amount = 0,
-        vars.formData.day_amount = 0,
         vars.formData.contract_to_expect_rate = 0,
         vars.formData.expect_to_excution_rate = 0,
         vars.formData.contract_to_excution_rate = 0,
-        vars.formData.modify_manager = '', 
+        vars.formData.modify_manager = '',
         vars.formData.modify_date = null,
         vars.formData.fk_project_management_id = null;
         vars.formData.fk_company_id = authService.getCompanyId();
@@ -1482,13 +1475,13 @@ export default {
           const planExpense = vars.grid.projectExcutionPlanExpense;
 
           // 숫자 필드 NaN 방지
-          const sanitizeNumbers = (obj) => {
-            ['excution_amount', 'expect_amount', 'time_amount', 'day_amount', 'plan_amount'].forEach((field) => {
-              if (isNaN(obj[field])) {
-                obj[field] = 0;
-              }
-            });
-          };
+          // const sanitizeNumbers = (obj) => {
+          //   ['excution_amount', 'expect_amount', 'time_amount', 'day_amount', 'plan_amount'].forEach((field) => {
+          //     if (isNaN(obj[field])) {
+          //       obj[field] = 0;
+          //     }
+          //   });
+          // };
 
           if (vars.formData.id) {
             // 기존 정보 업데이트 (PATCH)
@@ -1500,7 +1493,7 @@ export default {
             delete updateData.excution_plan_number;
             delete updateData.project_management;
 
-            sanitizeNumbers(updateData);
+            // sanitizeNumbers(updateData);
 
             console.log('🔧 PATCH 데이터:', updateData);
 
@@ -1526,7 +1519,7 @@ export default {
             delete insertData.id;
             delete insertData.project_management;
 
-            sanitizeNumbers(insertData);
+            // sanitizeNumbers(insertData);
 
             // 필수값 보완
             if (!insertData.excution_plan_department) {
