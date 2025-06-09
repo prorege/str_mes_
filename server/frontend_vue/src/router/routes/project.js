@@ -12,6 +12,9 @@ import businessTripLog from '@/views/project/business-trip-log';
 import businessTripLogStatus from '@/views/project/business-trip-log-status';
 import excutionPlanToOrder from '@/views/project/excution-plan-to-order';
 import happyCall from '@/views/project/happy-call';
+import mdRegistration from '@/views/project/md-registration';
+import mdStatus from '@/views/project/md-status';
+
 export default [
   {
     path: '/project/registration',
@@ -108,4 +111,14 @@ export default [
     meta: { requiresAuth: true, layout: defaultLayout },
     component: happyCall,
   },
+  {
+    path: '/project/md-registration',
+    meta: { requiresAuth: true, layout: defaultLayout },
+    component: mdRegistration,
+  },
+  {
+    path: '/project/md-status',
+    meta: { requiresAuth: true, layout: defaultLayout },
+    component: mdStatus,
+  }
 ];

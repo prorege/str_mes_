@@ -18,7 +18,7 @@
     <dx-column caption="등록담당자" data-field="project_manager" />
     <dx-column caption="계약일자" data-field="contract_date" data-type="date" format="yyyy-MM-dd" />
     <dx-column caption="하자만기" data-field="defect_end_date" data-type="date" format="yyyy-MM-dd" />
-    <dx-column caption="원청금액" data-field="contract_amount" />
+    <dx-column caption="착공일자" data-field="commencement_date" data-type="date" format="yyyy-MM-dd"/>
     <dx-column caption="준공일자" data-field="completion_date" data-type="date" format="yyyy-MM-dd" />
     <dx-column caption="하자기간" data-field="defect_period" />
     <dx-column caption="자사금액" data-field="company_amount" />

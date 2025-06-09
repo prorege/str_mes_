@@ -43,7 +43,7 @@ const projectExcutionPlanSubcontract = new RestlessStore(
 );
 
 const projectExcutionPlanExpense = new RestlessStore(
-  '/api/mes/v1/project/excution_plan_expenxe'
+  '/api/mes/v1/project/excution_plan_expense'
 );
 
 const projectBusinessTripLog = new RestlessStore(
@@ -157,7 +157,7 @@ const getProjectExcutionPlanSubcontract = defaultFilters => {
 };
 
 const getProjectExcutionPlanExpense = defaultFilters => {
-  const instance = new RestlessStore('/api/mes/v1/project/excution_plan_expenxe');
+  const instance = new RestlessStore('/api/mes/v1/project/excution_plan_expense');
   instance.defaultFilters = defaultFilters;
   return instance;
 };

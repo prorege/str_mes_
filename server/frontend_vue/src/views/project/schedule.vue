@@ -27,7 +27,7 @@
                   <dx-label text="프로젝트번호" :show-colon="false" />
                 </dx-simple-item>
                 <dx-simple-item
-                  data-field="contract_begin_date"
+                  data-field="contract_date"
                   editor-type="dxDateBox"
                   :editor-options="{readOnly: true}">
                   <dx-label text="계약시작일" :show-colon="false" />
@@ -41,7 +41,7 @@
             </dx-group-item>
             <dx-group-item>
               <dx-simple-item
-                data-field="contract_end_date"
+                data-field="completion_date"
                 editor-type="dxDateBox"
                 :editor-options="{readOnly: true}">
                 <dx-label text="계약종료일" :show-colon="false" />
@@ -104,7 +104,7 @@
       </div>
     </div>
 
-    <dx-popup 
+    <dx-popup
       v-model:visible="vars.status.dlgProject"
       content-template="popup-content"
       title="프로젝트 선택"
@@ -126,8 +126,11 @@
           <dx-grid-column data-field="project_number" caption="프로젝트번호" />
           <dx-grid-column data-field="project_name" caption="프로젝트명" />
           <dx-grid-column data-field="contract_date" caption="계약일자" data-type="date" format="yyyy-MM-dd" />
-          <dx-grid-column data-field="contract_begin_date" caption="계약기간(시작)" data-type="date" format="yyyy-MM-dd" />
-          <dx-grid-column data-field="contract_end_date" caption="계약기간(종료)" data-type="date" format="yyyy-MM-dd" />
+<!-- 프로젝트 계약일자 -->
+<dx-grid-column data-field="contract_date" caption="계약기간(시작)" data-type="date" format="yyyy-MM-dd" />
+
+<!-- 프로젝트 준공일자 -->
+<dx-grid-column data-field="completion_date" caption="계약기간(종료)" data-type="date" format="yyyy-MM-dd" />
           <dx-grid-column data-field="contract_amount" caption="계약금액" :format="{ type: 'fixedPoint', precision: 2 }" />
           <dx-paging :page-size="20"/>
           <dx-filter-row :visible="true"/>
@@ -175,8 +178,10 @@ export default {
       id: null,
       project_number: null,
       project_name: null,
-      contract_begin_date: null,
-      contract_end_date: null,
+      // contract_begin_date: null,
+      // contract_end_date: null,
+      contract_date: null,
+      completion_date: null,
       total_progress: 0
     })
     vars.status = reactive({
@@ -239,6 +244,7 @@ export default {
       use_price: null
       */
      vars.formData.value = evt.data
+
       if (!vars.formData.value.total_progress) vars.formData.value.total_progress = 0
       vars.components['project-schdule-form'].beginUpdate()
       vars.components['project-schdule-form'].updateData(vars.formData.value)

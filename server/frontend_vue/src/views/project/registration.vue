@@ -198,17 +198,7 @@
                 <dx-label text="하자만기" :show-colon="false" />
               </dx-simple-item>
             
-              <dx-simple-item data-field="contract_vat_type" editor-type="dxSelectBox"
-                :editor-options="{
-                  dataSource: vars.dataSource.vat_type,
-                  displayExpr: 'code_name',
-                  valueExpr: 'code_name',
-                  onValueChanged: methods.onContractVatTypeChanged,
-                  ...vars.formState,
-                }"
-              >
-                <dx-label text="부가세구분" :show-colon="false" />
-              </dx-simple-item>
+              
             </dx-group-item>
             <dx-group-item>
               <dx-simple-item
@@ -1566,10 +1556,10 @@ export default {
         vars.formData.defect_end_date = '', // 
         //vars.formData.contract_amount = 0, // 
         vars.formData.commencement_date = '', //착공일자
-        vars.formData.non_invoice = 0, // 
+        vars.formData.non_invoice = 0, // 미계산서
         vars.formData.contract_vat_type = '', // 
         vars.formData.company_vat_type = '', // 
-        vars.formData.completion_date = '', // 
+        vars.formData.completion_date = '', // 계약완료
         vars.formData.subcontracting_rate = 0, // 
         vars.formData.defect_period = '', // 
         vars.formData.company_amount = 0, // 
@@ -1694,6 +1684,8 @@ export default {
         if(!grid) return;
         grid.refresh();
       },
+
+      
       async gridItemsRefresh(id) {
         if (!id) id = 0;
         vars.filter.items[0].val = id;
@@ -2008,6 +2000,8 @@ export default {
           const projectDailyLog = vars.grid.projectDailyLog;
           const projectCostLog = vars.grid.projectCostLog;
           const projectCompletion = vars.grid.projectCompletion;
+          const projectNote = vars.grid.note;
+          const projectCustomerInformation = vars.grid.customer_information;
           if (vars.formData.id) {
             // 기존 정보 업데이트
             vars.formData.modify_manager = authService.getUserName();
@@ -2024,12 +2018,18 @@ export default {
               vars.formData.id,
               updateDate
             );
+            if (projectNote) {
+              await projectNote.saveEditData();
+            }
 
+            if (projectCustomerInformation) {
+              await projectCustomerInformation.saveEditData();
+            }            
             if (items) {
               await items.saveEditData();
               await methods.exportToVisible();
             }
-            
+ 
             if (projectParticipant) {
               await projectParticipant.saveEditData();
             }
@@ -2074,7 +2074,12 @@ export default {
             let { data } = await projectRegistration.insert(vars.formData);
             vars.formData.id = data.id;
 
-            
+            if (projectNote && projectNote.hasEditData()) {
+              await projectNote.saveEditData();
+            }
+            if (projectCustomerInformation && projectCustomerInformation.hasEditData()) {
+              await projectCustomerInformation.saveEditData();
+            }                        
             if (items && items.hasEditData()) {
               await items.saveEditData();
             }
@@ -2568,17 +2573,18 @@ export default {
       },
       onSavingItem(e) {
         e.promise = methods.onSavingItemImpl(e);
-      
       },
       async onSavingItemImpl(e){
         for(const element of e.changes){
           if(element.type != 'remove'){
             element.data.fk_project_management_id = vars.formData.id;
+            element.data.fk_business_id = vars.formData.fk_business_id;        // ✅ 외래키 (영업건 ID)      
             delete element.data.item;
             await methods.updateUploadFile(element)
           }
         }
       },
+
       onFocusedCellChanged(e, item){
         vars.focus[item] = e;
       },

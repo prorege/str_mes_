@@ -156,19 +156,6 @@
               >
                 <dx-label text="반려사유" :show-colon="false" />
               </dx-simple-item>
-              <dx-simple-item
-                data-field="business_completion_amount"
-                editor-type="dxNumberBox"
-                :editor-options="{
-                  format: 'currency',
-                  readOnly: true,
-                  ...vars.formState,
-                }"
-                :set-cell-value="methods.setBusinessCompletionAmount"
-
-              >
-                <dx-label text="사업완료금액" :show-colon="false" />
-              </dx-simple-item>
             </dx-group-item>
               
             <dx-group-item>
@@ -179,7 +166,6 @@
                   format: 'currency',
                   ...vars.formState,
                 }"
-                
               >
                 <dx-label text="계약금액" :show-colon="false" />
               </dx-simple-item>
@@ -470,7 +456,6 @@
                     <dx-total-item name="purchase_supply_price" summary-type="custom" />
                     <dx-total-item name="supply_price" summary-type="custom" />
                     <dx-total-item name="vat" summary-type="custom" />
-                    <dx-total-item name="completion_price" summary-type="custom" />
                   </dx-summary>
 
                   <dx-editing
@@ -493,8 +478,6 @@
                     <td>{{ '₩' + numeral(vars.summary.planItem.vat).format('0,0') }}</td>
                     <th>예정 합계금액:</th>
                     <td>{{ '₩' + numeral(vars.summary.planItem.total_price).format('0,0') }}</td>
-                    <th>실행금액:</th>
-                    <td>{{ '₩' + numeral(vars.summary.planItem.completion_price).format('0,0') }}</td>
                   </tr>
                 </table>
               </div>
@@ -621,8 +604,6 @@
                     <dx-total-item name="expect_amount" summary-type="custom" />
                     <dx-total-item name="purchase_unit_price" summary-type="custom" />
                     <dx-total-item name="vat" summary-type="custom" />
-                    <dx-total-item name="completion_price" summary-type="custom" />
-
                   </dx-summary>
 
 
@@ -645,8 +626,6 @@
                     <td>{{ '₩' + numeral(vars.summary.planSubcontract.vat).format('0,0') }}</td>
                     <th>예정 합계금액:</th>
                     <td>{{ '₩' + numeral(vars.summary.planSubcontract.total_price).format('0,0') }}</td>
-                    <th>실행금액:</th>
-                    <td>{{ '₩' + numeral(vars.summary.planSubcontract.completion_price).format('0,0') }}</td>                    
                   </tr>
                 </table>
               </div>
@@ -711,13 +690,11 @@
                   <dx-column data-field="expense_date" caption="지출일자" data-type="date" format="yyyy-MM-dd" />
                   <dx-column data-field="register" caption="등록자" :allow-editing="false"  />
                   <dx-column data-field="created" caption="등록일자" data-type="date" format="yyyy-MM-dd" :allow-editing="false" />
-                  <dx-summary :recalculate-while-editing="true" :calculate-custom-summary="methods.calcSummaryExpense">
+                  <!-- <dx-summary :recalculate-while-editing="true" :calculate-custom-summary="methods.calcSummaryExpense">
                     <dx-total-item name="expense_amount" summary-type="custom" />
                     <dx-total-item name="excution_amount" summary-type="custom" />
                     <dx-total-item name="vat" summary-type="custom" />
-                    <dx-total-item name="completion_price" summary-type="custom" />
-
-                  </dx-summary>
+                  </dx-summary> -->
 
                   <dx-editing mode="batch"
                     :allow-adding="!vars.formState.readOnly"
@@ -737,8 +714,6 @@
                     <td>{{ '₩' + numeral(vars.summary.planExpense.vat).format('0,0') }}</td>
                     <th>예정 합계금액:</th>
                     <td>{{ '₩' + numeral(vars.summary.planExpense.total_price).format('0,0') }}</td>
-                    <th>실행 금액:</th>
-                    <td>{{ '₩' + numeral(vars.summary.planExpense.completion_price).format('0,0') }}</td>
                   </tr>
                 </table>
               </div>
@@ -1084,15 +1059,14 @@ export default {
       contract_amount: 0,
       expect_amount: 0,
       excution_amount: 0,
-      business_completion_amount: 0,
       day_amount: 0,
       time_amount: 0,
       plan_amount: 0,
       contract_to_expect_rate: 0,
       expect_to_excution_rate: 0,
       contract_to_excution_rate: 0,
-      modify_manager: '',
-      modify_date: null,
+      modify_manager: '', 
+      modify_date: null, 
       fk_project_management_id: null,
       fk_company_id: authService._user.fk_company_id,
     });
@@ -1191,6 +1165,7 @@ export default {
         methods.gridRefresh(id, 'projectExcutionPlanItem');
         methods.gridRefresh(id, 'projectExcutionPlanSubcontract');
         methods.gridRefresh(id, 'projectExcutionPlanExpense');
+   
         if (!id) {
           methods.clearFormData();
           methods.disableAllAction();
@@ -1205,7 +1180,10 @@ export default {
             return methods.redirect();
           }
         }
-        methods.setBusinessCompletionAmount(vars.formData);
+        await methods.loadProjectItem();
+        methods.enableSave();
+        methods.enableEdit();
+        methods.enableDelete();
       },
       clearFormData() {
         vars.formData.project_management = null;
@@ -1301,17 +1279,20 @@ export default {
           : null;
 
         if (mdRow) {
-          newData.plan_amount = (newData.day_amount * mdRow.md);
+          newData.plan_amount = newData.day_amount * mdRow.md;
         } else {
           console.warn('M/D 단가를 찾을 수 없습니다');
           newData.plan_amount = 0;
         }
 
-        // if (!isNaN(value) && mdRow && mdRow.md) {
-        //   newData.plan_amount = value * mdRow.md;
-        // } else {
-        //   newData.plan_amount = 0;
-        // }
+        if (!isNaN(value) && mdRow && mdRow.md) {
+          newData.plan_amount = value * mdRow.md;
+        } else {
+          newData.plan_amount = 0;
+        }
+
+
+        console.log('mdRow:', mdRow);
       },
       setFormData(){
         vars.formData.excution_plan_department = authService.getDepartmentName();
@@ -1390,187 +1371,87 @@ export default {
       updateEtcValue(v) {
         vars.dlg.finder.data = v;
       },
-      // async saveItem() {
-      //   let isSelect = await confirm('저장하시겠습니까?', '저장');
-      //   if (!isSelect) return;
-
-      //   vars.loading.value = true;
-
-      //   try {
-      //     const planItem = vars.grid.projectExcutionPlanItem;
-      //     const planSubcontract = vars.grid.projectExcutionPlanSubcontract;
-      //     const planExpense = vars.grid.projectExcutionPlanExpense;
-
-      //     if (vars.formData.id) {
-      //       // 기존 정보 업데이트
-      //       vars.formData.modify_manager = authService.getUserName();
-      //       vars.formData.modify_date = moment().format('YYYY-MM-DD HH:mm:ss');
-
-      //       const updateDate = Object.assign({}, vars.formData);
-
-      //       // ✅ 저장에 불필요한 필드 제거
-      //       delete updateDate.created;
-      //       delete updateDate.excution_plan_number;
-      //       delete updateDate.project_management;
-
-      //       // ✅ NaN 값 방지
-      //       ['excution_amount', 'time_amount', 'day_amount', 'plan_amount'].forEach(field => {
-      //         if (isNaN(updateDate[field])) {
-      //           updateDate[field] = 0;
-      //         }
-      //       });
-
-      //       // ✅ 콘솔 디버깅용 (최종 데이터 확인)
-      //       console.log("🔍 저장 대상 필드 목록:", Object.keys(updateDate));
-      //       console.log("📝 저장 데이터:", updateDate);
-
-      //       // PATCH 요청
-      //       const { data } = await projectExcutionPlan.update(vars.formData.id, updateDate);
-      //       vars.formData.excution_plan_number = data.excution_plan_number;
-
-      //       if (planItem) await planItem.saveEditData();
-      //       if (planSubcontract) await planSubcontract.saveEditData();
-      //       if (planExpense) await planExpense.saveEditData();
-
-      //       await methods.approvalRequest();
-
-      //       vars.formState.readOnly = true;
-      //       methods.enableSave();
-      //       methods.enableEdit();
-      //       methods.enableDelete();
-      //       notifyInfo('저장되었습니다');
-
-      //     } else {
-      //       // 신규 등록 시
-      //       delete vars.formData.created;
-      //       delete vars.formData.id;
-
-      //       let { data } = await projectExcutionPlan.insert(vars.formData);
-      //       vars.formData.id = data.id;
-
-      //       if (planItem && planItem.hasEditData()) await planItem.saveEditData();
-      //       if (planSubcontract && planSubcontract.hasEditData()) await planSubcontract.saveEditData();
-      //       if (planExpense && planExpense.hasEditData()) await planExpense.saveEditData();
-
-      //       await methods.approvalRequest();
-      //       methods.redirect(data.id);
-      //       vars.formState.readOnly = true;
-      //       notifyInfo('저장되었습니다');
-      //     }
-
-      //   } catch (ex) {
-      //     console.log("❌ 저장 중 오류:", ex);
-      //     if (ex.response?.status === 602) {
-      //       notifyError('이미 존재하는 프로젝트번호 입니다');
-      //     } else {
-      //       notifyError('저장 할 내용이 없습니다');
-      //     }
-
-      //   } finally {
-      //     vars.loading.value = false;
-      //   }
-      // },
       async saveItem() {
-        const isSelect = await confirm('저장하시겠습니까?', '저장');
-        if (!isSelect) return;
+  let isSelect = await confirm('저장하시겠습니까?', '저장');
+  if (!isSelect) return;
 
-        vars.loading.value = true;
+  vars.loading.value = true;
 
-        try {
-          const planItem = vars.grid.projectExcutionPlanItem;
-          const planSubcontract = vars.grid.projectExcutionPlanSubcontract;
-          const planExpense = vars.grid.projectExcutionPlanExpense;
+  try {
+    const planItem = vars.grid.projectExcutionPlanItem;
+    const planSubcontract = vars.grid.projectExcutionPlanSubcontract;
+    const planExpense = vars.grid.projectExcutionPlanExpense;
 
-          // 숫자 필드 NaN 방지
-          const sanitizeNumbers = (obj) => {
-            ['excution_amount', 'expect_amount', 'time_amount', 'day_amount', 'plan_amount'].forEach((field) => {
-              if (isNaN(obj[field])) {
-                obj[field] = 0;
-              }
-            });
-          };
+    if (vars.formData.id) {
+      // 기존 정보 업데이트
+      vars.formData.modify_manager = authService.getUserName();
+      vars.formData.modify_date = moment().format('YYYY-MM-DD HH:mm:ss');
 
-          if (vars.formData.id) {
-            // 기존 정보 업데이트 (PATCH)
-            vars.formData.modify_manager = authService.getUserName();
-            vars.formData.modify_date = moment().format('YYYY-MM-DD HH:mm:ss');
+      const updateDate = Object.assign({}, vars.formData);
 
-            const updateData = { ...vars.formData };
-            delete updateData.created;
-            delete updateData.excution_plan_number;
-            delete updateData.project_management;
+      // ✅ 저장에 불필요한 필드 제거
+      delete updateDate.created;
+      delete updateDate.excution_plan_number;
+      delete updateDate.project_management;
 
-            sanitizeNumbers(updateData);
-
-            console.log('🔧 PATCH 데이터:', updateData);
-
-            const { data } = await projectExcutionPlan.update(vars.formData.id, updateData);
-            vars.formData.excution_plan_number = data.excution_plan_number;
-
-            if (planItem) await planItem.saveEditData();
-            if (planSubcontract) await planSubcontract.saveEditData();
-            if (planExpense) await planExpense.saveEditData();
-
-            await methods.approvalRequest();
-
-            vars.formState.readOnly = true;
-            methods.enableSave();
-            methods.enableEdit();
-            methods.enableDelete();
-            notifyInfo('저장되었습니다');
-
-          } else {
-            // 신규 등록 (POST)
-            const insertData = { ...vars.formData };
-            delete insertData.created;
-            delete insertData.id;
-            delete insertData.project_management;
-
-            sanitizeNumbers(insertData);
-
-            // 필수값 보완
-            if (!insertData.excution_plan_department) {
-              insertData.excution_plan_department = authService.getDepartmentName();
-            }
-            if (!insertData.excution_plan_manager) {
-              insertData.excution_plan_manager = authService.getUserName();
-            }
-            if (!insertData.excution_plan_date) {
-              insertData.excution_plan_date = currentDateTime();
-            }
-
-            console.log('🆕 POST 데이터:', insertData);
-
-            const { data } = await projectExcutionPlan.insert(insertData);
-            vars.formData.id = data.id;
-            vars.formData.excution_plan_number = data.excution_plan_number;
-
-            if (planItem && planItem.hasEditData()) await planItem.saveEditData();
-            if (planSubcontract && planSubcontract.hasEditData()) await planSubcontract.saveEditData();
-            if (planExpense && planExpense.hasEditData()) await planExpense.saveEditData();
-
-            await methods.approvalRequest();
-            methods.redirect(data.id);
-            vars.formState.readOnly = true;
-            notifyInfo('저장되었습니다');
-          }
-
-        } catch (ex) {
-          console.error('❌ 저장 중 오류:', ex);
-          if (ex.response?.status === 602) {
-            notifyError('이미 존재하는 프로젝트번호 입니다');
-          } else if (ex.response?.status === 400) {
-            notifyError('유효하지 않은 입력값이 포함되어 있습니다');
-          } else {
-            notifyError('저장 중 오류가 발생했습니다');
-          }
-
-        } finally {
-          vars.loading.value = false;
+      // ✅ NaN 값 방지
+      ['excution_amount', 'time_amount', 'day_amount', 'plan_amount'].forEach(field => {
+        if (isNaN(updateDate[field])) {
+          updateDate[field] = 0;
         }
-      },
+      });
 
+      // ✅ 콘솔 디버깅용 (최종 데이터 확인)
+      console.log("🔍 저장 대상 필드 목록:", Object.keys(updateDate));
+      console.log("📝 저장 데이터:", updateDate);
 
+      // PATCH 요청
+      const { data } = await projectExcutionPlan.update(vars.formData.id, updateDate);
+      vars.formData.excution_plan_number = data.excution_plan_number;
+
+      if (planItem) await planItem.saveEditData();
+      if (planSubcontract) await planSubcontract.saveEditData();
+      if (planExpense) await planExpense.saveEditData();
+
+      await methods.approvalRequest();
+
+      vars.formState.readOnly = true;
+      methods.enableSave();
+      methods.enableEdit();
+      methods.enableDelete();
+      notifyInfo('저장되었습니다');
+
+    } else {
+      // 신규 등록 시
+      delete vars.formData.created;
+      delete vars.formData.id;
+
+      let { data } = await projectExcutionPlan.insert(vars.formData);
+      vars.formData.id = data.id;
+
+      if (planItem && planItem.hasEditData()) await planItem.saveEditData();
+      if (planSubcontract && planSubcontract.hasEditData()) await planSubcontract.saveEditData();
+      if (planExpense && planExpense.hasEditData()) await planExpense.saveEditData();
+
+      await methods.approvalRequest();
+      methods.redirect(data.id);
+      vars.formState.readOnly = true;
+      notifyInfo('저장되었습니다');
+    }
+
+  } catch (ex) {
+    console.log("❌ 저장 중 오류:", ex);
+    if (ex.response?.status === 602) {
+      notifyError('이미 존재하는 프로젝트번호 입니다');
+    } else {
+      notifyError('저장 할 내용이 없습니다');
+    }
+
+  } finally {
+    vars.loading.value = false;
+  }
+}
+,
       async approvalRequest(){
         if(!vars.formData.id) return;
         if(vars.formData.approval_status == '승인요청'){
@@ -2182,9 +2063,6 @@ export default {
           e.data.vat_type = vat_type;
           e.data.expense_amount = 0;
           e.data.vat = 0;
-          e.data.plan_amount = 0;
-          e.data.day_amount = 0;
-          e.data.time_amount = 0;
         }
       },
       calcConfirmed(rowData){
@@ -2222,17 +2100,6 @@ export default {
             vars.summary.planItem.purchase_supply_price = options.totalValue;
             methods.calExcutionAmount();
           }
-        }else if(options.name === 'completion_price'){
-          if (options.summaryProcess === 'start') {
-            options.totalValue = 0;
-          }else if(options.summaryProcess === 'calculate'){
-            options.totalValue += Number(options.value.purchase_supply_price);
-          } else if (options.summaryProcess === 'finalize') {
-            vars.summary.planItem.completion_price = options.totalValue;
-            methods.calExcutionAmount();
-            methods.setBusinessCompletionAmount(vars.formData);  // ✅ 추가
-
-          }
         }
         
       },
@@ -2264,17 +2131,6 @@ export default {
             vars.summary.planSubcontract.purchase_unit_price = options.totalValue;
             methods.calExcutionAmount();
           }
-        }else if(options.name === 'completion_price'){
-          if (options.summaryProcess === 'start') {
-            options.totalValue = 0;
-          }else if(options.summaryProcess === 'calculate'){
-            options.totalValue += Number(options.value.purchase_unit_price);
-          } else if (options.summaryProcess === 'finalize') {
-            vars.summary.planSubcontract.completion_price = options.totalValue;
-            methods.calExcutionAmount();
-            methods.setBusinessCompletionAmount(vars.formData);  // ✅ 추가
-            
-          }
         }
       },
       calcSummaryExpense(options){
@@ -2304,17 +2160,6 @@ export default {
           } else if (options.summaryProcess === 'finalize') {
             vars.summary.planExpense.excution_amount = options.totalValue;
             methods.calExcutionAmount();  
-          }
-        }else if(options.name === 'completion_price'){
-          if (options.summaryProcess === 'start') {
-            options.totalValue = 0;
-          }else if(options.summaryProcess === 'calculate'){
-            options.totalValue += Number(options.value.plan_amount);
-          } else if (options.summaryProcess === 'finalize') {
-            vars.summary.planExpense.completion_price = options.totalValue;
-            methods.calExcutionAmount();
-            methods.setBusinessCompletionAmount(vars.formData);  // ✅ 추가
-            
           }
         }
       },
@@ -2424,25 +2269,6 @@ export default {
           methods.gridRefresh(vars.formData.id, item);
         }
       },
-      setBusinessCompletionAmount(formData) {
-        const itemTotal = vars.summary.planItem?.purchase_supply_price || 0;
-        const subcontractTotal = vars.summary.planSubcontract?.completion_price || 0;
-        const expenseTotal = vars.summary.planExpense?.excution_amount || 0;
-
-        const total = itemTotal + subcontractTotal + expenseTotal;
-
-        // 디버깅용 로그 (필요시 삭제 가능)
-        console.log('✅ 사업완료금액 계산');
-        console.log(' - 주요자재:', itemTotal);
-        console.log(' - 외주공사:', subcontractTotal);
-        console.log(' - 경비:', expenseTotal);
-        console.log(' = 총합:', total);
-
-        formData.business_completion_amount = total;
-      }
-
-
-
     };
 
     watch(

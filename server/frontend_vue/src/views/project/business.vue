@@ -525,6 +525,8 @@
                   @data-error-occurred="methods.onDataError"
                   @focused-cell-changed="evt => methods.onFocusedCellChanged(evt, 'cost')"
                   @init-new-row="evt => methods.initNewRow(evt, 'cost')"
+                  @cell-dbl-click="methods.itemPopupClick"
+
                   >
           
                   <dx-grid-toolbar>
@@ -648,6 +650,10 @@
             </template>
           </dx-item>
         </dx-tab-panel>
+      <popup-item-detail
+        v-model:visible="vars.itemDetail.visible"
+        :item-id="vars.itemDetail.id"
+      />
       </div>
     </div>
 
@@ -725,6 +731,7 @@
         />
       </template>
     </dx-popup>
+    
     <input
       hidden
       type="file"
@@ -766,6 +773,7 @@ import DataLocationSelect from '../../components/base/data-location-select.vue';
 import ApiService from '../../utils/api-service';
 import FindAddressStore from '../../data-source/find-address';
 import PopupItem from '../../components/base/popup-item.vue';
+import PopupItemDetail from '@/components/base/popup-item-detail';
 import ExcelJS from 'exceljs';
 
 export default {
@@ -774,6 +782,7 @@ export default {
     DxLoadPanel, DxToolbar, DxItem, DxButton, DxForm, DxGroupItem, DxPopup, DxSimpleItem, DxLabel, DxRequiredRule,DxScrolling,
     DataGridClient, DataGridBusiness, DataGridProject, DataGridClientManager, DataLocationSelect,
     DxDataGrid, DxGridToolbar, DxEditing, DxColumn, DxLookup, DxGridItem, DxGridRequiredRule, DxSelection, DxTextBox, DxPaging, DxTextBoxButton, PopupItem, DxNumberBox, DxSummary, DxTotalItem,
+    PopupItemDetail,
   },
   props: {
   id: [String, Number],
@@ -833,6 +842,8 @@ setup(props){
     cost: null,
     basic: null,
   });
+  vars.itemDetail = reactive({ visible: false, id: 0 });
+
   vars.formData = reactive({});
   vars.dlg = {};
   vars.dlg.finder = reactive({title : '', key: null, data: null, show: false});
@@ -1066,6 +1077,26 @@ setup(props){
         vars.loading.value = false;
       }
     },
+
+    // 품목코드 클릭 시 품목 상세 정보 popup
+    // itemPopupClick({ column, data }) {
+    //   if (column.name === 'item_code') {
+    //     vars.itemDetail.id = data.id;
+    //     vars.itemDetail.visible = true;
+    //   }
+    // },
+    itemPopupClick({ column, data }) {
+      if (column.dataField === 'item_code') {
+        const itemId = data.item?.id;
+        if (!itemId) {
+          console.warn('품목 ID가 없습니다:', data);
+          return;
+        }
+        vars.itemDetail.id = itemId;
+        vars.itemDetail.visible = true;
+      }
+    },
+
     setQuoteQuantity(newData, value, currentRowData){
       const quote_quantity = value;
       const quote_unit_price = currentRowData.quote_unit_price || 0;
