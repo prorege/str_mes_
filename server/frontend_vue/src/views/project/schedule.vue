@@ -97,8 +97,8 @@
 
           <dx-column data-field="title" caption="일정" />
           <dx-column data-field="progress_percent" caption="비율(%)" :width="62" />
-          <dx-column data-field="start_date" caption="시작" data-type="date" format="yyyy-MM-dd" :width="90" />
-          <dx-column data-field="end_date" caption="종료" data-type="date" format="yyyy-MM-dd" :width="90" />
+          <dx-column data-field="start_date" caption="시작" data-type="date" format="yyyy-MM-dd" :width="90" :set-cell-value = "methods.setStartDate" />
+          <dx-column data-field="end_date" caption="종료" data-type="date" format="yyyy-MM-dd" :width="90" :set-cell-value = "methods.setEndDate" />
 
         </dx-gantt>
       </div>
@@ -264,8 +264,8 @@ export default {
       const isCancel = new Promise((resolve, reject) => {
         projectSchedule.insert({
           title: '새 일정',
-          start_date: moment(evt.values.start_date).add(9, 'hours').toDate(),
-          end_date: moment(evt.values.end_date).add(9, 'hours').toDate(),
+          start_date: moment(vars.formData.contract_date).add(9, 'hours').toDate(),
+          end_date: moment(vars.formData.completion_date).add(9, 'hours').toDate(),
           progress_percent: evt.values.progress_percent,
           fk_project_management_id: vars.formData.value.id
         })
@@ -290,6 +290,40 @@ export default {
         evt.newValues.end_date = moment(evt.newValues.end_date).add(9, 'hours').toDate()
       }
     }
+
+    methods.setStartDate = (newData, value, currentRowData) => {
+      newData.start_date = value;
+
+      // 전체 일정 중 가장 빠른 시작일을 contract_date로 설정
+      const tasks = vars.components['project-gantt'].option('tasks.dataSource');
+      const minDate = tasks.reduce((min, task) =>
+        task.id !== currentRowData.id
+          ? (min < task.start_date ? min : task.start_date)
+          : (min < value ? min : value),
+        value
+      );
+
+      vars.formData.value.contract_date = minDate;
+      vars.components['project-schdule-form'].updateData('contract_date', minDate);
+    };
+
+    methods.setEndDate = (newData, value, currentRowData) => {
+      newData.end_date = value;
+
+      // 전체 일정 중 가장 늦은 종료일을 completion_date로 설정
+      const tasks = vars.components['project-gantt'].option('tasks.dataSource');
+      const maxDate = tasks.reduce((max, task) =>
+        task.id !== currentRowData.id
+          ? (max > task.end_date ? max : task.end_date)
+          : (max > value ? max : value),
+        value
+      );
+
+      vars.formData.value.completion_date = maxDate;
+      vars.components['project-schdule-form'].updateData('completion_date', maxDate);
+    };
+
+
 
     return {
       vars, methods, ds
