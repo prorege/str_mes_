@@ -31,6 +31,7 @@
                 text: '수정',
                 type: 'rename',
                 icon: 'rename',
+                // disabled: vars.formData.approval_status == '최종승인' ? true : vars.disabled.edit,
                 onClick: methods.editItem,
               }"
             />
@@ -156,15 +157,12 @@
                 <dx-label text="반려사유" :show-colon="false" />
               </dx-simple-item>
               <dx-simple-item
-                data-field="business_completion_amount"
+                data-field="excution_amount"
                 editor-type="dxNumberBox"
                 :editor-options="{
                   format: 'currency',
-                  readOnly: true,
                   ...vars.formState,
                 }"
-                :set-cell-value="methods.setBusinessCompletionAmount"
-
               >
                 <dx-label text="사업완료금액" :show-colon="false" />
               </dx-simple-item>
@@ -192,13 +190,17 @@
               >
                 <dx-label text="예정금액" :show-colon="false" />
               </dx-simple-item>
+              
               <dx-simple-item
-                data-field="excution_amount"
+                data-field="business_completion_amount"
                 editor-type="dxNumberBox"
                 :editor-options="{
                   format: 'currency',
+                  readOnly: true,
                   ...vars.formState,
                 }"
+                :set-cell-value="methods.setBusinessCompletionAmount"
+
               >
                 <dx-label text="실행금액" :show-colon="false" />
               </dx-simple-item>
@@ -695,9 +697,9 @@
                   </dx-column>
                   <dx-column data-field="expense_amount" caption="예정소요경비" data-type="number" format="currency" :set-cell-value="methods.setExpenseAmount" />
                   <dx-column data-field="excution_amount" caption="소요경비" data-type="number" format="currency" />
-                  <dx-column data-field="day_amount" caption="일수" data-type="number" :editor-options="{readOnly: true}" :format="{ type: 'fixedPoint', precision: 1 }"/>
-                  <dx-column data-field="time_amount" caption="시간" data-type="number" format="currency" :set-cell-value="methods.setExpenseTimeAmount"/>
-                  <dx-column data-field="plan_amount" caption="계획소요경비" data-type="number" format="currency" :editor-options="{readOnly: true}"/>
+                  <dx-column data-field="day_amount" caption="일수" data-type="number" :format="{ type: 'fixedPoint', precision: 1 }"/>
+                  <dx-column data-field="time_amount" caption="시간" data-type="number" format="fixedPoint" :set-cell-value="methods.setExpenseTimeAmount"/>
+                  <dx-column data-field="plan_amount" caption="계획소요경비" data-type="number" format="currency"/>
                   <dx-column data-field="vat_type" caption="VAT" :set-cell-value="methods.setExpenseVatType">
                     <dx-lookup 
                       :data-source="vars.dataSource.vat_type"
@@ -1294,7 +1296,7 @@ export default {
           : null;
 
         if (mdRow) {
-          newData.plan_amount = (newData.day_amount * mdRow.md);
+          newData.plan_amount = (newData.time_amount * mdRow.md);
         } else {
           console.warn('M/D 단가를 찾을 수 없습니다');
           newData.plan_amount = 0;
@@ -2418,9 +2420,9 @@ export default {
         }
       },
       setBusinessCompletionAmount(formData) {
-        const itemTotal = vars.summary.planItem?.purchase_supply_price || 0;
+        const itemTotal = vars.summary.planItem?.completion_price || 0;        // ✅ 변경
         const subcontractTotal = vars.summary.planSubcontract?.completion_price || 0;
-        const expenseTotal = vars.summary.planExpense?.excution_amount || 0;
+        const expenseTotal = vars.summary.planExpense?.completion_price || 0;  // ✅ 변경
 
         const total = itemTotal + subcontractTotal + expenseTotal;
 
@@ -2455,6 +2457,13 @@ export default {
 </script>
 
 <style lang="scss">
+table {
+  table-layout: auto; 
+  width: auto;
+}
+th {
+  white-space: nowrap;
+}
 .dx-fileuploader-wrapper {
   padding: 0px;
   margin: 0px;
