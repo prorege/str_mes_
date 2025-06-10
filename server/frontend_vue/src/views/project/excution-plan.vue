@@ -31,7 +31,7 @@
                 text: '수정',
                 type: 'rename',
                 icon: 'rename',
-                // disabled: vars.formData.approval_status == '최종승인' ? true : vars.disabled.edit,
+                disabled: vars.formData.approval_status == '최종승인' ? true : vars.disabled.edit,
                 onClick: methods.editItem,
               }"
             />
