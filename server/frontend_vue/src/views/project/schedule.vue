@@ -69,7 +69,7 @@
           :task-list-width="400"
           :disabled="!vars.formData.id"
           height="calc(100vh - 250px)"
-          scale-type="weeks"
+          scale-type=""
           @initialized="(evt) => methods.initialized(evt, 'project-gantt')"
           @task-inserting="methods.taskInserting"
           @task-updating="methods.taskUpdating">

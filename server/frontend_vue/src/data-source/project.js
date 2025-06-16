@@ -86,6 +86,10 @@ const projectBusinessBasic = new RestlessStore(
   '/api/mes/v1/project/business_basic'
 );
 
+const projectMandayResigration = new RestlessStore(
+  '/api/mes/v1/project/manday_resigration'
+);
+
 const getProjectRegistration = defaultFilters => {
   const instance = new RestlessStore('/api/mes/v1/project/project_management');
   instance.defaultFilters = defaultFilters;
@@ -218,6 +222,12 @@ const getProjectBusinessCost = defaultFilters => {
 
 const getProjectBusinessBasic = defaultFilters => {
   const instance = new RestlessStore('/api/mes/v1/project/business_basic');
+  instance.defaultFilters = defaultFilters;
+  return instance;
+};
+
+const getProjectMandayResigration = defaultFilters => {
+  const instance = new RestlessStore('/api/mes/v1/project/manday_resigration');
   instance.defaultFilters = defaultFilters;
   return instance;
 };

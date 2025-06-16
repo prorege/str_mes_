@@ -13,7 +13,7 @@
                         <dx-data-grid
                             column-resizing-mode="widget"
                             height="calc(100vh - 150px)"
-                            :data-source="vars.dataSource.projectBusinessTripLog"
+                            :data-source="vars.dataSource.projectMandayRegistration"
                             :show-borders="true"
                             :show-row-lines="true"
                             :remote-operations="true"

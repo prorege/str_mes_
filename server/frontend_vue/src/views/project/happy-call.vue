@@ -26,8 +26,7 @@
                         @row-updated="methods.onRowUpdated"
                         @focused-cell-changed="methods.onFocusedCellChanged"
                         @initialized="(evt) => methods.onGridInitialized(evt, 'project-happy-call')"
-                    >   
-                      
+                    >
                         <dx-grid-toolbar>
                             <dx-grid-item template="addRowButton" location="before" :visible="true" />
                             <dx-grid-item template="saveRowButton" location="before" :visible="true" />

@@ -964,9 +964,9 @@
                   <dx-scrolling mode="standard" />
                   <dx-editing mode="batch"
                     :use-icons="true"
-                    :allow-adding="!vars.formState.readOnly"
-                    :allow-updating="!vars.formState.readOnly"
-                    :allow-deleting="!vars.formState.readOnly"
+                    :allow-adding="true"
+                    :allow-updating="true"
+                    :allow-deleting="true"
                     />
                 </dx-data-grid>
               </div>
@@ -1364,7 +1364,6 @@ export default {
       fk_business_id: null,
       fk_company_id: authService._user.fk_company_id,
     });
-    vars.formData.commencement_date = moment(vars.formData.commencement_date).format('YYYY-MM-DD');
     vars.attchFiles = reactive({})
     vars.filter = reactive({
       items: [
@@ -2571,16 +2570,28 @@ export default {
           e.error.message = '권한이 없습니다';
         }
       },
-      onSavingItem(e) {
-        e.promise = methods.onSavingItemImpl(e);
+      onSavingItem(e, item) {
+        if (item == 'customer_information' || item == 'note') {
+          e.promise = methods.onSavingItemImpl2(e);
+        } else {
+          e.promise = methods.onSavingItemImpl(e);
+        }
       },
       async onSavingItemImpl(e){
         for(const element of e.changes){
           if(element.type != 'remove'){
             element.data.fk_project_management_id = vars.formData.id;
-            element.data.fk_business_id = vars.formData.fk_business_id;        // ✅ 외래키 (영업건 ID)      
             delete element.data.item;
             await methods.updateUploadFile(element)
+          }
+        }
+      },
+
+      async onSavingItemImpl2(e) {
+        for(const element of e.changes){
+          if(element.type != 'remove'){
+            element.data.fk_business_id = vars.formData.fk_business_id;        // ✅ 외래키 (영업건 ID)      
+            delete element.data.item;
           }
         }
       },
