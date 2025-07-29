@@ -530,12 +530,19 @@
                   >
           
                   <dx-grid-toolbar>
+                      <dx-grid-item template="orderReportButton" location="after" />
                       <dx-grid-item template="costExportButton" location="after" />
                       <dx-grid-item template="costRate" location="after" />
                       <dx-grid-item template="addCostRowButton" location="after" :visible="!vars.formState.readOnly" />
                       <dx-grid-item template="costSaveButton" location="after" :visible="false" />
                       <dx-grid-item name="revertButton" location="after" />
                   </dx-grid-toolbar>
+                  <template #orderReportButton>
+                    <dx-button
+                      text="수주사항보고서"
+                      @click="methods.orderReportButton"
+                      />
+                  </template>
                   <template #costExportButton>
                     <dx-button
                       icon="xlsxfile"
@@ -732,6 +739,20 @@
       </template>
     </dx-popup>
     
+    <dx-popup
+      v-model:visible="vars.dlg.orderReport.show"
+      content-template="popup-content"
+      title="수주사항보고서"
+      :close-on-outside-click="true"
+      width="calc(100vw - 200px)"
+      height="calc(100vh - 200px)"
+      :resize-enabled="true"
+      :scroll-by-content="true"
+    >
+      <template #popup-content>
+        <data-order-report />
+      </template>
+    </dx-popup>
     <input
       hidden
       type="file"
@@ -775,6 +796,7 @@ import FindAddressStore from '../../data-source/find-address';
 import PopupItem from '../../components/base/popup-item.vue';
 import PopupItemDetail from '@/components/base/popup-item-detail';
 import ExcelJS from 'exceljs';
+import DataOrderReport from '@/components/approval/data-order-report.vue';
 
 export default {
   components: {
@@ -783,6 +805,7 @@ export default {
     DataGridClient, DataGridBusiness, DataGridProject, DataGridClientManager, DataLocationSelect,
     DxDataGrid, DxGridToolbar, DxEditing, DxColumn, DxLookup, DxGridItem, DxGridRequiredRule, DxSelection, DxTextBox, DxPaging, DxTextBoxButton, PopupItem, DxNumberBox, DxSummary, DxTotalItem,
     PopupItemDetail,
+    DataOrderReport,
   },
   props: {
   id: [String, Number],
@@ -848,6 +871,7 @@ setup(props){
   vars.dlg = {};
   vars.dlg.finder = reactive({title : '', key: null, data: null, show: false});
   vars.dlg.addItem = reactive({ show: false });
+  vars.dlg.orderReport = reactive({ show: false });
   vars.findAddress = reactive({
     popup: false,
     store: new FindAddressStore(),
@@ -1653,7 +1677,10 @@ setup(props){
           });
         });
       });
-    }
+    },
+    orderReportButton() {
+      vars.dlg.orderReport.show = true;
+    },
 
    
   };

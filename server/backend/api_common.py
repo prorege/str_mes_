@@ -100,7 +100,7 @@ def login_api():
                     result = {
                         'status': True,
                         'reason': 0,
-                        'user': {**loginuser.serialize(), 'position': employee.emp_position if employee else ''},
+                        'user': {**loginuser.serialize(), 'position': employee.emp_position if employee else '', 'emp_id': employee.id if employee else ''},
                         'department': department_data,
                         'logo': company.logo,
                         'menu': [
