@@ -744,13 +744,15 @@
       content-template="popup-content"
       title="수주사항보고서"
       :close-on-outside-click="true"
-      width="calc(100vw - 200px)"
+      width="calc(100vw - 300px)"
       height="calc(100vh - 200px)"
       :resize-enabled="true"
       :scroll-by-content="true"
     >
       <template #popup-content>
-        <data-order-report />
+        <dx-scroll-view width="100%" height="100%">
+          <data-order-report :business-id="vars.formData.id" :form-data="vars.formData" />
+        </dx-scroll-view>
       </template>
     </dx-popup>
     <input
@@ -768,6 +770,7 @@ import { useRouter } from 'vue-router';
 import numeral from 'numeral';
 import { ref, reactive, watch, onMounted, nextTick, computed } from 'vue'
 import { confirm, alert } from 'devextreme/ui/dialog';
+import { DxScrollView } from 'devextreme-vue/scroll-view';
 import { DxPopup, } from 'devextreme-vue/popup';
 import { DxNumberBox } from 'devextreme-vue/number-box';
 import { DxTextBox, DxButton as DxTextBoxButton } from 'devextreme-vue/text-box';
@@ -806,6 +809,7 @@ export default {
     DxDataGrid, DxGridToolbar, DxEditing, DxColumn, DxLookup, DxGridItem, DxGridRequiredRule, DxSelection, DxTextBox, DxPaging, DxTextBoxButton, PopupItem, DxNumberBox, DxSummary, DxTotalItem,
     PopupItemDetail,
     DataOrderReport,
+    DxScrollView,
   },
   props: {
   id: [String, Number],
