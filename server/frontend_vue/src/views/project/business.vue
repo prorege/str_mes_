@@ -53,19 +53,7 @@
               >
                   <dx-label text="계약상대자" :show-colon="false" />
                   <dx-required-rule message="계약상대자를 선택하세요" />
-                </dx-simple-item>
-                <dx-simple-item data-field="contract_company"
-                :editor-options="{
-                  ...generateItemButtonOption(
-                    'search',
-                    methods.createFindPopupFn('contract_company', '수요기관')
-                  ),
-                  ...vars.formState,
-                }"
-              >
-                <dx-label text="수요기관" :show-colon="false" />
-              </dx-simple-item>
-     
+                </dx-simple-item>     
             </dx-group-item>
             <dx-group-item>
                 <dx-simple-item data-field="business_department" editor-type="dxSelectBox" :editor-options="{
@@ -97,28 +85,17 @@
                 }">
                   <dx-label text="영업금액" :show-colon="false" />
                 </dx-simple-item>
-                <dx-simple-item 
-                data-field="client_manager" 
-                editor-type="dxSelectBox" 
+                <dx-simple-item data-field="contract_company"
                 :editor-options="{
-                  valueExpr: 'name',
-                  displayExpr: 'name',
-                  acceptCustomValue: true,
-                  dataSource: vars.dataSource.client_manager,
-                  disabled: vars.disabled.client_manager,
-                  ...generateItemButtonOption('search', methods.createFindPopupFn('client-manager', '업체담당자조회', { 
-                    fk_client_id: vars.filter.baseItem.clientId
-                  })),
-                  ...vars.formState
-              }">
-                <dx-label text="업체담당자" :show-colon="false" />
+                  ...generateItemButtonOption(
+                    'search',
+                    methods.createFindPopupFn('contract_company', '수요기관')
+                  ),
+                  ...vars.formState,
+                }"
+              >
+                <dx-label text="수요기관" :show-colon="false" />
               </dx-simple-item>
-              <dx-simple-item data-field="completion_date" editor-type="dxDateBox" :editor-options="{
-                  dateSerializationFormat: 'yyyy-MM-ddTHH:mm:ss',
-                  ...vars.formState
-                }">
-                  <dx-label text="준공일자" :show-colon="false" />
-                </dx-simple-item>
             </dx-group-item>
             <dx-group-item>
                 <dx-simple-item data-field="business_type" editor-type="dxSelectBox" :editor-options="{
@@ -150,45 +127,37 @@
                 }">
                   <dx-label text="현장지역" :show-colon="false" />
                 </dx-simple-item>
-                <dx-simple-item data-field="registration_closing_date" editor-type="dxDateBox" :editor-options="{ 
-                  dateSerializationFormat: 'yyyy-MM-ddTHH:mm:ss',
-                  type: 'datetime',
-                  displayFormat: 'yyyy-MM-dd HH:mm',
-                  pickerType: 'calendar',
-                  ...vars.formState
-                }">
-                  <dx-label text="등록마감" :show-colon="false"/>
-                </dx-simple-item>
-                <dx-simple-item data-field="bid_closing_date" editor-type="dxDateBox" :editor-options="{ 
-                  dateSerializationFormat: 'yyyy-MM-ddTHH:mm:ss',
-                  type: 'datetime',
-                  displayFormat: 'yyyy-MM-dd HH:mm',
-                  pickerType: 'calendar',
-                  ...vars.formState
-                }">
-                  <dx-label text="투찰마감" :show-colon="false"/>
-                </dx-simple-item>
+                <dx-simple-item data-field="completion_date" editor-type="dxDateBox" :editor-options="{
+                dateSerializationFormat: 'yyyy-MM-ddTHH:mm:ss',
+                ...vars.formState
+              }">
+                <dx-label text="준공예정일" :show-colon="false" />
+              </dx-simple-item>
             </dx-group-item>
             <dx-group-item>
-                <dx-simple-item data-field="business_progress" editor-type="dxSelectBox" :editor-options="{
-                  dataSource: vars.dataSource.business_progress,
-                  valueExpr: 'code_name',
-                  displayExpr: 'code_name',
-                  ...vars.formState,
-                }">
-                  <dx-label text="진행현황" :show-colon="false" />
+                <dx-group-item :col-count="2">
+                  <dx-simple-item data-field="business_progress" editor-type="dxSelectBox" :editor-options="{
+                    dataSource: vars.dataSource.business_progress,
+                    valueExpr: 'code_name',
+                    displayExpr: 'code_name',
+                    ...vars.formState,
+                  }">
+                    <dx-label text="진행현황" :show-colon="false" />
+                  </dx-simple-item>
+                  <dx-simple-item data-field="contract_type" editor-type="dxSelectBox" :editor-options="{
+                    dataSource: vars.dataSource.contract_type,
+                    valueExpr: 'code_name',
+                    displayExpr: 'code_name',
+                    ...vars.formState,
+                  }">
+                  <dx-label text="계약유형" :show-colon="false" />
                 </dx-simple-item>
+                </dx-group-item>
+            
                 <dx-simple-item data-field="project.project_number" :editor-options="methods.projectNumberOptions()">
                   <dx-label text="연결 프로젝트" :show-colon="false" />
                 </dx-simple-item>
-                <dx-simple-item data-field="contract_type" editor-type="dxSelectBox" :editor-options="{
-                  dataSource: vars.dataSource.contract_type,
-                  valueExpr: 'code_name',
-                  displayExpr: 'code_name',
-                  ...vars.formState,
-                }">
-                  <dx-label text="계약유형" :show-colon="false" />
-                </dx-simple-item>
+
                 <dx-group-item :col-count="2" css-class="form-group">
                   <dx-simple-item data-field="gross_profit" editor-type="dxNumberBox" :editor-options="{
                   readOnly: true,
@@ -679,7 +648,6 @@
         <data-grid-business v-if="vars.dlg.finder.key === 'business'" :filters="vars.dlg.finder.data" @change="methods.finderReturnHandler" />
         <data-grid-client v-else-if="vars.dlg.finder.key === 'contract_company'" :filters="vars.dlg.finder.data" @change="methods.finderReturnHandler" />
         <data-grid-client v-else-if="vars.dlg.finder.key === 'client'" :filters="vars.dlg.finder.data" @change="methods.finderReturnHandler" />
-        <data-grid-client-manager v-else-if="vars.dlg.finder.key === 'client-manager'" :filters="vars.dlg.finder.data" @change="methods.finderReturnHandler" />
         <data-grid-project v-else-if="vars.dlg.finder.key === 'project'" :filters="vars.dlg.finder.data" @change="methods.finderReturnHandler" />
         <data-location-select v-else-if="vars.dlg.finder.key === 'location'" :dataSource="vars.dataSource.location" @change="methods.finderReturnHandler" />
       </template>
@@ -837,14 +805,12 @@ setup(props){
     save: true,
     printDocument: true,
     manager: true,
-    client_manager: true,
   })
   vars.formState = reactive({ readOnly: true});
   vars.dataSource = reactive({
     location: [],
     employee: [],
     department: [],
-    client_manager: [],
     business_type: [],
     business_progress: [],
     business_important: [],
@@ -1307,7 +1273,6 @@ setup(props){
       vars.formData.business_date = '';
       vars.formData.completion_date = '';
       vars.formData.client_company = '';
-      vars.formData.client_manager = '';
       vars.formData.contract_company = '', 
       vars.formData.business_amount = 0;
       vars.formData.rate = 0;
@@ -1320,8 +1285,6 @@ setup(props){
       vars.formData.business_type = '';
       vars.formData.classification = '';
       vars.formData.location = '';
-      vars.formData.registration_closing_date = null;
-      vars.formData.bid_closing_date = null;
       vars.formData.business_progress = '';
       vars.formData.business_important = '';
       vars.formData.contract_type = '';
@@ -1337,7 +1300,6 @@ setup(props){
       vars.disabled.save = true;
       vars.disabled.printDocument = true;
       vars.disabled.business_manager = true;
-      vars.disabled.client_manager = true;
     },
     enableSave(){
       vars.disabled.save = vars.formState.readOnly ? true : false;
@@ -1362,12 +1324,6 @@ setup(props){
         }
         case 'contract_company': {
             vars.formData.contract_company = data.name;
-            break;
-        }
-        case 'client-manager': {
-            loadClientManager(vars.dataSource, vars.formData.client_company).then(() => {
-              vars.formData.client_manager = data.name;
-            })
             break;
         }
         case 'project': {
@@ -1403,25 +1359,14 @@ setup(props){
         // vars.disabled.delete = true;
         // vars.disabled.save = true;
         // vars.disabled.tradeYn = false;
-        // vars.disabled.client_manager = true;
-        // vars.formData.client_manager = null;
-        // vars.dataSource.client_manager = [];
       }else{
-        if(methods.isFormReadOnly()){
-          loadClientManager(vars.dataSource, client.name);
-          vars.disabled.client_manager = false;
-        }else{
+        if(!methods.isFormReadOnly()){
           let isSelect = true;
           if(client.trade_yn){
             isSelect = await confirm('거래중지 업체입니다. 계속 진행하시겠습니까?', '계약업체');
           }
-          if(isSelect){
-            loadClientManager(vars.dataSource, client.name);
-            vars.disabled.client_manager = false;
-            vars.formData.client_manager = null;
-          }else{
+          if(!isSelect){
             vars.formData.client_company = '';
-            vars.formData.client_manager = null;
           }
         }
       }
