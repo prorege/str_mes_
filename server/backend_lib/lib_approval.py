@@ -16,14 +16,14 @@ db = DBManager.db
 
 class LibApprovalDocument(object):
     @staticmethod
-    def get_many_preprocessor(emp_id=None):
-        if emp_id:
+    def get_many_preprocessor(manager_value=None):
+        if manager_value:
             document_list = db.session.query(ApprovalDocument.id, ApprovalDocument.max_line).all()
             for document_id, max_line in document_list:
                 existing_orders_set = {
                     order.line_order for order in db.session.query(ApprovalLine.line_order).filter(
                         ApprovalLine.fk_document_id == document_id,
-                        ApprovalLine.fk_submitter_id == emp_id
+                        ApprovalLine.manager == manager_value
                     )
                 }
 
@@ -31,7 +31,7 @@ class LibApprovalDocument(object):
                     if line_order not in existing_orders_set:
                         new_line = ApprovalLine(
                             fk_document_id=document_id,
-                            fk_submitter_id=emp_id,
+                            manager=manager_value,
                             line_order=line_order
                         )
                         db.session.add(new_line)

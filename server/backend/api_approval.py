@@ -33,6 +33,18 @@ manager.create_api(ApprovalManagement,
                        'DELETE_SINGLE': [check_token]
                    })
 
+manager.create_api(Approval,
+                   url_prefix='/api/mes/v1/approval',
+                   collection_name='approval',
+                   methods=['GET', 'DELETE'],
+                   allow_patch_many=True,
+                   results_per_page=0,
+                   max_results_per_page=100000000,
+                   preprocessors={
+                       'GET_SINGLE': [check_token],
+                       'GET_MANY': [check_token],
+                       'DELETE_SINGLE': [check_token]
+                   })
 
 manager.create_api(ApprovalLineResult,
                    url_prefix='/api/mes/v1/approval',
@@ -109,24 +121,21 @@ def get_documents():
         
         if search_params['filters'] is None or len(search_params['filters']) == 0:
             return make_response('invalid parameter', 400)
-        emp_id = search_params['filters'][0]['val']
-        LibApprovalDocument.get_many_preprocessor(emp_id=emp_id)
+        manager = search_params['filters'][0]['val']
+        LibApprovalDocument.get_many_preprocessor(manager_value=manager)
         
         documents = db.session.query(ApprovalDocument).all()
      
         result = []  
         for document in documents:
-            approval_lines = db.session.query(ApprovalLine).options(
-                joinedload(ApprovalLine.submitter),
-                joinedload(ApprovalLine.approver)
-            ).filter(
+            approval_lines = db.session.query(ApprovalLine).filter(
                         ApprovalLine.fk_document_id == document.id,
-                        ApprovalLine.fk_submitter_id == emp_id
+                        ApprovalLine.manager == manager
                     ).all()
             line_result = {}
             for line in approval_lines:
-                line_result[str(line.line_order)] = line.approver.id if line.approver else ''
-             
+                line_result[str(line.line_order)] = line.approval_manager
+                
             result.append({
                 'id': document.id,
                 'document_number': document.document_number,
@@ -139,22 +148,10 @@ def get_documents():
                     {
                         'id': line.id,
                         'created': line.created,
+                        'manager': line.manager,
                         'line_order': line.line_order,
-                        'fk_submitter_id': line.fk_submitter_id,
-                        'fk_approver_id': line.fk_approver_id,
-                        'fk_document_id': line.fk_document_id,
-                        'submitter': {
-                            'id': line.submitter.id,
-                            'emp_code': line.submitter.emp_code,
-                            'emp_name': line.submitter.emp_name,
-                            'emp_position': line.submitter.emp_position
-                        } if line.submitter else {},
-                        'approver': {
-                            'id': line.approver.id,
-                            'emp_code': line.approver.emp_code,
-                            'emp_name': line.approver.emp_name,
-                            'emp_position': line.approver.emp_position
-                        } if line.approver else {}
+                        'approval_manager': line.approval_manager,
+                        'fk_document_id': line.fk_document_id
                     } for line in approval_lines
                 ],
                 **line_result 
@@ -177,13 +174,13 @@ def get_documents():
 def update_document_status(instance_id):
     try:
         data = request.json
-        submitter_id = data.pop('submitter_id', None)
+        manager = data.pop('manager', None)
         for key, value in data.items():
             db.session.query(ApprovalLine).filter(
                 ApprovalLine.fk_document_id == instance_id,
-                ApprovalLine.fk_submitter_id == submitter_id,
+                ApprovalLine.manager == manager,
                 ApprovalLine.line_order == key
-            ).update({ApprovalLine.fk_approver_id: value})
+            ).update({ApprovalLine.approval_manager: value})
         db.session.commit()
         return jsonify({"success": True})
     except SQLAlchemyError as e:
@@ -194,11 +191,12 @@ def update_document_status(instance_id):
 def create_document():
     try:
         data = request.json
+        print("data : ", data)
         approval_attachment = data.pop('approval_attachment', None)
         approval_document = data.pop('approval_document', None)
         if data is not None:
             approval_data = {'fk_company_id': data['fk_company_id']}
-            LibCommon.get_item_number(approval_data, 'approval_number', Approval, Approval.approval_number, '/approval/request', '')
+            LibCommon.get_item_number(approval_data, 'approval_number', Approval, Approval.approval_number, '/approval/request')
             new_approval = Approval() 
             new_approval.approval_number = approval_data['approval_number']
             new_approval.approval_date = data['approval_date']
@@ -206,23 +204,10 @@ def create_document():
             new_approval.register = data['register']
             new_approval.title = data['title']
             new_approval.content = data['content']
-            new_approval.purchase_amount = data['purchase_amount']
-            new_approval.annual_leave = data['annual_leave']
-            new_approval.annual_leave_start_date = data['annual_leave_start_date']
-            new_approval.annual_leave_end_date = data['annual_leave_end_date']
-            new_approval.annual_leave_reason = data['annual_leave_reason']
-            new_approval.payment_amount = data['payment_amount']
-            new_approval.payment_supply_price = data['payment_supply_price']
-            new_approval.payment_vat = data['payment_vat']
-            new_approval.payment_company = data['payment_company']
-            new_approval.payment_content = data['payment_content']
-            new_approval.payment_proof = data['payment_proof']
-            new_approval.payment_request_date = data['payment_request_date']
-            new_approval.payment_account_number = data['payment_account_number']
-            new_approval.receipt_amount = data['receipt_amount']
             new_approval.etc = data['etc']
             new_approval.fk_document_id = data['fk_document_id']
             new_approval.fk_company_id = data['fk_company_id']
+            new_approval.fk_business_id = data['fk_business_id']
         
             db.session.add(new_approval)
             db.session.commit()
@@ -244,7 +229,7 @@ def create_document():
                             'fk_approval_id': new_attachment.fk_approval_id
                         }
                     )
-
+            line_results = []
             if approval_document is not None:
                 approval_lines = db.session.query(ApprovalLine).filter(
                     ApprovalLine.fk_document_id == approval_document['id'],
@@ -254,7 +239,6 @@ def create_document():
                         ApprovalLine.approval_manager != ''
                     )
                 ).all()
-                line_results = []
                 for line in approval_lines:
                     new_line_result = ApprovalLineResult()
                     new_line_result.approval_manager = line.approval_manager

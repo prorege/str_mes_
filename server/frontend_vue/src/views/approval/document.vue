@@ -44,59 +44,20 @@
             <dx-column caption="결재선 지정" alignment="center">
               <dx-column
                 data-field="1"
-                caption="사원 및 계장"
+                caption="기안"
                 :allow-editing="!vars.disabled.edit"
                 width="120px"
                 alignment="center"
               >
                 <dx-lookup
                   :data-source="vars.dataSource.employee"
-                  value-expr="id"
+                  value-expr="emp_name"
                   display-expr="emp_name"
                 />
               </dx-column>
               <dx-column
                 data-field="2"
-                caption="대리"
-                :allow-editing="!vars.disabled.edit"
-                width="120px"
-                alignment="center"
-              >
-                <dx-lookup
-                    :data-source="vars.dataSource.employee"
-                    value-expr="id"
-                    display-expr="emp_name"
-                />
-              </dx-column>
-              <dx-column
-                data-field="3"
-                caption="과장"
-                :allow-editing="!vars.disabled.edit"
-                width="120px"
-                alignment="center"
-              >
-                <dx-lookup
-                    :data-source="vars.dataSource.employee"
-                    value-expr="id"
-                    display-expr="emp_name"
-                />
-              </dx-column>
-              <dx-column
-                data-field="4"
-                caption="차장"
-                :allow-editing="!vars.disabled.edit"
-                width="120px"
-                alignment="center"
-              >
-                <dx-lookup
-                    :data-source="vars.dataSource.employee"
-                    value-expr="id"
-                    display-expr="emp_name"
-                />
-              </dx-column>
-              <dx-column
-                data-field="5"
-                caption="부장"
+                caption="팀장"
                 :allow-editing="!vars.disabled.edit"
                 width="120px"
                 alignment="center"
@@ -108,46 +69,33 @@
                 />
               </dx-column>
               <dx-column
-                data-field="6"
-                caption="이사"
+                data-field="3"
+                caption="PM검토"
                 :allow-editing="!vars.disabled.edit"
                 width="120px"
                 alignment="center"
               >
                 <dx-lookup
                     :data-source="vars.dataSource.employee"
-                    value-expr="id"
+                    value-expr="emp_name"
                     display-expr="emp_name"
                 />
               </dx-column>
               <dx-column
-                data-field="7"
-                caption="상무"
+                data-field="4"
+                caption="PE검토"
                 :allow-editing="!vars.disabled.edit"
                 width="120px"
                 alignment="center"
               >
                 <dx-lookup
                     :data-source="vars.dataSource.employee"
-                    value-expr="id"
+                    value-expr="emp_name"
                     display-expr="emp_name"
                 />
               </dx-column>
               <dx-column
-                data-field="8"
-                caption="전무"
-                :allow-editing="!vars.disabled.edit"
-                width="120px"
-                alignment="center"
-              >
-                <dx-lookup
-                    :data-source="vars.dataSource.employee"
-                    value-expr="id"
-                    display-expr="emp_name"
-                />
-              </dx-column>
-              <dx-column
-                data-field="9"
+                data-field="5"
                 caption="대표이사"
                 :allow-editing="!vars.disabled.edit"
                 width="120px"
@@ -155,20 +103,7 @@
               >
                 <dx-lookup
                     :data-source="vars.dataSource.employee"
-                    value-expr="id"
-                    display-expr="emp_name"
-                />
-              </dx-column>
-              <dx-column
-                data-field="10"
-                caption="회장"
-                :allow-editing="!vars.disabled.edit"
-                width="120px"
-                alignment="center"
-              >
-                <dx-lookup
-                    :data-source="vars.dataSource.employee"
-                    value-expr="id"
+                    value-expr="emp_name"
                     display-expr="emp_name"
                 />
               </dx-column>
@@ -238,9 +173,9 @@ setup() {
 
     vars.dataSource = reactive({
     approvalDocumentStatus: getApprovalDocumentStatus([{
-        name: 'emp_id',
+        name: 'manager',
         op: 'eq',
-        val: authService.user?.emp_id || '관리자',
+        val: authService.getUserName(),
     }]),
     employee: [],
     })
@@ -266,7 +201,7 @@ setup() {
     onSavingItem(e) {
         e.changes.forEach(element => {
         if (element.type == 'update') {
-            element.data.submitter_id = authService.user?.emp_id || '관리자';
+            element.data.manager = authService.getUserName();
         }
         });
     },

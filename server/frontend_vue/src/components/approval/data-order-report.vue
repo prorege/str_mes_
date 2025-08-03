@@ -1,60 +1,54 @@
 <template>
   <div class="order-report dx-card responsive-paddings">
+    <div class="buttons">
+        <dx-button text="인쇄" icon="print" @click="methods.printPopup" />
+    </div>
     <div class="content-header">
       <div class="content-header-container">
         <div class="content-header-title">
           <h1>수주사항보고서</h1>
         </div>
         <div class="content-header-line">
+          <div class="empty-space"></div>
+          <div class="business-name"><h4>사업명 : {{ vars.formData.business_name }}</h4></div>
           <div class="content-header-approval-line">
             <table class="approval-line-table">
               <colgroup>
                 <col style="width:30px"/>
-                <col style="width:50px"/>
-                <col style="width:50px"/>
-                <col style="width:50px"/>
-                <col style="width:50px"/>
-                <col style="width:50px"/>
-                <col style="width:50px"/>
-                <col style="width:50px"/>
-                <col style="width:50px"/>
-                <col style="width:50px"/>
-                <col style="width:50px"/>
+                <col style="width:60px"/>
+                <col style="width:60px"/>
+                <col style="width:60px"/>
+                <col style="width:60px"/>
+                <col style="width:60px"/>
               </colgroup>
-              <tr>
+              <tr style="height: 20px;">
                 <td rowspan="3" style="font-weight: bold;">결제</td>
-                <th>사원 및<br>계장</th>
-                <th>대리</th>
-                <th>과장</th>
-                <th>차장</th>
-                <th>부장</th>
-                <th>이사</th>
-                <th>상무</th>
-                <th>전무</th>
+                <th>기안</th>
+                <th>팀장</th>
+                <th>PM검토</th>
+                <th>PE검토</th>
                 <th>대표이사</th>
-                <th>회장</th>
               </tr>
               <tr style="height: 45px;">
-                <td v-for="i in 11" :key="i">
+                <td v-for="i in 6" :key="i">
                     <div class="approval-sign-box">
                     </div>
                 </td>
               </tr>
               <tr style="height: 20px;">
-                <td v-for="i in 11" :key="i"></td>
+                <td v-for="i in 6" :key="i"></td>
               </tr>
             </table>
           </div>
         </div>
-    
       </div>
     </div>
     <div class="content-body">
       <div class="content-body-container">
         <div class="content-body-form dx-card responsive-paddings back-colored">
           <dx-form :form-data="vars.formData">
-            <dx-group-item :col-count="4">
-              <dx-group-item>
+            <dx-group-item :col-count="22">
+              <dx-group-item :col-span="6">
                   <dx-simple-item
                     data-field="business_number"
                     :editor-options="{
@@ -84,15 +78,8 @@
                     <dx-label text="계약상대자" :show-colon="false" />
                     <dx-required-rule message="계약상대자를 선택하세요" />
                   </dx-simple-item>
-                  <dx-simple-item data-field="contract_company"
-                  :editor-options="{
-                    ...vars.formState,
-                  }"
-                >
-                  <dx-label text="수요기관" :show-colon="false" />
-                </dx-simple-item>
               </dx-group-item>
-              <dx-group-item>
+              <dx-group-item :col-span="5">
                   <dx-simple-item data-field="business_department" :editor-options="{
                       ...vars.formState,
                     }">
@@ -111,21 +98,16 @@
                   }">
                     <dx-label text="영업금액" :show-colon="false" />
                   </dx-simple-item>
-                  <dx-simple-item 
-                  data-field="client_manager" 
+                  <dx-simple-item data-field="contract_company"
                   :editor-options="{
-                    ...vars.formState
-                }">
-                  <dx-label text="업체담당자" :show-colon="false" />
+                    ...vars.formState,
+                  }"
+                >
+                  <dx-label text="수요기관" :show-colon="false" />
                 </dx-simple-item>
-                <dx-simple-item data-field="completion_date" editor-type="dxDateBox" :editor-options="{
-                    dateSerializationFormat: 'yyyy-MM-ddTHH:mm:ss',
-                    ...vars.formState
-                  }">
-                    <dx-label text="준공일자" :show-colon="false" />
-                  </dx-simple-item>
+  
               </dx-group-item>
-              <dx-group-item>
+              <dx-group-item :col-span="4">
                   <dx-simple-item data-field="business_type" :editor-options="{
                     ...vars.formState,
                   }">
@@ -141,40 +123,31 @@
                   }">
                     <dx-label text="현장지역" :show-colon="false" />
                   </dx-simple-item>
-                  <dx-simple-item data-field="registration_closing_date" editor-type="dxDateBox" :editor-options="{ 
+                  <dx-simple-item data-field="completion_date" editor-type="dxDateBox" :editor-options="{
                     dateSerializationFormat: 'yyyy-MM-ddTHH:mm:ss',
-                    type: 'datetime',
-                    displayFormat: 'yyyy-MM-dd HH:mm',
-                    pickerType: 'calendar',
                     ...vars.formState
                   }">
-                    <dx-label text="등록마감" :show-colon="false"/>
-                  </dx-simple-item>
-                  <dx-simple-item data-field="bid_closing_date" editor-type="dxDateBox" :editor-options="{ 
-                    dateSerializationFormat: 'yyyy-MM-ddTHH:mm:ss',
-                    type: 'datetime',
-                    displayFormat: 'yyyy-MM-dd HH:mm',
-                    pickerType: 'calendar',
-                    ...vars.formState
-                  }">
-                    <dx-label text="투찰마감" :show-colon="false"/>
+                    <dx-label text="준공예정일" :show-colon="false" />
                   </dx-simple-item>
               </dx-group-item>
-              <dx-group-item>
-                  <dx-simple-item data-field="business_progress" :editor-options="{
+              <dx-group-item :col-span="7">
+                  <dx-group-item :col-count="2">
+                    <dx-simple-item data-field="business_progress" :editor-options="{
+                      ...vars.formState,
+                    }">
+                      <dx-label text="진행현황" :show-colon="false" />
+                    </dx-simple-item>
+                    <dx-simple-item data-field="contract_type" :editor-options="{
                     ...vars.formState,
                   }">
-                    <dx-label text="진행현황" :show-colon="false" />
+                    <dx-label text="계약유형" :show-colon="false" />
                   </dx-simple-item>
+                  </dx-group-item>
+                
                   <dx-simple-item data-field="project.project_number" :editor-options="{
                     ...vars.formState,
                   }">
                     <dx-label text="연결 프로젝트" :show-colon="false" />
-                  </dx-simple-item>
-                  <dx-simple-item data-field="contract_type" :editor-options="{
-                    ...vars.formState,
-                  }">
-                    <dx-label text="계약유형" :show-colon="false" />
                   </dx-simple-item>
                   <dx-group-item :col-count="2" css-class="form-group">
                     <dx-simple-item data-field="gross_profit" editor-type="dxNumberBox" :editor-options="{
@@ -268,25 +241,26 @@
 </template>
 
 <script>
-import { reactive, onMounted } from 'vue';
+import { reactive, onMounted, watch } from 'vue';
 import { DxForm, DxGroupItem, DxSimpleItem, DxLabel, DxRequiredRule } from 'devextreme-vue/form';
 import { DxNumberBox } from 'devextreme-vue/number-box'
 import { DxDataGrid, DxColumn, DxScrolling, DxPaging, DxSummary, DxTotalItem, } from 'devextreme-vue/data-grid';
-import { getProjectBusinessCost } from '../../data-source/project';
+import { DxButton } from 'devextreme-vue/button';
+import { getProjectBusinessCost, projectBusiness } from '../../data-source/project';
+import { approvalDocumentStatus, approvalLine } from '../../data-source/approval';
 import ArrayStore from 'devextreme/data/array_store';
+import authService from '@/auth';
 import { groupBy, sortBy } from 'lodash';
+import html2canvas from 'html2canvas';
+import { filter } from 'lodash';
 export default {
   components: {
-    DxForm, DxGroupItem, DxSimpleItem, DxLabel, DxRequiredRule, DxNumberBox, DxDataGrid, DxColumn, DxScrolling, DxPaging, DxSummary, DxTotalItem,
+    DxForm, DxGroupItem, DxSimpleItem, DxLabel, DxRequiredRule, DxNumberBox, DxDataGrid, DxColumn, DxScrolling, DxPaging, DxSummary, DxTotalItem, DxButton,
   },
   props: {
-    businessId: {
-      type: [String, Number],
+    fk_business_id: {
+      type: Number,
       default: null
-    },
-    formData: {
-      type: Object,
-      default: () => ({})
     }
   },
   setup(props) {
@@ -300,13 +274,10 @@ export default {
       business_department: '',
       business_manager: '',
       business_amount: '',
-      client_manager: '',
       completion_date: '',
       business_type: '',
       classification: '',
       location: '',
-      registration_closing_date: '',
-      bid_closing_date: '',
       business_progress: '',
       project_number: '',
       contract_type: '',
@@ -318,13 +289,91 @@ export default {
       purchase_supply_price: 0,
     });
     vars.dataSource = reactive({
-      cost : new ArrayStore({ key: 'item_code', data: [] })
+      cost : new ArrayStore({ key: 'item_code', data: [] }),
+      approvalLine : [],
+      approvalLineResult : [],
     });
     vars.formState = reactive({
       readOnly: true,
     });
-    
     const methods = {
+      async initById(id){
+        try {
+          const response = await approvalDocumentStatus.load({
+            filter: ['manager', '=', authService.getUserName()]
+          });
+          if (response.data) {
+            const document = response.data.find(item => item.document_name === '수주사항보고서')
+            if (document) {
+              const { data : approvalLineData } = await approvalLine.load({
+                filter: ['fk_document_id', '=', document.id]
+              });
+              vars.dataSource.approvalLine = approvalLineData;
+            }
+          }
+          
+          if (id) {
+            const { data : businessData } = await projectBusiness.load({
+              filter: ['id', '=', id]
+            });
+            Object.assign(vars.formData, businessData[0]);
+
+            if (vars.formData.id){
+              const { data : costData } = await getProjectBusinessCost([{ name: 'fk_business_id', op: 'eq', val: vars.formData.id }]).load();
+            
+              const groupedData = groupBy(costData, 'item.main_category');
+              
+              const processedData = [];
+              const categories = Object.keys(groupedData);
+              
+              categories.forEach((category, categoryIndex) => {
+
+                const firstItem = sortBy(groupedData[category], 'item_order')[0];
+                if (firstItem) {
+                  processedData.push({
+                    type: category,
+                    ...firstItem,
+                    isGroupHeader: true
+                  });
+                }
+                
+                const sortedItems = sortBy(groupedData[category], 'item_order');
+                sortedItems.slice(1).forEach(item => {
+                  processedData.push({
+                    ...item,
+                    isGroupHeader: false
+                  });
+                });
+                
+                if (categoryIndex < categories.length - 1) {
+                  processedData.push({
+                    item_order: '',
+                    item_code: '',
+                    item_name: '',
+                    item_standard: '',
+                    unit: '',
+                    quote_quantity: '',
+                    quote_unit_price: '',
+                    quote_supply_price: '',
+                    purchase_unit_price: '',
+                    purchase_supply_price: '',
+                    dc_rate: '',
+                    isGroupHeader: false,
+                    isEmptyRow: true
+                  });
+                }
+              });
+    
+              vars.dataSource.cost = new ArrayStore({ 
+                key: 'item_code', 
+                data: processedData 
+              });
+            }
+          }
+        } catch (error) {
+          console.error('DataOrderReport mounted error:', error);
+        }
+      },
       itemTypeTemplate(e, v) {
         if (v.data.isGroupHeader) {
           e.style.backgroundColor = '#f0f0f0';
@@ -357,69 +406,55 @@ export default {
             vars.formData.quote_supply_price = options.totalValue;
           }
         }
-      }
+      },
+      async printPopup() {
+      if(!vars.formData.id) return;
+      const popup = document.querySelector('.order-report');
+      
+      if (!popup) return;
+      // const clone = popup.cloneNode(true);
+      popup.querySelector('.buttons').style.display = 'none';
+      const canvas = await html2canvas(popup, { backgroundColor: '#fff', scale: 2 });
+      const imgData = canvas.toDataURL('image/png');
+      const printWindow = window.open('', '_blank', 'width=900,height=1200');
+      printWindow.document.write(`
+          <html>
+            <head>
+              <title>인쇄</title>
+              <meta charset="utf-8">
+              <style>
+                @page { size: A4; margin: 0; }
+                html { margin: 0; padding: 0; }
+                body { margin: 0; text-align: center; }
+                img { max-width: 210mm; max-height: 297mm; padding: 10px; }
+              </style>
+            </head>
+            <body>
+              <div style="padding: 10px 10px 10px 0px;">
+                <img src="${imgData}" />
+              </div>
+            </body>
+          </html>
+        `);
+      printWindow.document.close();
+      printWindow.focus();
+      setTimeout(() => {
+        printWindow.print();
+        printWindow.close();
+      }, 1000); 
+      popup.querySelector('.buttons').style.display = 'block';
+    },
     }
     
     onMounted(async () => {
-      try {
-        if (props.formData) {
-          Object.assign(vars.formData, props.formData);
-        }
-        if (props.businessId) {
-          const { data } = await getProjectBusinessCost([{ name: 'fk_business_id', op: 'eq', val: props.businessId }]).load();
-          
-          const groupedData = groupBy(data, 'item.main_category');
-          
-          const processedData = [];
-          const categories = Object.keys(groupedData);
-          
-          categories.forEach((category, categoryIndex) => {
-
-            const firstItem = sortBy(groupedData[category], 'item_order')[0];
-            if (firstItem) {
-              processedData.push({
-                type: category,
-                ...firstItem,
-                isGroupHeader: true
-              });
-            }
-            
-            const sortedItems = sortBy(groupedData[category], 'item_order');
-            sortedItems.slice(1).forEach(item => {
-              processedData.push({
-                ...item,
-                isGroupHeader: false
-              });
-            });
-            
-            if (categoryIndex < categories.length - 1) {
-              processedData.push({
-                item_order: '',
-                item_code: '',
-                item_name: '',
-                item_standard: '',
-                unit: '',
-                quote_quantity: '',
-                quote_unit_price: '',
-                quote_supply_price: '',
-                purchase_unit_price: '',
-                purchase_supply_price: '',
-                dc_rate: '',
-                isGroupHeader: false,
-                isEmptyRow: true
-              });
-            }
-          });
- 
-          vars.dataSource.cost = new ArrayStore({ 
-            key: 'item_code', 
-            data: processedData 
-          });
-        }
-      } catch (error) {
-        console.error('DataOrderReport mounted error:', error);
-      }
+      
     });
+
+    watch(
+      () => props.fk_business_id,
+      () => methods.initById(props.fk_business_id),
+      { immediate: true }
+    )
     
     return { vars, methods };
   }
@@ -431,7 +466,12 @@ export default {
   padding: 20px;
   height: 100%;
   // max-height: calc(100vh - 250px);
-
+  .buttons {
+    position: fixed;
+    top: 80px;
+    left: 40px;
+    z-index: 1000;
+  }
   .content-header {
     .content-header-container {
       display: flex;
@@ -447,25 +487,40 @@ export default {
       }
       .content-header-line {
         display: flex;
-        justify-content: flex-end;
+        justify-content: space-between;
         width: 100%;
         margin-bottom: 20px;
+        .empty-space {
+          width: 25%;
+        }
+        .business-name {
+          margin-top: 0px;
+          width: 50%;
+          text-align: center;
+          h4 {
+            font-weight: bold;
+          }
+        }
 
         .content-header-approval-line {
-        .approval-line-table th,
-        .approval-line-table td {
-          font-size: 0.8rem;
-          border: 1px solid #dddddd;
-          padding: 0;
-          text-align: center;
-          vertical-align: middle;
-          background-color: #ffffff;
-        }
-        .approval-line-table {
-        border-collapse: collapse;  
+          width: 25%;
+          display: flex;
+          justify-content: flex-end;
+          
+          .approval-line-table th,
+          .approval-line-table td {
+            font-size: 0.8rem;
+            border: 1px solid #dddddd;
+            padding: 0;
+            text-align: center;
+            vertical-align: middle;
+            background-color: #ffffff;
+          }
+          .approval-line-table {
+          border-collapse: collapse;  
 
+          }
         }
-      }
       }
       
     }

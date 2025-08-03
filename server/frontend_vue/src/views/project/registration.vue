@@ -2582,7 +2582,7 @@ export default {
           if(element.type != 'remove'){
             element.data.fk_project_management_id = vars.formData.id;
             delete element.data.item;
-            await methods.updateUploadFile(element)
+            await methods.updateUploadFile(element);
           }
         }
       },
@@ -2591,7 +2591,7 @@ export default {
         for(const element of e.changes){
           if(element.type != 'remove'){
             element.data.fk_business_id = vars.formData.fk_business_id;        // ✅ 외래키 (영업건 ID)      
-            delete element.data.item;
+            // delete element.data.item;
           }
         }
       },

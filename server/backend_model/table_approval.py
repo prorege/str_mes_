@@ -8,6 +8,7 @@ from backend_model.database import DBManager
 from backend_model.table_common import Companies
 from sqlalchemy.dialects.mysql import MEDIUMTEXT
 from backend_model.table_base import BaseEmployee
+from backend_model.table_project import ProjectBusiness
 
 db = DBManager.db
 
@@ -59,21 +60,8 @@ class Approval(db.Model):
     register = db.Column('register', db.String(48), comment='작성자')
     title = db.Column('title', db.String(96), comment='제목')
     content = db.Column('content', db.Text, comment='내용')
-    purchase_amount = db.Column('purchase_amount', db.BigInteger, comment='물품구입서 합계금액')
-    annual_leave = db.Column('annual_leave', db.String(48), comment='연차계')
-    annual_leave_start_date = db.Column('annual_leave_start_date', db.DateTime, comment='연차시작일')
-    annual_leave_end_date = db.Column('annual_leave_end_date', db.DateTime, comment='연차종료일')
-    annual_leave_reason = db.Column('annual_leave_reason', db.Text, comment='연차사유')
-    payment_amount = db.Column('payment_amount', db.BigInteger, comment='금액')
-    payment_supply_price = db.Column('payment_supply_price', db.BigInteger, comment='공급가')
-    payment_vat = db.Column('payment_vat', db.Integer, comment='부가세')
-    payment_company = db.Column('payment_company', db.String(48), comment='지불업체')
-    payment_content = db.Column('payment_content', db.String(128), comment='내용')
-    payment_proof = db.Column('payment_proof', db.String(128), comment='증빙')
-    payment_request_date = db.Column('payment_request_date', db.DateTime, comment='송금요청일')
-    payment_account_number = db.Column('payment_account_number', db.String(96), comment='송금계좌정보')
-    receipt_amount = db.Column('receipt_amount', db.BigInteger, comment='지불증 합계 금액')
     etc = db.Column('etc', db.Text, comment='비고')
+    fk_business_id = db.Column('fk_business_id', db.Integer, db.ForeignKey(ProjectBusiness.id), comment='영업 FK')
     fk_document_id = db.Column('fk_document_id', db.Integer, db.ForeignKey(ApprovalDocument.id), comment='문서 FK')
     fk_company_id = db.Column('fk_company_id', db.Integer, db.ForeignKey(Companies.id), comment='회사 FK')
     approval_document = db.relationship('ApprovalDocument', foreign_keys=[fk_document_id])
@@ -97,13 +85,10 @@ class ApprovalLine(db.Model):
 
     id = db.Column('id', db.Integer, primary_key=True)
     created = db.Column('created', db.DateTime, default=datetime.now, comment='생성시간')
+    manager = db.Column('manager', db.String(48), comment='상신자')
     line_order = db.Column('line_order', db.Integer, comment='결재순서')
     approval_manager = db.Column('approval_manager', db.String(48), comment='결재자')
-    fk_submitter_id = db.Column('fk_submitter_id', db.Integer, db.ForeignKey(BaseEmployee.id), comment='FK 상신자 id')
-    fk_approver_id = db.Column('fk_approver_id', db.Integer, db.ForeignKey(BaseEmployee.id), comment='FK 결재자 id')
     fk_document_id = db.Column('fk_document_id', db.Integer, db.ForeignKey(ApprovalDocument.id), comment='문서 FK')
-    submitter = db.relationship('BaseEmployee', foreign_keys=[fk_submitter_id])
-    approver = db.relationship('BaseEmployee', foreign_keys=[fk_approver_id])
 
 class ApprovalLineResult(db.Model):
     __tablename__ = 'approval_line_result'
