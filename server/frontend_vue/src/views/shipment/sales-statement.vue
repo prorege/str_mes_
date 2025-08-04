@@ -782,7 +782,7 @@ export default {
           const response = calcPriceSummary(vars.formData.vat_type, row.non_invoice);
           await grid.addRow();
           grid.cellValue(0, 'statement_item', row.project_name); // 계산서품목
-          grid.cellValue(0, 'item_code', '-'); // 품목코드
+          grid.cellValue(0, 'item_code', row.item_code); // 품목코드
           grid.cellValue(0, 'quantity', 1)
           grid.cellValue(0, 'unit_price', row.non_invoice)
           grid.cellValue(0, 'vat', response.vat)
