@@ -8,6 +8,9 @@
             <dx-item location="before">
               <div class="content-title">영업건등록</div>
             </dx-item>
+            <dx-item location="after">
+              <div class="barobill-state" v-if="vars.dataSource.approval">{{ vars.dataSource.approval }}</div>
+            </dx-item>
             <dx-item location="after" locate-in-menu="auto" widget="dxButton" :options="{text: '신규', type: 'add', icon: 'add', disabled: vars.disabled.new, onClick: methods.newItem}"/>
             <dx-item location="after" locate-in-menu="auto" widget="dxButton" :options="{text: '수정', type: 'rename', icon: 'rename', disabled: vars.disabled.edit, onClick: methods.editItem}"/>
             <dx-item location="after" locate-in-menu="auto" widget="dxButton" :options="{text: '삭제', type: 'remove', icon: 'remove', disabled: vars.disabled.delete, onClick: methods.deleteItem}" />
@@ -53,19 +56,7 @@
               >
                   <dx-label text="계약상대자" :show-colon="false" />
                   <dx-required-rule message="계약상대자를 선택하세요" />
-                </dx-simple-item>
-                <dx-simple-item data-field="contract_company"
-                :editor-options="{
-                  ...generateItemButtonOption(
-                    'search',
-                    methods.createFindPopupFn('contract_company', '수요기관')
-                  ),
-                  ...vars.formState,
-                }"
-              >
-                <dx-label text="수요기관" :show-colon="false" />
-              </dx-simple-item>
-     
+                </dx-simple-item>     
             </dx-group-item>
             <dx-group-item>
                 <dx-simple-item data-field="business_department" editor-type="dxSelectBox" :editor-options="{
@@ -97,28 +88,17 @@
                 }">
                   <dx-label text="영업금액" :show-colon="false" />
                 </dx-simple-item>
-                <dx-simple-item 
-                data-field="client_manager" 
-                editor-type="dxSelectBox" 
+                <dx-simple-item data-field="contract_company"
                 :editor-options="{
-                  valueExpr: 'name',
-                  displayExpr: 'name',
-                  acceptCustomValue: true,
-                  dataSource: vars.dataSource.client_manager,
-                  disabled: vars.disabled.client_manager,
-                  ...generateItemButtonOption('search', methods.createFindPopupFn('client-manager', '업체담당자조회', { 
-                    fk_client_id: vars.filter.baseItem.clientId
-                  })),
-                  ...vars.formState
-              }">
-                <dx-label text="업체담당자" :show-colon="false" />
+                  ...generateItemButtonOption(
+                    'search',
+                    methods.createFindPopupFn('contract_company', '수요기관')
+                  ),
+                  ...vars.formState,
+                }"
+              >
+                <dx-label text="수요기관" :show-colon="false" />
               </dx-simple-item>
-              <dx-simple-item data-field="completion_date" editor-type="dxDateBox" :editor-options="{
-                  dateSerializationFormat: 'yyyy-MM-ddTHH:mm:ss',
-                  ...vars.formState
-                }">
-                  <dx-label text="준공일자" :show-colon="false" />
-                </dx-simple-item>
             </dx-group-item>
             <dx-group-item>
                 <dx-simple-item data-field="business_type" editor-type="dxSelectBox" :editor-options="{
@@ -150,45 +130,37 @@
                 }">
                   <dx-label text="현장지역" :show-colon="false" />
                 </dx-simple-item>
-                <dx-simple-item data-field="registration_closing_date" editor-type="dxDateBox" :editor-options="{ 
-                  dateSerializationFormat: 'yyyy-MM-ddTHH:mm:ss',
-                  type: 'datetime',
-                  displayFormat: 'yyyy-MM-dd HH:mm',
-                  pickerType: 'calendar',
-                  ...vars.formState
-                }">
-                  <dx-label text="등록마감" :show-colon="false"/>
-                </dx-simple-item>
-                <dx-simple-item data-field="bid_closing_date" editor-type="dxDateBox" :editor-options="{ 
-                  dateSerializationFormat: 'yyyy-MM-ddTHH:mm:ss',
-                  type: 'datetime',
-                  displayFormat: 'yyyy-MM-dd HH:mm',
-                  pickerType: 'calendar',
-                  ...vars.formState
-                }">
-                  <dx-label text="투찰마감" :show-colon="false"/>
-                </dx-simple-item>
+                <dx-simple-item data-field="completion_date" editor-type="dxDateBox" :editor-options="{
+                dateSerializationFormat: 'yyyy-MM-ddTHH:mm:ss',
+                ...vars.formState
+              }">
+                <dx-label text="준공예정일" :show-colon="false" />
+              </dx-simple-item>
             </dx-group-item>
             <dx-group-item>
-                <dx-simple-item data-field="business_progress" editor-type="dxSelectBox" :editor-options="{
-                  dataSource: vars.dataSource.business_progress,
-                  valueExpr: 'code_name',
-                  displayExpr: 'code_name',
-                  ...vars.formState,
-                }">
-                  <dx-label text="진행현황" :show-colon="false" />
+                <dx-group-item :col-count="2">
+                  <dx-simple-item data-field="business_progress" editor-type="dxSelectBox" :editor-options="{
+                    dataSource: vars.dataSource.business_progress,
+                    valueExpr: 'code_name',
+                    displayExpr: 'code_name',
+                    ...vars.formState,
+                  }">
+                    <dx-label text="진행현황" :show-colon="false" />
+                  </dx-simple-item>
+                  <dx-simple-item data-field="contract_type" editor-type="dxSelectBox" :editor-options="{
+                    dataSource: vars.dataSource.contract_type,
+                    valueExpr: 'code_name',
+                    displayExpr: 'code_name',
+                    ...vars.formState,
+                  }">
+                  <dx-label text="계약유형" :show-colon="false" />
                 </dx-simple-item>
+                </dx-group-item>
+            
                 <dx-simple-item data-field="project.project_number" :editor-options="methods.projectNumberOptions()">
                   <dx-label text="연결 프로젝트" :show-colon="false" />
                 </dx-simple-item>
-                <dx-simple-item data-field="contract_type" editor-type="dxSelectBox" :editor-options="{
-                  dataSource: vars.dataSource.contract_type,
-                  valueExpr: 'code_name',
-                  displayExpr: 'code_name',
-                  ...vars.formState,
-                }">
-                  <dx-label text="계약유형" :show-colon="false" />
-                </dx-simple-item>
+
                 <dx-group-item :col-count="2" css-class="form-group">
                   <dx-simple-item data-field="gross_profit" editor-type="dxNumberBox" :editor-options="{
                   readOnly: true,
@@ -232,7 +204,7 @@
               <div class="pa-2">
                 <dx-data-grid
                   class="fixed-header-table"
-                  height="calc(100vh - 516px)"
+                  height="calc(100vh - 430px)"
                   data-serialization-format="yyyy-MM-ddTHH:mm:ss"
                   column-resizing-mode="widget"
                   :show-borders="true"
@@ -288,7 +260,7 @@
               <div class="pa-2">
                 <dx-data-grid
                   class="fixed-header-table"
-                  height="calc(100vh - 516px)"
+                  height="calc(100vh - 430px)"
                   data-serialization-format="yyyy-MM-ddTHH:mm:ss"
                   column-resizing-mode="widget"
                   :show-borders="true"
@@ -342,7 +314,7 @@
               <div class="pa-2">
                 <dx-data-grid
                   class="fixed-header-table"
-                  height="calc(100vh - 516px)"
+                  height="calc(100vh - 430px)"
                   date-serialization-format="yyyy-MM-ddTHH:mm:ss"
                   column-resizing-mode="widget"
                   :show-borders="true"
@@ -395,7 +367,7 @@
               <div class="pa-2">
                 <dx-data-grid
                   class="fixed-header-table"
-                  height="calc(100vh - 516px)"
+                  height="calc(100vh - 430px)"
                   date-serialization-format="yyyy-MM-ddTHH:mm:ss"
                   column-resizing-mode="widget"
                   :show-borders="true"
@@ -459,7 +431,7 @@
               <div class="pa-2">
                 <dx-data-grid
                   class="fixed-header-table"
-                  height="calc(100vh - 516px)"
+                  height="calc(100vh - 430px)"
                   data-serialization-format="yyyy-MM-ddTHH:mm:ss"
                   column-resizing-mode="widget"
                   :show-borders="true"
@@ -508,7 +480,7 @@
               <div class="pa-2">
                 <dx-data-grid
                   class="fixed-header-table"
-                  height="calc(100vh - 516px)"
+                  height="calc(100vh - 430px)"
                   data-serialization-format="yyyy-MM-ddTHH:mm:ss"
                   column-resizing-mode="widget"
                   :show-borders="true"
@@ -530,12 +502,19 @@
                   >
           
                   <dx-grid-toolbar>
+                      <dx-grid-item template="orderReportButton" location="after" />
                       <dx-grid-item template="costExportButton" location="after" />
                       <dx-grid-item template="costRate" location="after" />
                       <dx-grid-item template="addCostRowButton" location="after" :visible="!vars.formState.readOnly" />
                       <dx-grid-item template="costSaveButton" location="after" :visible="false" />
                       <dx-grid-item name="revertButton" location="after" />
                   </dx-grid-toolbar>
+                  <template #orderReportButton>
+                    <dx-button
+                      text="수주사항보고서"
+                      @click="methods.orderReportButton"
+                      />
+                  </template>
                   <template #costExportButton>
                     <dx-button
                       icon="xlsxfile"
@@ -590,7 +569,7 @@
               <div class="pa-2">
                 <dx-data-grid
                   class="fixed-header-table"
-                  height="calc(100vh - 516px)"
+                  height="calc(100vh - 430px)"
                   date-serialization-format="yyyy-MM-ddTHH:mm:ss"
                   column-resizing-mode="widget"
                   :show-borders="true"
@@ -672,7 +651,6 @@
         <data-grid-business v-if="vars.dlg.finder.key === 'business'" :filters="vars.dlg.finder.data" @change="methods.finderReturnHandler" />
         <data-grid-client v-else-if="vars.dlg.finder.key === 'contract_company'" :filters="vars.dlg.finder.data" @change="methods.finderReturnHandler" />
         <data-grid-client v-else-if="vars.dlg.finder.key === 'client'" :filters="vars.dlg.finder.data" @change="methods.finderReturnHandler" />
-        <data-grid-client-manager v-else-if="vars.dlg.finder.key === 'client-manager'" :filters="vars.dlg.finder.data" @change="methods.finderReturnHandler" />
         <data-grid-project v-else-if="vars.dlg.finder.key === 'project'" :filters="vars.dlg.finder.data" @change="methods.finderReturnHandler" />
         <data-location-select v-else-if="vars.dlg.finder.key === 'location'" :dataSource="vars.dataSource.location" @change="methods.finderReturnHandler" />
       </template>
@@ -732,6 +710,30 @@
       </template>
     </dx-popup>
     
+    <dx-popup
+      v-model:visible="vars.dlg.orderReport.show"
+      content-template="popup-content"
+      title="수주사항보고서"
+      :close-on-outside-click="true"
+      width="calc(100vw - 300px)"
+      height="calc(100vh - 200px)"
+      :resize-enabled="true"
+      :scroll-by-content="true"
+    >
+      <dx-toolbar-item widget="dxButton" toolbar="top" location="after"
+        :options="{ 
+          text: '상신요청', 
+          icon: 'export',
+          onClick: methods.sendRequest,
+          type: 'normal',
+        }"
+      />
+      <template #popup-content>
+        <dx-scroll-view width="100%" height="100%">
+          <data-order-report :fk_business_id="vars.formData.id" />
+        </dx-scroll-view>
+      </template>
+    </dx-popup>
     <input
       hidden
       type="file"
@@ -747,7 +749,8 @@ import { useRouter } from 'vue-router';
 import numeral from 'numeral';
 import { ref, reactive, watch, onMounted, nextTick, computed } from 'vue'
 import { confirm, alert } from 'devextreme/ui/dialog';
-import { DxPopup, } from 'devextreme-vue/popup';
+import { DxScrollView } from 'devextreme-vue/scroll-view';
+import { DxPopup, DxToolbarItem } from 'devextreme-vue/popup';
 import { DxNumberBox } from 'devextreme-vue/number-box';
 import { DxTextBox, DxButton as DxTextBoxButton } from 'devextreme-vue/text-box';
 import { DxLoadPanel } from 'devextreme-vue/load-panel';
@@ -775,14 +778,17 @@ import FindAddressStore from '../../data-source/find-address';
 import PopupItem from '../../components/base/popup-item.vue';
 import PopupItemDetail from '@/components/base/popup-item-detail';
 import ExcelJS from 'exceljs';
-
+import DataOrderReport from '@/components/approval/data-order-report.vue';
+import { getApproval, approvalLine, approvalDocumentStatus, approval } from '../../data-source/approval';
 export default {
   components: {
     DxTabPanel,
-    DxLoadPanel, DxToolbar, DxItem, DxButton, DxForm, DxGroupItem, DxPopup, DxSimpleItem, DxLabel, DxRequiredRule,DxScrolling,
+    DxLoadPanel, DxToolbar, DxItem, DxButton, DxForm, DxGroupItem, DxPopup, DxToolbarItem, DxSimpleItem, DxLabel, DxRequiredRule,DxScrolling,
     DataGridClient, DataGridBusiness, DataGridProject, DataGridClientManager, DataLocationSelect,
     DxDataGrid, DxGridToolbar, DxEditing, DxColumn, DxLookup, DxGridItem, DxGridRequiredRule, DxSelection, DxTextBox, DxPaging, DxTextBoxButton, PopupItem, DxNumberBox, DxSummary, DxTotalItem,
     PopupItemDetail,
+    DataOrderReport,
+    DxScrollView,
   },
   props: {
   id: [String, Number],
@@ -810,14 +816,12 @@ setup(props){
     save: true,
     printDocument: true,
     manager: true,
-    client_manager: true,
   })
   vars.formState = reactive({ readOnly: true});
   vars.dataSource = reactive({
     location: [],
     employee: [],
     department: [],
-    client_manager: [],
     business_type: [],
     business_progress: [],
     business_important: [],
@@ -831,6 +835,7 @@ setup(props){
     customer_history: getProjectCustomerHistory(vars.filter.common),
     cost: getProjectBusinessCost(vars.filter.common),
     basic: getProjectBusinessBasic(vars.filter.common),
+    approval: '',
   })
   vars.attchFiles = reactive({})
   vars.focus = reactive({
@@ -848,6 +853,7 @@ setup(props){
   vars.dlg = {};
   vars.dlg.finder = reactive({title : '', key: null, data: null, show: false});
   vars.dlg.addItem = reactive({ show: false });
+  vars.dlg.orderReport = reactive({ show: false });
   vars.findAddress = reactive({
     popup: false,
     store: new FindAddressStore(),
@@ -890,6 +896,15 @@ setup(props){
         return
       }
       await methods.loadBusinessData(id);
+      getApproval(vars.filter.common).load().then((response) => {
+        if(response.totalCount > 0){
+          vars.dataSource.approval = response.data[0]['approval_status'] || '미상신';
+        } else {
+          vars.dataSource.approval = '미상신';
+        }
+      }).catch((error) => {
+        vars.dataSource.approval = '';
+      })
       methods.enableEdit();
       methods.onClientChanged();
     },
@@ -1077,7 +1092,64 @@ setup(props){
         vars.loading.value = false;
       }
     },
+    async sendRequest(){
+      try {
+        vars.loading.value = true;
 
+        if (!vars.formData.id){
+          notifyError('저장된 데이터가 없습니다');
+          return;
+        }
+        if (vars.dataSource.approval !== '미상신'){
+          notifyError('이미 상신요청이 있습니다.');
+          return;
+        }
+        const { data } = await approvalDocumentStatus.load({
+          filter: [
+            ['manager', '=', authService.getUserName()]
+          ]
+        });
+
+        const hasEmptyLine = Array.from({ length: data[0].max_line }, (_, i) => i + 1)
+              .every(i => {
+                const value = data[0][`${i}`];
+                return value === null || value === undefined || value === '';
+              });
+        if (hasEmptyLine) {
+          alert('결재선을 등록해주세요.');
+          return;
+        }
+
+      
+        const result = await confirm('상신하시겠습니까?', '상신');
+        if (!result) return;
+        
+        const formData = {
+          fk_business_id: vars.formData.id,
+          fk_company_id: authService.getCompanyId(),
+          fk_document_id: data[0].id,
+          approval_date: currentDateTime(),
+          approval_status: '상신완료',
+          register: authService.getUserName(),
+          title: '',
+          content: '',
+          etc: '',
+          approval_document: {id: data[0].id},
+        }
+        const { data : approvalData } = await approval.insert(formData);
+        vars.dataSource.approval = '상신완료';
+        notifyInfo('상신 요청이 완료 됐습니다.');
+      }
+      catch(ex){
+        console.error(ex);
+        notifyError('상신 요청 중 오류가 발생했습니다.');
+      }
+      finally{
+        vars.loading.value = false;
+      }
+     
+      
+    },
     // 품목코드 클릭 시 품목 상세 정보 popup
     // itemPopupClick({ column, data }) {
     //   if (column.name === 'item_code') {
@@ -1279,7 +1351,6 @@ setup(props){
       vars.formData.business_date = '';
       vars.formData.completion_date = '';
       vars.formData.client_company = '';
-      vars.formData.client_manager = '';
       vars.formData.contract_company = '', 
       vars.formData.business_amount = 0;
       vars.formData.rate = 0;
@@ -1292,8 +1363,6 @@ setup(props){
       vars.formData.business_type = '';
       vars.formData.classification = '';
       vars.formData.location = '';
-      vars.formData.registration_closing_date = null;
-      vars.formData.bid_closing_date = null;
       vars.formData.business_progress = '';
       vars.formData.business_important = '';
       vars.formData.contract_type = '';
@@ -1301,6 +1370,8 @@ setup(props){
       vars.formData.modify_date = null;
       vars.formData.fk_project_management_id = null;
       vars.formData.fk_company_id = authService.getCompanyId();
+
+      vars.dataSource.approval = '';
     },
     disableAllAction(){
       vars.disabled.new = false;
@@ -1309,7 +1380,6 @@ setup(props){
       vars.disabled.save = true;
       vars.disabled.printDocument = true;
       vars.disabled.business_manager = true;
-      vars.disabled.client_manager = true;
     },
     enableSave(){
       vars.disabled.save = vars.formState.readOnly ? true : false;
@@ -1334,12 +1404,6 @@ setup(props){
         }
         case 'contract_company': {
             vars.formData.contract_company = data.name;
-            break;
-        }
-        case 'client-manager': {
-            loadClientManager(vars.dataSource, vars.formData.client_company).then(() => {
-              vars.formData.client_manager = data.name;
-            })
             break;
         }
         case 'project': {
@@ -1375,25 +1439,14 @@ setup(props){
         // vars.disabled.delete = true;
         // vars.disabled.save = true;
         // vars.disabled.tradeYn = false;
-        // vars.disabled.client_manager = true;
-        // vars.formData.client_manager = null;
-        // vars.dataSource.client_manager = [];
       }else{
-        if(methods.isFormReadOnly()){
-          loadClientManager(vars.dataSource, client.name);
-          vars.disabled.client_manager = false;
-        }else{
+        if(!methods.isFormReadOnly()){
           let isSelect = true;
           if(client.trade_yn){
             isSelect = await confirm('거래중지 업체입니다. 계속 진행하시겠습니까?', '계약업체');
           }
-          if(isSelect){
-            loadClientManager(vars.dataSource, client.name);
-            vars.disabled.client_manager = false;
-            vars.formData.client_manager = null;
-          }else{
+          if(!isSelect){
             vars.formData.client_company = '';
-            vars.formData.client_manager = null;
           }
         }
       }
@@ -1653,7 +1706,10 @@ setup(props){
           });
         });
       });
-    }
+    },
+    orderReportButton() {
+      vars.dlg.orderReport.show = true;
+    },
 
    
   };
@@ -1682,5 +1738,13 @@ setup(props){
 }
 ::v-deep(.form-group > div:first-child > div:first-child > div:first-child > div:first-child > div:first-child > div:first-child > div:nth-child(2) > div:first-child > div:nth-child(1)) {
   flex: 2 1 0px !important;
+}
+.barobill-state {
+  padding: 6px 20px;
+  border-radius: 4px;
+  border: 1px solid #d7d7d7;
+  box-shadow: inset 0px 1px 3px 0px #38530d6b;
+  background-color: #e3ffb8;
+  color: #5c8816;
 }
 </style>
