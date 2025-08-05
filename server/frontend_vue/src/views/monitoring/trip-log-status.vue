@@ -190,24 +190,24 @@ dataRefresh()
 
 
 async function dataRefresh () {
-clearTimeout(timerId3)
+    clearTimeout(timerId3)
 
-const params = {
-    skip: 0, 
-    take: 3000, 
-    // sort: [{selector: 'item.item_name', desc: false}],
-    filter: [
-    ['trip_end_date', '>=', currentDate],
-    ]
-}
+    const params = {
+        skip: 0, 
+        take: 3000, 
+        sort: [{ selector: 'trip_start_date', desc: false }], // 🔥 시작날짜 오름차순 정렬 추가
+        filter: [
+        ['trip_end_date', '>=', currentDate],
+        ]
+    }
 
 
-const {data} = await projectBusinessTripLog.load(params);
-console.log("data : ", data)
-dataSource.value = data;
-loaded.value = true
+    const {data} = await projectBusinessTripLog.load(params);
+    console.log("data : ", data)
+    dataSource.value = data;
+    loaded.value = true
 
-if (route.path === "/monitoring/trip-log-status") timerId3 = setTimeout(() => dataRefresh(), 5 * 1000)
+    if (route.path === "/monitoring/trip-log-status") timerId3 = setTimeout(() => dataRefresh(), 5 * 1000)
 }
 
 document.onfullscreenchange = () => {
