@@ -87,8 +87,14 @@ class ApprovalLine(db.Model):
     created = db.Column('created', db.DateTime, default=datetime.now, comment='생성시간')
     manager = db.Column('manager', db.String(48), comment='상신자')
     line_order = db.Column('line_order', db.Integer, comment='결재순서')
+    line_header = db.Column('line_header', db.String(48), comment='직급, 직책, 부서')
     approval_manager = db.Column('approval_manager', db.String(48), comment='결재자')
+    fk_approval_emp_id = db.Column('fk_approval_emp_id', db.Integer, db.ForeignKey(BaseEmployee.id, ondelete='CASCADE', onupdate='CASCADE'), comment='결재자 FK')
+    fk_request_emp_id = db.Column('fk_request_emp_id', db.Integer, db.ForeignKey(BaseEmployee.id, ondelete='CASCADE', onupdate='CASCADE'), comment='요청자 FK')
     fk_document_id = db.Column('fk_document_id', db.Integer, db.ForeignKey(ApprovalDocument.id), comment='문서 FK')
+    approval_employee = db.relationship('BaseEmployee', foreign_keys=[fk_approval_emp_id])
+    request_employee = db.relationship('BaseEmployee', foreign_keys=[fk_request_emp_id])
+    approval_document = db.relationship('ApprovalDocument', foreign_keys=[fk_document_id])
 
 class ApprovalLineResult(db.Model):
     __tablename__ = 'approval_line_result'

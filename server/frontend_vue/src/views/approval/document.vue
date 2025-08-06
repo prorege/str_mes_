@@ -13,6 +13,7 @@
         </div>
         <div class="dx-card responsive-paddings mt-1">
           <dx-data-grid
+            column-resizing-mode="widget"
             height="calc(100vh - 230px)"
             date-serialization-format="yyyy-MM-ddTHH:mm:ss"
             :show-borders="true"
@@ -22,14 +23,14 @@
             :allow-column-resizing="true"
             :allow-column-reordering="true"
             :row-alternation-enabled="true"
-            :data-source="vars.dataSource.approvalDocumentStatus"
+            :data-source="vars.dataSource.approvalDocument"
             :on-initialized="evt => methods.onGridInitialized(evt, 'status')"
             @saving="methods.onSavingItem"
             @data-error-occurred="methods.onDataError"
           >
             <dx-grid-toolbar>
-              <dx-grid-item template="edit" location="after" />
-              <dx-grid-item name="saveButton" />
+              <dx-grid-item template="edit" location="after" :visible="false" />
+              <dx-grid-item name="saveButton" :visible="false" />
               <dx-grid-item name="revertButton" />
               <dx-grid-item name="columnChooserButton" />
             </dx-grid-toolbar>
@@ -41,73 +42,10 @@
             <dx-column caption="문서명" width="110" data-field="document_name" :allow-editing="false" alignment="center"
             :header-cell-template="(e) => methods.emptyHeaderTemplate(e, '문서명')"
             />
-            <dx-column caption="결재선 지정" alignment="center">
-              <dx-column
-                data-field="1"
-                caption="기안"
-                :allow-editing="!vars.disabled.edit"
-                width="120px"
-                alignment="center"
-              >
-                <dx-lookup
-                  :data-source="vars.dataSource.employee"
-                  value-expr="emp_name"
-                  display-expr="emp_name"
-                />
-              </dx-column>
-              <dx-column
-                data-field="2"
-                caption="팀장"
-                :allow-editing="!vars.disabled.edit"
-                width="120px"
-                alignment="center"
-              >
-                <dx-lookup
-                    :data-source="vars.dataSource.employee"
-                    value-expr="emp_name"
-                    display-expr="emp_name"
-                />
-              </dx-column>
-              <dx-column
-                data-field="3"
-                caption="PM검토"
-                :allow-editing="!vars.disabled.edit"
-                width="120px"
-                alignment="center"
-              >
-                <dx-lookup
-                    :data-source="vars.dataSource.employee"
-                    value-expr="emp_name"
-                    display-expr="emp_name"
-                />
-              </dx-column>
-              <dx-column
-                data-field="4"
-                caption="PE검토"
-                :allow-editing="!vars.disabled.edit"
-                width="120px"
-                alignment="center"
-              >
-                <dx-lookup
-                    :data-source="vars.dataSource.employee"
-                    value-expr="emp_name"
-                    display-expr="emp_name"
-                />
-              </dx-column>
-              <dx-column
-                data-field="5"
-                caption="대표이사"
-                :allow-editing="!vars.disabled.edit"
-                width="120px"
-                alignment="center"
-              >
-                <dx-lookup
-                    :data-source="vars.dataSource.employee"
-                    value-expr="emp_name"
-                    display-expr="emp_name"
-                />
-              </dx-column>
-            </dx-column>
+            <dx-column caption="결재선지정" data-field="approval_line" :allow-editing="false" alignment="center" cell-template="approvalLine" />
+            <template #approvalLine="{ data }">
+              <dx-button icon="edit" text="결재선지정" @click="methods.approvalLineEdit(data)" />
+            </template>
             <dx-column caption="등록자" data-field="register" :allow-editing="false" alignment="center" :header-cell-template="(e) => methods.emptyHeaderTemplate(e, '등록자')" />
             <dx-column caption="등록일자" data-field="register_date" data-type="date" format="yyyy-MM-dd" :allow-editing="false" alignment="center" :header-cell-template="(e) => methods.emptyHeaderTemplate(e, '등록일자')" />
 
@@ -117,12 +55,27 @@
             <dx-editing mode="batch"
               :use-icons="true"
               :allow-adding="false"
-              :allow-updating="!vars.disabled.edit"
+              :allow-updating="false"
               :allow-deleting="false"
             />
           </dx-data-grid>
         </div>
       </div>
+      <dx-popup
+        v-model:visible="vars.dlg.approvalLine.show"
+        content-template="popup-content"
+        :title="`${vars.dlg.approvalLine.formData.document_name} 결재선 지정`"
+        :close-on-outside-click="true"
+        width="50%"
+        height="auto"
+        :resize-enabled="true"
+        >
+          <template #popup-content>
+            <dx-scroll-view width="100%" height="100%">
+              <data-approval-line :form-data="vars.dlg.approvalLine.formData" />
+            </dx-scroll-view>
+          </template>
+        </dx-popup>
     </div>
 </template>
 
@@ -140,13 +93,15 @@ import { DxPopup, DxToolbarItem } from 'devextreme-vue/popup';
 import { DxForm, DxLabel, DxGroupItem, DxEmptyItem, DxSimpleItem, DxButtonItem } from 'devextreme-vue/form';
 import { DxDataGrid, DxColumn, DxPaging, DxEditing, DxSorting, DxSelection, DxFilterRow, 
         DxColumnChooser, DxLookup, DxToolbar as DxGridToolbar, DxItem as DxGridItem } from 'devextreme-vue/data-grid';
-import { approvalDocumentStatus, getApprovalDocumentStatus, approval } from '../../data-source/approval';
+import { approvalDocument, getApprovalDocument, approval } from '../../data-source/approval';
 import DataGridClient from '../../components/base/data-client.vue';
+import DxScrollView from 'devextreme-vue/scroll-view';
 import stateStore from '@/utils/state-store';
 import { DxLoadPanel } from 'devextreme-vue/load-panel';
 import { baseEmployee } from '../../data-source/base';
 import authService from '../../auth';
 import { confirm, alert } from 'devextreme/ui/dialog';
+import DataApprovalLine from '@/components/approval/data-approval-line.vue';
 
 export default {
 components: {
@@ -160,11 +115,15 @@ components: {
     DataGridClient,
     DxTextBox,
     DxLoadPanel,
+    DataApprovalLine,
+    DxScrollView,
 },
 setup() {
     const vars = {};
 
     vars.grid = {};
+    vars.dlg = {};
+    vars.dlg.approvalLine = reactive({ show: false, formData: {} });
     vars.loading = ref(false);
     vars.disabled = reactive({ 
     edit: true,
@@ -172,11 +131,7 @@ setup() {
     })
 
     vars.dataSource = reactive({
-    approvalDocumentStatus: getApprovalDocumentStatus([{
-        name: 'manager',
-        op: 'eq',
-        val: authService.getUserName(),
-    }]),
+    approvalDocument: approvalDocument,
     employee: [],
     })
     
@@ -198,11 +153,24 @@ setup() {
         vars.disabled.edit = !vars.disabled.edit;
 
     },
+    approvalLineEdit(data) {
+      if (!data.data.id) return;
+      try {
+        vars.dlg.approvalLine.show = true;
+        vars.dlg.approvalLine.formData = {
+          document_id: data.data.id,
+          emp_id: authService.user?.emp_id,
+          document_name: data.data.document_name,
+        }
+      }catch(ex){
+        console.error(ex);
+        alert('오류가 발생 했습니다. 관리자에게 문의 바랍니다.', '오류');
+      }
+      
+    },
     onSavingItem(e) {
         e.changes.forEach(element => {
-        if (element.type == 'update') {
-            element.data.manager = authService.getUserName();
-        }
+          console.log("element : ", element)
         });
     },
     onDataError(e) {
@@ -222,13 +190,15 @@ setup() {
     return {
         vars,
         methods,
-        approvalDocumentStatus,
         moment,
     };
 },
 };
 </script>
 <style scoped>
+:deep(.dx-datagrid .dx-row > td) {
+  vertical-align: middle !important;
+}
 :deep(.pointer-content input) {
 cursor: pointer !important;
 }

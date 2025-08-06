@@ -719,7 +719,7 @@
     </dx-popup>
 
     <dx-popup
-      v-model:visible="vars.dlg.addPrevProject.show"
+      v-model:visible="vars.dlg.prevProject.show"
       content-template="popup-content"
       title="이전 프로젝트에서 가져오기"
       :close-on-outside-click="true"
@@ -728,16 +728,29 @@
       :resize-enabled="true"
     >
       <template #popup-content>
-        <data-grid-project @change="methods.addPrevProject" />
+        <data-grid-project @change="methods.prevProjectChange" />
       </template>
     </dx-popup>
     
+    <dx-popup
+      v-model:visible="vars.dlg.businessCost.show"
+      content-template="popup-content"
+      title="원가검토"
+      :close-on-outside-click="true"
+      width="70%"
+      :height="500"
+      :resize-enabled="true"
+    >
+      <template #popup-content>
+        <data-business-cost :business_id="vars.dlg.businessCost.fk_business_id" @change="methods.addPrevBusinessCost" />
+      </template>
+    </dx-popup>
     <dx-popup
       v-model:visible="vars.dlg.orderReport.show"
       content-template="popup-content"
       title="수주사항보고서"
       :close-on-outside-click="true"
-      width="calc(100vw - 300px)"
+      width="calc(100vw - 500px)"
       height="calc(100vh - 200px)"
       :resize-enabled="true"
       :scroll-by-content="true"
@@ -800,6 +813,7 @@ import FindAddressStore from '../../data-source/find-address';
 import PopupItem from '../../components/base/popup-item.vue';
 import PopupItemDetail from '@/components/base/popup-item-detail';
 import ExcelJS from 'exceljs';
+import DataBusinessCost from '@/components/project/data-business-cost.vue';
 
 import DataOrderReport from '@/components/approval/data-order-report.vue';
 import { getApproval, approvalLine, approvalDocumentStatus, approval } from '../../data-source/approval';
@@ -813,6 +827,7 @@ export default {
     PopupItemDetail,
     DataOrderReport,
     DxScrollView,
+    DataBusinessCost,
   },
   props: {
   id: [String, Number],
@@ -877,8 +892,9 @@ setup(props){
   vars.dlg = {};
   vars.dlg.finder = reactive({title : '', key: null, data: null, show: false});
   vars.dlg.addItem = reactive({ show: false });
-  vars.dlg.addPrevProject = reactive({ show: false });
+  vars.dlg.prevProject = reactive({ show: false });
   vars.dlg.orderReport = reactive({ show: false });
+  vars.dlg.businessCost = reactive({ show: false, fk_business_id: 0 });
   vars.findAddress = reactive({
     popup: false,
     store: new FindAddressStore(),
@@ -969,7 +985,7 @@ setup(props){
       }, 200);
     },
     gridRefreshAll(id) {
-      console.log("id : ", id)
+
       const grid = ['customer_information', 'customer_history', 'progress', 'quote', 'note', 'cost', 'basic'];
       for (const item of grid) {
         vars.dataSource[item].defaultFilters = methods.setIdToGridFilter(vars.filter['common'], id);
@@ -1138,6 +1154,11 @@ setup(props){
       }
     },
     async sendRequest(){
+      const flag = false;
+      if(!flag) {
+        alert('상신 요청 기능은 현재 사용할 수 없습니다.');
+        return;
+      }
       try {
         vars.loading.value = true;
 
@@ -1501,42 +1522,48 @@ setup(props){
       vars.dlg.addItem.show = true;
     },
     showAddPrevProjectPopup(){
-      vars.dlg.addPrevProject.show = true;
+      vars.dlg.prevProject.show = true;
     },
-    async addPrevProject(row) {
-      if (!row.business) {
+    async prevProjectChange(row) {
+      if (!row?.business) {
         await alert('이전 프로젝트에 연결된 영업건이 없습니다', '이전 프로젝트에서 가져오기');
-        vars.dlg.addPrevProject.show = false;
+        
         return;
       }
-      const business_id = row.business.id;
-      const { data : costData } = await projectBusinessCost.load({ 
-        filter: [
-          ['fk_business_id', '=', business_id]
-        ]
-      });
 
-      const grid = vars.grid.cost;
-      await grid.pageIndex(0);
-      const firstRowKey = grid.getKeyByRowIndex(0);
-      if (firstRowKey) {
-        await grid.navigateToRow(firstRowKey);
+      vars.dlg.businessCost.fk_business_id = row.business.id;
+      vars.dlg.businessCost.show = true;
+   
+    },
+    async addPrevBusinessCost(rows){
+      if(!rows) return;
+      try {
+        const grid = vars.grid.cost;
+        await grid.pageIndex(0);
+        const firstRowKey = grid.getKeyByRowIndex(0);
+        if (firstRowKey) {
+          await grid.navigateToRow(firstRowKey);
+        }
+        for (const cost of rows) {
+          await grid.addRow();
+          const data = await grid.byKey(grid.getKeyByRowIndex(0));
+          data.dc_rate = cost.dc_rate;
+          data.item_code = cost.item_code;
+          data.item = cost.item;
+          data.item_order = cost.item_order;
+          data.purchase_unit_price = cost.purchase_unit_price;
+          data.purchase_supply_price = cost.purchase_supply_price;
+          data.quote_quantity = cost.quote_quantity;
+          data.quote_unit_price = cost.quote_unit_price;
+          data.quote_supply_price = cost.quote_supply_price;
+        }
+        grid.refresh();
+        // vars.dlg.prevProject.show = false;
+        vars.dlg.businessCost.show = false;
+      } catch (error) {
+        console.error(error);
       }
-      for (const cost of costData) {
-        await grid.addRow();
-        const data = await grid.byKey(grid.getKeyByRowIndex(0));
-        data.dc_rate = cost.dc_rate;
-        data.item_code = cost.item_code;
-        data.item = cost.item;
-        data.item_order = cost.item_order;
-        data.purchase_unit_price = cost.purchase_unit_price;
-        data.purchase_supply_price = cost.purchase_supply_price;
-        data.quote_quantity = cost.quote_quantity;
-        data.quote_unit_price = cost.quote_unit_price;
-        data.quote_supply_price = cost.quote_supply_price;
-      }
-      grid.refresh();
-      vars.dlg.addPrevProject.show = false;
+      
     },
     async addSelectedRows(rows){
       const grid = vars.grid.cost;

@@ -15,11 +15,11 @@
             <table class="approval-line-table">
               <colgroup>
                 <col style="width:30px"/>
-                <col style="width:60px"/>
-                <col style="width:60px"/>
-                <col style="width:60px"/>
-                <col style="width:60px"/>
-                <col style="width:60px"/>
+                <col style="width:65px"/>
+                <col style="width:65px"/>
+                <col style="width:65px"/>
+                <col style="width:65px"/>
+                <col style="width:65px"/>
               </colgroup>
               <tr style="height: 20px;">
                 <td rowspan="3" style="font-weight: bold;">결제</td>
@@ -47,8 +47,8 @@
       <div class="content-body-container">
         <div class="content-body-form dx-card responsive-paddings back-colored">
           <dx-form :form-data="vars.formData">
-            <dx-group-item :col-count="22">
-              <dx-group-item :col-span="6">
+            <dx-group-item :col-count="19">
+              <dx-group-item :col-span="7">
                   <dx-simple-item
                     data-field="business_number"
                     :editor-options="{
@@ -78,6 +78,13 @@
                     <dx-label text="계약상대자" :show-colon="false" />
                     <dx-required-rule message="계약상대자를 선택하세요" />
                   </dx-simple-item>
+                  <dx-simple-item data-field="contract_company"
+                  :editor-options="{
+                    ...vars.formState,
+                  }"
+                >
+                    <dx-label text="수요기관" :show-colon="false" />
+                  </dx-simple-item>
               </dx-group-item>
               <dx-group-item :col-span="5">
                   <dx-simple-item data-field="business_department" :editor-options="{
@@ -90,28 +97,6 @@
                     ...vars.formState,
                   }">
                     <dx-label text="당사담당자" :show-colon="false" />
-                  </dx-simple-item>
-
-                  <dx-simple-item data-field="business_amount" editor-type="dxNumberBox" :editor-options="{
-                    format: '₩,##0',
-                    ...vars.formState
-                  }">
-                    <dx-label text="영업금액" :show-colon="false" />
-                  </dx-simple-item>
-                  <dx-simple-item data-field="contract_company"
-                  :editor-options="{
-                    ...vars.formState,
-                  }"
-                >
-                  <dx-label text="수요기관" :show-colon="false" />
-                </dx-simple-item>
-  
-              </dx-group-item>
-              <dx-group-item :col-span="4">
-                  <dx-simple-item data-field="business_type" :editor-options="{
-                    ...vars.formState,
-                  }">
-                    <dx-label text="영업구분" :show-colon="false" />
                   </dx-simple-item>
                   <dx-simple-item data-field="classification" :editor-options="{
                     ...vars.formState,
@@ -143,11 +128,23 @@
                     <dx-label text="계약유형" :show-colon="false" />
                   </dx-simple-item>
                   </dx-group-item>
-                
-                  <dx-simple-item data-field="project.project_number" :editor-options="{
+                  <dx-group-item :col-count=2>
+                    <dx-simple-item data-field="project.project_number" :editor-options="{
                     ...vars.formState,
                   }">
-                    <dx-label text="연결 프로젝트" :show-colon="false" />
+                      <dx-label text="연결 프로젝트" :show-colon="false" />
+                    </dx-simple-item>
+                    <dx-simple-item data-field="business_type" :editor-options="{
+                    ...vars.formState,
+                  }">
+                      <dx-label text="영업구분" :show-colon="false" />
+                    </dx-simple-item>
+                  </dx-group-item>
+                  <dx-simple-item data-field="business_amount" editor-type="dxNumberBox" :editor-options="{
+                    format: '₩,##0',
+                    ...vars.formState
+                  }">
+                    <dx-label text="영업금액" :show-colon="false" />
                   </dx-simple-item>
                   <dx-group-item :col-count="2" css-class="form-group">
                     <dx-simple-item data-field="gross_profit" editor-type="dxNumberBox" :editor-options="{
@@ -413,6 +410,7 @@ export default {
       
       if (!popup) return;
       // const clone = popup.cloneNode(true);
+      popup.classList.add('print-mode');
       popup.querySelector('.buttons').style.display = 'none';
       const canvas = await html2canvas(popup, { backgroundColor: '#fff', scale: 2 });
       const imgData = canvas.toDataURL('image/png');
@@ -443,6 +441,7 @@ export default {
         printWindow.close();
       }, 1000); 
       popup.querySelector('.buttons').style.display = 'block';
+      popup.classList.remove('print-mode');
     },
     }
     
@@ -462,9 +461,37 @@ export default {
 </script>
 
 <style lang="scss">
+.print-mode {
+  h1 {
+    font-size: 2.5em !important;
+  }
+  .business-name > h4{
+    font-size: 1.2em !important;
+  }
+  .approval-line-table > tr > th, td {
+    font-size: 0.9em !important;
+  }
+  .dx-field-item-label-content {
+    font-size: 1.3em !important;
+  }
+  
+  .dx-texteditor-input {
+    font-size: 1.25em !important;
+  }
+  
+  .dx-datagrid-headers .dx-header-row {
+    font-size: 1.3em !important;
+  }
+  
+  .dx-datagrid-rowsview .dx-row {
+    font-size: 1.3em !important;
+  }
+}
 .order-report {
+ 
   padding: 20px;
   height: 100%;
+  font-size: 1.2em !important;
   // max-height: calc(100vh - 250px);
   .buttons {
     position: fixed;
