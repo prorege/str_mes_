@@ -502,13 +502,21 @@
                   >
           
                   <dx-grid-toolbar>
-                      <dx-grid-item template="orderReportButton" location="after" />
+        
+                      <dx-grid-item template="orderReportButton" location="after" :visible="vars.formState.readOnly" />
                       <dx-grid-item template="costExportButton" location="after" />
                       <dx-grid-item template="costRate" location="after" />
                       <dx-grid-item template="addCostRowButton" location="after" :visible="!vars.formState.readOnly" />
+                      <dx-grid-item template="addPrevProjectButton" location="after" :visible="!vars.formState.readOnly" />
                       <dx-grid-item template="costSaveButton" location="after" :visible="false" />
                       <dx-grid-item name="revertButton" location="after" />
                   </dx-grid-toolbar>
+                  <template #addPrevProjectButton>
+                    <dx-button
+                      text="이전 프로젝트에서 가져오기"
+                      @click="methods.showAddPrevProjectPopup"
+                      />
+                  </template>
                   <template #orderReportButton>
                     <dx-button
                       text="수주사항보고서"
@@ -709,6 +717,20 @@
         />
       </template>
     </dx-popup>
+
+    <dx-popup
+      v-model:visible="vars.dlg.addPrevProject.show"
+      content-template="popup-content"
+      title="이전 프로젝트에서 가져오기"
+      :close-on-outside-click="true"
+      width="70%"
+      :height="500"
+      :resize-enabled="true"
+    >
+      <template #popup-content>
+        <data-grid-project @change="methods.addPrevProject" />
+      </template>
+    </dx-popup>
     
     <dx-popup
       v-model:visible="vars.dlg.orderReport.show"
@@ -764,7 +786,7 @@ import authService from '../../auth';
 import stateStore from '@/utils/state-store';
 import { loadDepartment, loadEmployee, loadClientManager } from '../../utils/data-loader';
 import { notifyInfo, notifyError } from '../../utils/notify'
-import { projectBusiness, getProjectBusinessNote, getProjectBusinessProgress, projectRegistration, getProjectCustomerInformation, getProjectCustomerHistory, getProjectBusinessQuote, getProjectBusinessCost, getProjectBusinessBasic } from '../../data-source/project'
+import { projectBusiness, getProjectBusinessNote, getProjectBusinessProgress, projectRegistration, getProjectCustomerInformation, getProjectCustomerHistory, getProjectBusinessQuote, getProjectBusinessCost, getProjectBusinessBasic, projectBusinessCost } from '../../data-source/project'
 import { setupSgaExpense } from '../../data-source/setup';
 import { getShipmentQuote } from '../../data-source/shipment';
 import DataGridClient from '@/components/base/data-client.vue';
@@ -778,8 +800,10 @@ import FindAddressStore from '../../data-source/find-address';
 import PopupItem from '../../components/base/popup-item.vue';
 import PopupItemDetail from '@/components/base/popup-item-detail';
 import ExcelJS from 'exceljs';
+
 import DataOrderReport from '@/components/approval/data-order-report.vue';
 import { getApproval, approvalLine, approvalDocumentStatus, approval } from '../../data-source/approval';
+
 export default {
   components: {
     DxTabPanel,
@@ -853,6 +877,7 @@ setup(props){
   vars.dlg = {};
   vars.dlg.finder = reactive({title : '', key: null, data: null, show: false});
   vars.dlg.addItem = reactive({ show: false });
+  vars.dlg.addPrevProject = reactive({ show: false });
   vars.dlg.orderReport = reactive({ show: false });
   vars.findAddress = reactive({
     popup: false,
@@ -924,6 +949,7 @@ setup(props){
       vars.sga_expense_rate = data[0]?.rate || 0;
     },
     newItem(){
+      methods.gridRefreshAll();
       if(vars.formData.id){
         methods.clearFormData();
         methods.redirect();
@@ -941,6 +967,25 @@ setup(props){
         vars.formData.fk_company_id = authService.getCompanyId();
         vars.formState.readOnly = false;
       }, 200);
+    },
+    gridRefreshAll(id) {
+      console.log("id : ", id)
+      const grid = ['customer_information', 'customer_history', 'progress', 'quote', 'note', 'cost', 'basic'];
+      for (const item of grid) {
+        vars.dataSource[item].defaultFilters = methods.setIdToGridFilter(vars.filter['common'], id);
+        methods.gridRefresh(vars.grid[item]);
+      }
+    },
+    gridRefresh(grid) {
+      if (grid) {
+        grid.cancelEditData();
+        grid.refresh();
+      }
+    },
+    setIdToGridFilter(filter, id) {
+      if (!id) { id = 0; }
+      filter[0].val = id;
+      return filter;
     },
     async editItem(){
       if(!vars.formData.id) return;
@@ -1454,6 +1499,44 @@ setup(props){
     },
     showItemAddPopup(){
       vars.dlg.addItem.show = true;
+    },
+    showAddPrevProjectPopup(){
+      vars.dlg.addPrevProject.show = true;
+    },
+    async addPrevProject(row) {
+      if (!row.business) {
+        await alert('이전 프로젝트에 연결된 영업건이 없습니다', '이전 프로젝트에서 가져오기');
+        vars.dlg.addPrevProject.show = false;
+        return;
+      }
+      const business_id = row.business.id;
+      const { data : costData } = await projectBusinessCost.load({ 
+        filter: [
+          ['fk_business_id', '=', business_id]
+        ]
+      });
+
+      const grid = vars.grid.cost;
+      await grid.pageIndex(0);
+      const firstRowKey = grid.getKeyByRowIndex(0);
+      if (firstRowKey) {
+        await grid.navigateToRow(firstRowKey);
+      }
+      for (const cost of costData) {
+        await grid.addRow();
+        const data = await grid.byKey(grid.getKeyByRowIndex(0));
+        data.dc_rate = cost.dc_rate;
+        data.item_code = cost.item_code;
+        data.item = cost.item;
+        data.item_order = cost.item_order;
+        data.purchase_unit_price = cost.purchase_unit_price;
+        data.purchase_supply_price = cost.purchase_supply_price;
+        data.quote_quantity = cost.quote_quantity;
+        data.quote_unit_price = cost.quote_unit_price;
+        data.quote_supply_price = cost.quote_supply_price;
+      }
+      grid.refresh();
+      vars.dlg.addPrevProject.show = false;
     },
     async addSelectedRows(rows){
       const grid = vars.grid.cost;
