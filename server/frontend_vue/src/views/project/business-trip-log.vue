@@ -95,14 +95,14 @@
                              }" />
                             <dx-column
                                 data-field="stopover"
-                                caption="경유지" />
-                            <dx-column data-field="vehicle" caption="운행차량">
+                                caption="장소(시,군/업체명)" />
+                            <!-- <dx-column data-field="vehicle" caption="운행차량">
                                 <dx-lookup
                                     :data-source="vars.dataSource.vehicle"
                                     value-expr="code_name"
                                     display-expr="code_name"
                                 />
-                            </dx-column>
+                            </dx-column> -->
                             
                         </dx-data-grid>
                     </div>

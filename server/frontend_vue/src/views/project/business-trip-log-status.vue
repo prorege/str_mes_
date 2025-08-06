@@ -68,8 +68,8 @@
           <dx-column caption="프로젝트명" data-field="project_name"  />
           <dx-column caption="업무내용" data-field="note" />
           <!-- <dx-column caption="업무 내용" data-field="business_progress" /> -->
-          <dx-column caption="경유지" data-field="stopover" />
-          <dx-column caption="운행차량" data-field="vehicle" />
+          <dx-column caption="장소(시,군/업체명)" data-field="stopover" />
+          <!-- <dx-column caption="운행차량" data-field="vehicle" /> -->
          
           <dx-sorting mode="single" />
           <dx-export :enabled="true" />
