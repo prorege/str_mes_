@@ -405,44 +405,92 @@ export default {
         }
       },
       async printPopup() {
-      if(!vars.formData.id) return;
-      const popup = document.querySelector('.order-report');
+        if(!vars.formData.id) return;
+        const popup = document.querySelector('.order-report');
+        
+        if (!popup) return;
+        const popupParent = popup.parentElement;
+
+        const clone = popup.cloneNode(true);
+
+        clone.style.width = '1400px';
+        clone.style.margin = '0 auto';
+        clone.style.position = 'fixed';
+        clone.style.zIndex = '-9999';
+        clone.classList.add('print-mode');
+
+        
+        // 버튼 숨기기
+        const buttonsElement = clone.querySelector('.buttons');
+        if (buttonsElement) {
+          buttonsElement.style.display = 'none';
+        }
+        
+        popupParent.appendChild(clone);
+        
+        try {
+          const canvas = await html2canvas(clone, { 
+            backgroundColor: '#fff', 
+            scale: 2,
+            useCORS: true,
+            allowTaint: true
+          });
+          
+          const imgData = canvas.toDataURL('image/png');
+          popupParent.removeChild(clone);
+          
+          const printWindow = window.open('', '_blank', 'width=900,height=1200');
+          printWindow.document.write(`
+              <html>
+                <head>
+                  <title>인쇄</title>
+                  <meta charset="utf-8">
+                  <style>
+                    @page { 
+                      size: A4; 
+                      margin: 0; 
+                    }
+                    html { 
+                      margin: 0; 
+                      padding: 0; 
+                    }
+                    body { 
+                      margin: 0; 
+                      padding: 0;
+                    }
+                    .print-container {
+                      text-align: center;
+                    }
+                    img { 
+                      max-width: 210mm; 
+                      max-height: 297mm; 
+                      padding: 10px;
+                      display: block;
+                      margin: 0 auto;
+                    }
+                  </style>
+                </head>
+                <body>
+                  <div class="print-container">
+                    <img src="${imgData}" />
+                  </div>
+                </body>
+              </html>
+            `);
+          printWindow.document.close();
+          printWindow.focus();
+          setTimeout(() => {
+            printWindow.print();
+            printWindow.close();
+          }, 1000);
+        } catch (error) {
+          console.error('Print error:', error);
       
-      if (!popup) return;
-      // const clone = popup.cloneNode(true);
-      popup.classList.add('print-mode');
-      popup.querySelector('.buttons').style.display = 'none';
-      const canvas = await html2canvas(popup, { backgroundColor: '#fff', scale: 2 });
-      const imgData = canvas.toDataURL('image/png');
-      const printWindow = window.open('', '_blank', 'width=900,height=1200');
-      printWindow.document.write(`
-          <html>
-            <head>
-              <title>인쇄</title>
-              <meta charset="utf-8">
-              <style>
-                @page { size: A4; margin: 0; }
-                html { margin: 0; padding: 0; }
-                body { margin: 0; text-align: center; }
-                img { max-width: 210mm; max-height: 297mm; padding: 10px; }
-              </style>
-            </head>
-            <body>
-              <div style="padding: 10px 10px 10px 0px;">
-                <img src="${imgData}" />
-              </div>
-            </body>
-          </html>
-        `);
-      printWindow.document.close();
-      printWindow.focus();
-      setTimeout(() => {
-        printWindow.print();
-        printWindow.close();
-      }, 1000); 
-      popup.querySelector('.buttons').style.display = 'block';
-      popup.classList.remove('print-mode');
-    },
+        }
+        if (popupParent.contains(clone)) {
+          popupParent.removeChild(clone);
+        }
+      },
     }
     
     onMounted(async () => {

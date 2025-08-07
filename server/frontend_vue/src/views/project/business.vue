@@ -507,14 +507,14 @@
                       <dx-grid-item template="costExportButton" location="after" />
                       <dx-grid-item template="costRate" location="after" />
                       <dx-grid-item template="addCostRowButton" location="after" :visible="!vars.formState.readOnly" />
-                      <dx-grid-item template="addPrevProjectButton" location="after" :visible="!vars.formState.readOnly" />
+                      <dx-grid-item template="addPrevBusinessButton" location="after" :visible="!vars.formState.readOnly" />
                       <dx-grid-item template="costSaveButton" location="after" :visible="false" />
                       <dx-grid-item name="revertButton" location="after" />
                   </dx-grid-toolbar>
-                  <template #addPrevProjectButton>
+                  <template #addPrevBusinessButton>
                     <dx-button
                       text="이전 프로젝트에서 가져오기"
-                      @click="methods.showAddPrevProjectPopup"
+                      @click="methods.showAddPrevBusinessPopup"
                       />
                   </template>
                   <template #orderReportButton>
@@ -719,7 +719,7 @@
     </dx-popup>
 
     <dx-popup
-      v-model:visible="vars.dlg.prevProject.show"
+      v-model:visible="vars.dlg.prevBusiness.show"
       content-template="popup-content"
       title="이전 프로젝트에서 가져오기"
       :close-on-outside-click="true"
@@ -728,7 +728,7 @@
       :resize-enabled="true"
     >
       <template #popup-content>
-        <data-grid-project @change="methods.prevProjectChange" />
+        <data-business @change="methods.prevBusinessChange" />
       </template>
     </dx-popup>
     
@@ -750,8 +750,8 @@
       content-template="popup-content"
       title="수주사항보고서"
       :close-on-outside-click="true"
-      width="calc(100vw - 500px)"
-      height="calc(100vh - 200px)"
+      width="1400px"
+      height="800px"
       :resize-enabled="true"
       :scroll-by-content="true"
     >
@@ -814,7 +814,7 @@ import PopupItem from '../../components/base/popup-item.vue';
 import PopupItemDetail from '@/components/base/popup-item-detail';
 import ExcelJS from 'exceljs';
 import DataBusinessCost from '@/components/project/data-business-cost.vue';
-
+import DataBusiness from '@/components/project/data-business.vue';
 import DataOrderReport from '@/components/approval/data-order-report.vue';
 import { getApproval, approvalLine, approvalDocumentStatus, approval } from '../../data-source/approval';
 
@@ -828,6 +828,7 @@ export default {
     DataOrderReport,
     DxScrollView,
     DataBusinessCost,
+    DataBusiness,
   },
   props: {
   id: [String, Number],
@@ -892,7 +893,7 @@ setup(props){
   vars.dlg = {};
   vars.dlg.finder = reactive({title : '', key: null, data: null, show: false});
   vars.dlg.addItem = reactive({ show: false });
-  vars.dlg.prevProject = reactive({ show: false });
+  vars.dlg.prevBusiness = reactive({ show: false });
   vars.dlg.orderReport = reactive({ show: false });
   vars.dlg.businessCost = reactive({ show: false, fk_business_id: 0 });
   vars.findAddress = reactive({
@@ -1521,17 +1522,18 @@ setup(props){
     showItemAddPopup(){
       vars.dlg.addItem.show = true;
     },
-    showAddPrevProjectPopup(){
-      vars.dlg.prevProject.show = true;
+    showAddPrevBusinessPopup(){
+      vars.dlg.prevBusiness.show = true;
     },
-    async prevProjectChange(row) {
-      if (!row?.business) {
-        await alert('이전 프로젝트에 연결된 영업건이 없습니다', '이전 프로젝트에서 가져오기');
+    async prevBusinessChange(row) {
+      console.log(row);
+      if (!row?.id) {
+        await alert('잘못된 선택입니다', '이전 프로젝트에서 가져오기');
         
         return;
       }
 
-      vars.dlg.businessCost.fk_business_id = row.business.id;
+      vars.dlg.businessCost.fk_business_id = row.id;
       vars.dlg.businessCost.show = true;
    
     },
@@ -1558,7 +1560,7 @@ setup(props){
           data.quote_supply_price = cost.quote_supply_price;
         }
         grid.refresh();
-        // vars.dlg.prevProject.show = false;
+        // vars.dlg.prevBusiness.show = false;
         vars.dlg.businessCost.show = false;
       } catch (error) {
         console.error(error);

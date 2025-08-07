@@ -31,7 +31,7 @@
         <dx-column caption="상신자" data-field="fk_request_emp_id" :allow-editing="false" alignment="center">
             <dx-lookup :data-source="vars.dataSource.employee" display-expr="emp_name" value-expr="id" />
         </dx-column>
-        <dx-column caption="결재자" data-field="fk_approval_emp_id" alignment="center" :set-cell-value="methods.setCellValue">
+        <dx-column caption="결재자" data-field="fk_approval_emp_id" alignment="center">
             <dx-lookup :data-source="vars.dataSource.employee" display-expr="emp_name" value-expr="id" />
         </dx-column>
         <dx-scrolling mode="standard" />
