@@ -36,11 +36,13 @@ manager.create_api(ApprovalManagement,
 manager.create_api(Approval,
                    url_prefix='/api/mes/v1/approval',
                    collection_name='approval',
-                   methods=['GET', 'DELETE'],
+                   methods=['GET', 'DELETE', 'PATCH', 'POST'],
                    allow_patch_many=True,
                    results_per_page=0,
                    max_results_per_page=100000000,
                    preprocessors={
+                       'POST': [check_token, LibApproval.approval_preprocessor],
+                       'PATCH_SINGLE': [check_token],
                        'GET_SINGLE': [check_token],
                        'GET_MANY': [check_token],
                        'DELETE_SINGLE': [check_token]
@@ -122,7 +124,7 @@ def get_documents():
         if search_params['filters'] is None or len(search_params['filters']) == 0:
             return make_response('invalid parameter', 400)
         manager = search_params['filters'][0]['val']
-        LibApprovalDocument.get_many_preprocessor(manager_value=manager)
+
         
         documents = db.session.query(ApprovalDocument).all()
      
@@ -187,146 +189,146 @@ def update_document_status(instance_id):
         return jsonify({"error": str(e)}), 500
 
 
-@app.route("/api/mes/v1/approval/approval", methods=["POST"])
-def create_document():
-    try:
-        data = request.json
-        print("data : ", data)
-        approval_attachment = data.pop('approval_attachment', None)
-        approval_document = data.pop('approval_document', None)
-        if data is not None:
-            approval_data = {'fk_company_id': data['fk_company_id']}
-            LibCommon.get_item_number(approval_data, 'approval_number', Approval, Approval.approval_number, '/approval/request')
-            new_approval = Approval() 
-            new_approval.approval_number = approval_data['approval_number']
-            new_approval.approval_date = data['approval_date']
-            new_approval.approval_status = data['approval_status']
-            new_approval.register = data['register']
-            new_approval.title = data['title']
-            new_approval.content = data['content']
-            new_approval.etc = data['etc']
-            new_approval.fk_document_id = data['fk_document_id']
-            new_approval.fk_company_id = data['fk_company_id']
-            new_approval.fk_business_id = data['fk_business_id']
+# @app.route("/api/mes/v1/approval/approval", methods=["POST"])
+# def create_document():
+#     try:
+#         data = request.json
+#         print("data : ", data)
+#         approval_attachment = data.pop('approval_attachment', None)
+#         approval_document = data.pop('approval_document', None)
+#         if data is not None:
+#             approval_data = {'fk_company_id': data['fk_company_id']}
+#             LibCommon.get_item_number(approval_data, 'approval_number', Approval, Approval.approval_number, '/approval/request')
+#             new_approval = Approval() 
+#             new_approval.approval_number = approval_data['approval_number']
+#             new_approval.approval_date = data['approval_date']
+#             new_approval.approval_status = data['approval_status']
+#             new_approval.register = data['register']
+#             new_approval.title = data['title']
+#             new_approval.content = data['content']
+#             new_approval.etc = data['etc']
+#             new_approval.fk_document_id = data['fk_document_id']
+#             new_approval.fk_company_id = data['fk_company_id']
+#             new_approval.fk_business_id = data['fk_business_id']
         
-            db.session.add(new_approval)
-            db.session.commit()
-            approval_attachments = []
-            if approval_attachment is not None:
-                for attachment in approval_attachment:
-                    new_attachment = ApprovalAttachment()
-                    new_attachment.file_name = attachment['file_name']
-                    new_attachment.file_path = attachment['file_path']
-                    new_attachment.fk_approval_id = new_approval.id
-                    db.session.add(new_attachment)
-                    db.session.commit()
-                    approval_attachments.append(
-                        {
-                            'id': new_attachment.id,
-                            'created': new_attachment.created,
-                            'file_name': new_attachment.file_name,
-                            'file_path': new_attachment.file_path,
-                            'fk_approval_id': new_attachment.fk_approval_id
-                        }
-                    )
-            line_results = []
-            if approval_document is not None:
-                approval_lines = db.session.query(ApprovalLine).filter(
-                    ApprovalLine.fk_document_id == approval_document['id'],
-                    ApprovalLine.manager == data['register'],
-                     and_(
-                        ApprovalLine.approval_manager.isnot(None),
-                        ApprovalLine.approval_manager != ''
-                    )
-                ).all()
-                for line in approval_lines:
-                    new_line_result = ApprovalLineResult()
-                    new_line_result.approval_manager = line.approval_manager
-                    new_line_result.approval_result = '대기중'
-                    new_line_result.fk_approval_line_id = line.id
-                    new_line_result.fk_approval_id = new_approval.id
-                    db.session.add(new_line_result)
-                    db.session.commit()
-                    line_results.append(
-                        {
-                            'id': new_line_result.id,
-                            'created': new_line_result.created,
-                            'approval_manager': new_line_result.approval_manager,
-                            'approval_result': new_line_result.approval_result,
-                            'approval_date': new_line_result.approval_date,
-                            'closing_yn': new_line_result.closing_yn,
-                            'fk_approval_line_id': new_line_result.fk_approval_line_id,
-                            'fk_approval_id': new_line_result.fk_approval_id
+#             db.session.add(new_approval)
+#             db.session.commit()
+#             approval_attachments = []
+#             if approval_attachment is not None:
+#                 for attachment in approval_attachment:
+#                     new_attachment = ApprovalAttachment()
+#                     new_attachment.file_name = attachment['file_name']
+#                     new_attachment.file_path = attachment['file_path']
+#                     new_attachment.fk_approval_id = new_approval.id
+#                     db.session.add(new_attachment)
+#                     db.session.commit()
+#                     approval_attachments.append(
+#                         {
+#                             'id': new_attachment.id,
+#                             'created': new_attachment.created,
+#                             'file_name': new_attachment.file_name,
+#                             'file_path': new_attachment.file_path,
+#                             'fk_approval_id': new_attachment.fk_approval_id
+#                         }
+#                     )
+#             line_results = []
+#             if approval_document is not None:
+#                 approval_lines = db.session.query(ApprovalLine).filter(
+#                     ApprovalLine.fk_document_id == approval_document['id'],
+#                     ApprovalLine.manager == data['register'],
+#                      and_(
+#                         ApprovalLine.approval_manager.isnot(None),
+#                         ApprovalLine.approval_manager != ''
+#                     )
+#                 ).all()
+#                 for line in approval_lines:
+#                     new_line_result = ApprovalLineResult()
+#                     new_line_result.approval_manager = line.approval_manager
+#                     new_line_result.approval_result = '대기중'
+#                     new_line_result.fk_approval_line_id = line.id
+#                     new_line_result.fk_approval_id = new_approval.id
+#                     db.session.add(new_line_result)
+#                     db.session.commit()
+#                     line_results.append(
+#                         {
+#                             'id': new_line_result.id,
+#                             'created': new_line_result.created,
+#                             'approval_manager': new_line_result.approval_manager,
+#                             'approval_result': new_line_result.approval_result,
+#                             'approval_date': new_line_result.approval_date,
+#                             'closing_yn': new_line_result.closing_yn,
+#                             'fk_approval_line_id': new_line_result.fk_approval_line_id,
+#                             'fk_approval_id': new_line_result.fk_approval_id
 
-                        }
-                    )
-            approval_data = {
-                "id": new_approval.id,
-                "approval_number": new_approval.approval_number,
-                "approval_date": new_approval.approval_date,
-                "register": new_approval.register,
-                "etc": new_approval.etc,
-                "fk_document_id": new_approval.fk_document_id,
-                "fk_company_id": new_approval.fk_company_id,
-                "approval_attachment": approval_attachments,
-                "approval_line_result": line_results
-            }
+#                         }
+#                     )
+#             approval_data = {
+#                 "id": new_approval.id,
+#                 "approval_number": new_approval.approval_number,
+#                 "approval_date": new_approval.approval_date,
+#                 "register": new_approval.register,
+#                 "etc": new_approval.etc,
+#                 "fk_document_id": new_approval.fk_document_id,
+#                 "fk_company_id": new_approval.fk_company_id,
+#                 "approval_attachment": approval_attachments,
+#                 "approval_line_result": line_results
+#             }
 
-            return jsonify({"success": True, "data": approval_data})
-        return jsonify({"success": False, "message": "Invalid data"}), 400
-    except SQLAlchemyError as e:
-        return jsonify({"error": str(e)}), 500
+#             return jsonify({"success": True, "data": approval_data})
+#         return jsonify({"success": False, "message": "Invalid data"}), 400
+#     except SQLAlchemyError as e:
+#         return jsonify({"error": str(e)}), 500
 
 
 
-@app.route("/api/mes/v1/approval/approval/<int:instance_id>", methods=["PATCH"])
-def update_document(instance_id):
-    try:
-        data = request.json
-        approval_attachment = data.pop('approval_attachment', None)
-        approval_document = data.pop('approval_document', None)
-        if 'approval_line_result' in data:
-            del data['approval_line_result']
-        if data is not None:
-            db.session.query(Approval).filter(Approval.id == instance_id).update(data)
-            db.session.commit()
-            approval_attachments = []
-            if approval_attachment is not None:
-                for attachment in approval_attachment:
-                    if 'id' not in attachment:
+# @app.route("/api/mes/v1/approval/approval/<int:instance_id>", methods=["PATCH"])
+# def update_document(instance_id):
+#     try:
+#         data = request.json
+#         approval_attachment = data.pop('approval_attachment', None)
+#         approval_document = data.pop('approval_document', None)
+#         if 'approval_line_result' in data:
+#             del data['approval_line_result']
+#         if data is not None:
+#             db.session.query(Approval).filter(Approval.id == instance_id).update(data)
+#             db.session.commit()
+#             approval_attachments = []
+#             if approval_attachment is not None:
+#                 for attachment in approval_attachment:
+#                     if 'id' not in attachment:
                         
-                        new_attachment = ApprovalAttachment()
-                        new_attachment.file_name = attachment['file_name']
-                        new_attachment.file_path = attachment['file_path']
-                        new_attachment.fk_approval_id = data['id']
-                        db.session.add(new_attachment)
-                        db.session.commit()
-                        approval_attachments.append(
-                            {
-                                'id': new_attachment.id,
-                                'created': new_attachment.created,
-                                'file_name': new_attachment.file_name,
-                                'file_path': new_attachment.file_path,
-                                'fk_approval_id': new_attachment.fk_approval_id
-                            }
-                        )
-            new_approval = db.session.query(Approval).filter(Approval.id == instance_id).first()
-            approval_data = {
-                "id": new_approval.id,
-                "approval_date": new_approval.approval_date,
-                "approval_status": new_approval.approval_status,
-                "approval_reason": new_approval.approval_reason,
-                "register": new_approval.register,
-                "etc": new_approval.etc,
-                "fk_document_id": new_approval.fk_document_id,
-                "fk_company_id": new_approval.fk_company_id,
-            }
-            if approval_attachments:
-                approval_data['approval_attachment'] = approval_attachments
+#                         new_attachment = ApprovalAttachment()
+#                         new_attachment.file_name = attachment['file_name']
+#                         new_attachment.file_path = attachment['file_path']
+#                         new_attachment.fk_approval_id = data['id']
+#                         db.session.add(new_attachment)
+#                         db.session.commit()
+#                         approval_attachments.append(
+#                             {
+#                                 'id': new_attachment.id,
+#                                 'created': new_attachment.created,
+#                                 'file_name': new_attachment.file_name,
+#                                 'file_path': new_attachment.file_path,
+#                                 'fk_approval_id': new_attachment.fk_approval_id
+#                             }
+#                         )
+#             new_approval = db.session.query(Approval).filter(Approval.id == instance_id).first()
+#             approval_data = {
+#                 "id": new_approval.id,
+#                 "approval_date": new_approval.approval_date,
+#                 "approval_status": new_approval.approval_status,
+#                 "approval_reason": new_approval.approval_reason,
+#                 "register": new_approval.register,
+#                 "etc": new_approval.etc,
+#                 "fk_document_id": new_approval.fk_document_id,
+#                 "fk_company_id": new_approval.fk_company_id,
+#             }
+#             if approval_attachments:
+#                 approval_data['approval_attachment'] = approval_attachments
 
-        return jsonify({"success": True, "data": approval_data})
-    except SQLAlchemyError as e:
-        return jsonify({"error": str(e)}), 500
+#         return jsonify({"success": True, "data": approval_data})
+#     except SQLAlchemyError as e:
+#         return jsonify({"error": str(e)}), 500
 
 
 @app.route('/api/mes/v1/approval/approval-attachment/upload', methods=['POST'])

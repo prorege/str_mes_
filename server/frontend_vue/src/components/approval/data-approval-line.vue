@@ -2,6 +2,7 @@
   <div>
     <dx-data-grid
         column-resizing-mode="widget"
+        height="400px"
         :data-source="vars.dataSource.approvalLine"
         date-serialization-format="yyyy-MM-ddTHH:mm:ss"
         :show-borders="true"
@@ -20,7 +21,7 @@
         <dx-grid-item name="saveButton" location="after" />
         <dx-grid-item name="cancelButton" location="after" />
     </dx-grid-toolbar>
-        <dx-column caption="순서" data-field="line_order" alignment="center" />
+        <dx-column caption="순서" data-field="line_order" alignment="center" :sort-index="0" sort-order="asc" />
         <dx-column caption="직급, 직책" data-field="line_header" alignment="center">
             <dx-lookup 
                 :data-source="vars.dataSource.code" 
@@ -35,6 +36,7 @@
             <dx-lookup :data-source="vars.dataSource.employee" display-expr="emp_name" value-expr="id" />
         </dx-column>
         <dx-scrolling mode="standard" />
+        <dx-sorting mode="multiple" />
         <dx-editing mode="batch" :use-icons="true" :allow-adding="true" :allow-updating="true" :allow-deleting="true" />
 
     </dx-data-grid>

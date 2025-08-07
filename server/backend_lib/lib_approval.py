@@ -13,6 +13,10 @@ from datetime import datetime
 
 db = DBManager.db
 
+class LibApproval(object):
+    @staticmethod
+    def approval_preprocessor(data=None, **kw):
+        LibCommon.get_item_number(data, 'approval_number', Approval, Approval.approval_number, '/approval/request')
 
 class LibApprovalDocument(object):
     @staticmethod

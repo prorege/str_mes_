@@ -44,7 +44,7 @@
             />
             <dx-column caption="결재선지정" data-field="approval_line" :allow-editing="false" alignment="center" cell-template="approvalLine" />
             <template #approvalLine="{ data }">
-              <dx-button icon="edit" text="결재선지정" @click="methods.approvalLineEdit(data)" />
+              <dx-button class="approval-line-button" icon="edit" text="결재선지정" @click="methods.approvalLineEdit(data)" />
             </template>
             <dx-column caption="등록자" data-field="register" :allow-editing="false" alignment="center" :header-cell-template="(e) => methods.emptyHeaderTemplate(e, '등록자')" />
             <dx-column caption="등록일자" data-field="register_date" data-type="date" format="yyyy-MM-dd" :allow-editing="false" alignment="center" :header-cell-template="(e) => methods.emptyHeaderTemplate(e, '등록일자')" />
@@ -196,6 +196,14 @@ setup() {
 };
 </script>
 <style scoped>
+.approval-line-button {
+  height: 30px !important;
+  
+
+}
+:deep(.approval-line-button > .dx-button-content > .dx-button-text) {
+ line-height: inherit !important;
+}
 :deep(.dx-datagrid .dx-row > td) {
   vertical-align: middle !important;
 }

@@ -296,9 +296,11 @@ export default {
     const methods = {
       async initById(id){
         try {
+          
           const response = await approvalDocumentStatus.load({
             filter: ['manager', '=', authService.getUserName()]
           });
+          console.log("response : ", response);
           if (response.data) {
             const document = response.data.find(item => item.document_name === '수주사항보고서')
             if (document) {
@@ -415,8 +417,6 @@ export default {
 
         clone.style.width = '1400px';
         clone.style.margin = '0 auto';
-        clone.style.position = 'fixed';
-        clone.style.zIndex = '-9999';
         clone.classList.add('print-mode');
 
         
@@ -425,7 +425,7 @@ export default {
         if (buttonsElement) {
           buttonsElement.style.display = 'none';
         }
-        
+
         popupParent.appendChild(clone);
         
         try {

@@ -816,7 +816,7 @@ import ExcelJS from 'exceljs';
 import DataBusinessCost from '@/components/project/data-business-cost.vue';
 import DataBusiness from '@/components/project/data-business.vue';
 import DataOrderReport from '@/components/approval/data-order-report.vue';
-import { getApproval, approvalLine, approvalDocumentStatus, approval } from '../../data-source/approval';
+import { getApproval, approvalLine, approvalDocumentStatus, approval, approvalLineResult } from '../../data-source/approval';
 
 export default {
   components: {
@@ -1155,57 +1155,69 @@ setup(props){
       }
     },
     async sendRequest(){
-      const flag = false;
-      if(!flag) {
-        alert('상신 요청 기능은 현재 사용할 수 없습니다.');
-        return;
-      }
+  
       try {
-        vars.loading.value = true;
-
         if (!vars.formData.id){
           notifyError('저장된 데이터가 없습니다');
           return;
         }
         if (vars.dataSource.approval !== '미상신'){
-          notifyError('이미 상신요청이 있습니다.');
+          notifyError('이미 상신요청이 완료되었습니다.');
           return;
         }
-        const { data } = await approvalDocumentStatus.load({
+        vars.loading.value = true;
+        console.log("authService.user?.emp_id : ", authService.user?.emp_id);
+        const { data : approvalLineData } = await approvalLine.load({
           filter: [
-            ['manager', '=', authService.getUserName()]
+            ['fk_request_emp_id', '=', authService.user?.emp_id],
+            'and',
+            ['fk_document_id', '=', 1]
+          ],
+          sort: [
+            {
+              selector: 'line_order',
+              desc: false
+            }
           ]
         });
-
-        const hasEmptyLine = Array.from({ length: data[0].max_line }, (_, i) => i + 1)
-              .every(i => {
-                const value = data[0][`${i}`];
-                return value === null || value === undefined || value === '';
-              });
-        if (hasEmptyLine) {
-          alert('결재선을 등록해주세요.');
+        // console.log("approvalLineData : ", approvalLineData);
+        if (!approvalLineData.length) {
+          alert('결재선이 존재하지 않습니다. 결재선을 지정해주세요.', '결재선 지정');
           return;
         }
 
-      
         const result = await confirm('상신하시겠습니까?', '상신');
         if (!result) return;
         
-        const formData = {
+        const approvalFormData = {
           fk_business_id: vars.formData.id,
           fk_company_id: authService.getCompanyId(),
-          fk_document_id: data[0].id,
+          fk_document_id: 1,
           approval_date: currentDateTime(),
           approval_status: '상신완료',
           register: authService.getUserName(),
           title: '',
           content: '',
           etc: '',
-          approval_document: {id: data[0].id},
+          approval_document: {id: 1},
         }
-        const { data : approvalData } = await approval.insert(formData);
-        vars.dataSource.approval = '상신완료';
-        notifyInfo('상신 요청이 완료 됐습니다.');
+        const { data : approvalData } = await approval.insert(approvalFormData);
+        // console.log("approvalData : ", approvalData);
+        if (approvalData.id) {  
+          for (const line of approvalLineData) {
+            const arFormData = {
+              approval_result: '대기중',
+              fk_approval_id: approvalData.id,
+              fk_approval_line_id: line.id,
+              approval_manager: line.approval_employee.emp_name,
+            }
+            const { data : approvalLineResultData } = await approvalLineResult.insert(arFormData);
+            // console.log("approvalLineResultData : ", approvalLineResultData);
+          }
+          vars.dataSource.approval = '상신완료';
+          notifyInfo('상신 요청이 완료 됐습니다.');
+        }
+        
       }
       catch(ex){
         console.error(ex);
