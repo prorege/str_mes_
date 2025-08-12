@@ -397,7 +397,6 @@ class BaseBOMProcess(db.Model):  # 기준정보 - BOM관리 - 공정관리
     order = db.Column("order", db.Integer, comment="공정순서")
     ct = db.Column("ct", db.Float, comment="C/T")
     price = db.Column("price", db.Integer, comment="단가")
-
     process = db.relationship("BaseProcess", uselist=False)
 
 
