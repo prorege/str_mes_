@@ -23,20 +23,21 @@
               </colgroup>
               <tr style="height: 20px;">
                 <td rowspan="3" style="font-weight: bold;">결제</td>
-                <th>기안</th>
-                <th>팀장</th>
-                <th>PM검토</th>
-                <th>PE검토</th>
-                <th>대표이사</th>
+                <th v-for="line in vars.dataSource.approvalLine" :key="line.id">{{ line.line_header }}</th>
               </tr>
               <tr style="height: 45px;">
-                <td v-for="i in 6" :key="i">
+                <td v-for="line in vars.dataSource.approvalLine" :key="line.id">
                     <div class="approval-sign-box">
+                      <span>{{ line.approval_employee?.emp_name || '' }}</span>
                     </div>
                 </td>
               </tr>
               <tr style="height: 20px;">
-                <td v-for="i in 6" :key="i"></td>
+                <td v-for="line in vars.dataSource.approvalLine" :key="line.id">
+                  <div class="approval-sign-box">
+                    <span>{{ '' }}</span>
+                  </div>
+                </td>
               </tr>
             </table>
           </div>
@@ -218,10 +219,11 @@
                 <dx-column caption="규격" data-field="item.item_standard" :allow-editing="false"  />
                 <dx-column caption="단위" data-field="item.unit" :allow-editing="false" />
                 <dx-column caption="견적수량" data-field="quote_quantity"  data-type="number" format=",###.#"  />
-                <dx-column caption="견적단가" data-field="quote_unit_price"  data-type="number" format="currency"  />
-                <dx-column caption="견적금액" data-field="quote_supply_price" data-type="number" format="currency"  />
+                <dx-column caption="견적단가" data-field="quote_unit_price"  data-type="number" format="currency" :visible="false" />
+                <dx-column caption="견적금액" data-field="quote_supply_price" data-type="number" format="currency" :visible="false" />
                 <dx-column caption="구매단가" data-field="purchase_unit_price" data-type="number" format="currency"  />
                 <dx-column caption="구매금액" data-field="purchase_supply_price" data-type="number" format="currency" />
+                <dx-column caption="비고" data-field="etc" :allow-editing="false" :width="400" />
                 <dx-column caption="DC Rate" data-field="dc_rate" data-type="number" format="percent" :visible="false" />
                 <dx-summary :recalculate-while-editing="true" :calculate-custom-summary="methods.calculateCustomSummary">
                     <dx-total-item name="quote_supply_price" summary-type="custom" />
@@ -256,6 +258,10 @@ export default {
   },
   props: {
     fk_business_id: {
+      type: Number,
+      default: null
+    },
+    fk_request_emp_id: {
       type: Number,
       default: null
     }
@@ -296,20 +302,22 @@ export default {
     const methods = {
       async initById(id){
         try {
-          
-          const response = await approvalDocumentStatus.load({
-            filter: ['manager', '=', authService.getUserName()]
+            
+            const { data : approvalLineData } = await approvalLine.load({
+            filter: [
+              ['fk_request_emp_id', '=', props.fk_request_emp_id],
+              'and',
+              ['fk_document_id', '=', 1]
+            ],
+            sort: [
+              {
+                selector: 'line_order',
+                desc: false
+              }
+            ]
           });
-          console.log("response : ", response);
-          if (response.data) {
-            const document = response.data.find(item => item.document_name === '수주사항보고서')
-            if (document) {
-              const { data : approvalLineData } = await approvalLine.load({
-                filter: ['fk_document_id', '=', document.id]
-              });
-              vars.dataSource.approvalLine = approvalLineData;
-            }
-          }
+          vars.dataSource.approvalLine = approvalLineData;
+          console.log("approvalLineData : ", approvalLineData);
           
           if (id) {
             const { data : businessData } = await projectBusiness.load({

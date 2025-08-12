@@ -550,10 +550,11 @@
                   <dx-column caption="규격" data-field="item.item_standard" :allow-editing="false" />
                   <dx-column caption="단위" data-field="item.unit" :allow-editing="false" />
                   <dx-column caption="견적수량" data-field="quote_quantity"  data-type="number" format=",###.#" :set-cell-value="methods.setQuoteQuantity" />
-                  <dx-column caption="견적단가" data-field="quote_unit_price"  data-type="number" format="currency" :set-cell-value="methods.setQuoteUnitPrice" />
-                  <dx-column caption="견적금액" data-field="quote_supply_price" data-type="number" format="currency" :allow-editing="false" />
+                  <dx-column caption="견적단가" data-field="quote_unit_price"  data-type="number" format="currency" :visible="false" :set-cell-value="methods.setQuoteUnitPrice" />
+                  <dx-column caption="견적금액" data-field="quote_supply_price" data-type="number" format="currency" :visible="false" :allow-editing="false" />
                   <dx-column caption="구매단가" data-field="purchase_unit_price" data-type="number" format="currency" :set-cell-value="methods.setPurchaseUnitPrice" />
                   <dx-column caption="구매금액" data-field="purchase_supply_price" data-type="number" format="currency" :allow-editing="false" />
+                  <dx-column caption="비고" data-field="etc" :allow-editing="true" :width="400" />
                   <dx-column caption="DC Rate" data-field="dc_rate" data-type="number" format="percent" :visible="false" />
                   <dx-summary :recalculate-while-editing="true" :calculate-custom-summary="methods.calculateCustomSummary">
                     <dx-total-item column="quote_supply_price" summary-type="sum" value-format="₩,##0" display-format="견적금액합계: {0}" />
@@ -765,7 +766,7 @@
       />
       <template #popup-content>
         <dx-scroll-view width="100%" height="100%">
-          <data-order-report :fk_business_id="vars.formData.id" />
+          <data-order-report :fk_business_id="vars.dlg.orderReport.fk_business_id" :fk_request_emp_id="vars.dlg.orderReport.fk_request_emp_id" />
         </dx-scroll-view>
       </template>
     </dx-popup>
@@ -894,7 +895,7 @@ setup(props){
   vars.dlg.finder = reactive({title : '', key: null, data: null, show: false});
   vars.dlg.addItem = reactive({ show: false });
   vars.dlg.prevBusiness = reactive({ show: false });
-  vars.dlg.orderReport = reactive({ show: false });
+  vars.dlg.orderReport = reactive({ show: false, fk_business_id: 0, fk_request_emp_id: 0 });
   vars.dlg.businessCost = reactive({ show: false, fk_business_id: 0 });
   vars.findAddress = reactive({
     popup: false,
@@ -1166,7 +1167,7 @@ setup(props){
           return;
         }
         vars.loading.value = true;
-        console.log("authService.user?.emp_id : ", authService.user?.emp_id);
+     
         const { data : approvalLineData } = await approvalLine.load({
           filter: [
             ['fk_request_emp_id', '=', authService.user?.emp_id],
@@ -1200,19 +1201,27 @@ setup(props){
           content: '',
           etc: '',
           approval_document: {id: 1},
+          fk_request_emp_id: authService.user?.emp_id,
         }
         const { data : approvalData } = await approval.insert(approvalFormData);
         // console.log("approvalData : ", approvalData);
         if (approvalData.id) {  
+          let count = 0;
           for (const line of approvalLineData) {
             const arFormData = {
               approval_result: '대기중',
               fk_approval_id: approvalData.id,
               fk_approval_line_id: line.id,
               approval_manager: line.approval_employee.emp_name,
+              fk_approval_emp_id: line.fk_approval_emp_id,
             }
+            if (count == 0) {
+              arFormData.active_yn = true;
+            }
+            count++;
             const { data : approvalLineResultData } = await approvalLineResult.insert(arFormData);
             // console.log("approvalLineResultData : ", approvalLineResultData);
+            count++;
           }
           vars.dataSource.approval = '상신완료';
           notifyInfo('상신 요청이 완료 됐습니다.');
@@ -1247,15 +1256,30 @@ setup(props){
         vars.itemDetail.visible = true;
       }
     },
-
     setQuoteQuantity(newData, value, currentRowData){
-      const quote_quantity = value;
+      let quote_quantity = value;
       const quote_unit_price = currentRowData.quote_unit_price || 0;
       const purchase_unit_price = currentRowData.purchase_unit_price || 0;
+      const item_code = currentRowData.item_code || '';
+      const business_amount = vars.formData.business_amount || 0;
       
+
       newData.quote_quantity = value;
       newData.quote_supply_price = quote_quantity * quote_unit_price;
       newData.purchase_supply_price = quote_quantity * purchase_unit_price;
+
+      if (item_code === 'PME-010' && business_amount > 0) {
+         newData.purchase_unit_price = business_amount * 0.03;
+         newData.purchase_supply_price = quote_quantity * newData.purchase_unit_price;
+      }
+      if (item_code === 'PME-009' && business_amount > 0) {
+        newData.purchase_unit_price = business_amount * 0.02;
+        newData.purchase_supply_price = quote_quantity * newData.purchase_unit_price;
+      }
+      if (item_code === 'PME-012' && business_amount > 0) {
+        newData.purchase_unit_price = business_amount * 0.008;
+        newData.purchase_supply_price = quote_quantity * newData.purchase_unit_price;
+      }
     },
     setQuoteUnitPrice(newData, value, currentRowData){
       const quote_unit_price = value;
@@ -1405,6 +1429,7 @@ setup(props){
       const rows = grid.getVisibleRows();
       for(let row of rows){
         grid.cellValue(row.rowIndex, 'item_code', row.data.item_code);
+        grid.cellValue(row.rowIndex, 'quote_quantity', row.data.quote_quantity);
       }
     },
     createFindPopupFn(key, title, data = null) {
@@ -1831,7 +1856,27 @@ setup(props){
         });
       });
     },
-    orderReportButton() {
+    async orderReportButton() {
+      const { data : approvalLineData } = await approvalLine.load({
+        filter: [
+          ['fk_request_emp_id', '=', authService.user?.emp_id],
+          'and',
+          ['fk_document_id', '=', 1]
+        ],
+        sort: [
+          {
+            selector: 'line_order',
+            desc: false
+          }
+        ]
+      });
+      
+      if (!approvalLineData.length) {
+        alert('결재선이 존재하지 않습니다. 결재선을 지정해주세요.', '결재선 지정');
+        return;
+      }
+      vars.dlg.orderReport.fk_business_id = vars.formData.id;
+      vars.dlg.orderReport.fk_request_emp_id = authService.user?.emp_id;
       vars.dlg.orderReport.show = true;
     },
 

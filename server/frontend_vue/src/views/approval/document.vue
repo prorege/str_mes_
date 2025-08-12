@@ -197,9 +197,12 @@ setup() {
 </script>
 <style scoped>
 .approval-line-button {
-  height: 30px !important;
-  
-
+  height: 30px !important;  
+}
+:deep(.approval-line-button .dx-button-content) {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 :deep(.approval-line-button > .dx-button-content > .dx-button-text) {
  line-height: inherit !important;

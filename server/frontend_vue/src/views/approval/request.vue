@@ -58,7 +58,7 @@
           <dx-column caption="문서명" data-field="approval_document.document_name" :allow-editing="false" />
           <dx-column caption="상신번호" data-field="approval_number" :allow-editing="false" />
           <dx-column caption="상신자" data-field="register" :allow-editing="false" />
-          <dx-column caption="문서명" data-field="approval_attachment" cell-template="attachment-template" :allow-editing="false" :allow-sorting="false" alignment="center" width="110" />
+          <dx-column caption="문서명" data-field="approval_attachment" cell-template="attachment-template" :allow-editing="false"  :allow-sorting="false" alignment="center" width="110" />
           <dx-column caption="상신상황" data-field="approval_status" :allow-editing="false" alignment="center" cell-template="approval-status-template" />
           <dx-column caption="결재처리" alignment="center" data-field="approval_line_result" cell-template="approval-result-template" :allow-editing="false" :allow-sorting="false" />
           <dx-column caption="반려사유" data-field="approval_reason" :allow-editing="false" />
@@ -83,7 +83,6 @@
         </dx-data-grid>
       </div>
     </div>
-    <!-- <popup-approval v-if="vars.dlg.approval.visible" :visible="vars.dlg.approval.visible" @update:visible="(value) => methods.approvalPopupClose(value)" :data="vars.dlg.approval.data" :form-data="vars.dlg.approval.formData"/> -->
     <dx-popup
       title="첨부파일함"
       content-template="popup-content"
@@ -114,6 +113,22 @@
         </dx-data-grid>
       </template>
     </dx-popup>
+    <dx-popup
+      v-model:visible="vars.dlg.orderReport.show"
+      content-template="popup-content"
+      title="수주사항보고서"
+      :close-on-outside-click="true"
+      width="1400px"
+      height="800px"
+      :resize-enabled="true"
+      :scroll-by-content="true"
+    >
+      <template #popup-content>
+        <dx-scroll-view width="100%" height="100%">
+          <data-order-report :fk_business_id="vars.dlg.orderReport.fk_business_id" :fk_request_emp_id="vars.dlg.orderReport.fk_request_emp_id" />
+        </dx-scroll-view>
+      </template>
+    </dx-popup>
   </div>
 </template>
 
@@ -122,6 +137,7 @@ import moment from 'moment';
 import { ref, reactive, onMounted } from 'vue';
 import { DxLoadPanel } from 'devextreme-vue/load-panel';
 import { confirm, alert } from 'devextreme/ui/dialog';
+import { DxScrollView } from 'devextreme-vue/scroll-view';
 import DxButton from 'devextreme-vue/button';
 import DxLookup from 'devextreme-vue/select-box';
 import { DxDateBox } from 'devextreme-vue/date-box';
@@ -134,7 +150,7 @@ import { loadEmployee } from '../../utils/data-loader';
 import { approval, getApproval, approvalDocumentStatus } from '../../data-source/approval';
 import authService from '@/auth';
 import stateStore from '@/utils/state-store';
-// import PopupApproval from '../../components/approval/popup-approval.vue';
+import DataOrderReport from '@/components/approval/data-order-report.vue';
 
 export default {
   components: {
@@ -147,6 +163,8 @@ export default {
     DxDataGrid, DxColumn, DxPaging, DxSorting, DxColumnChooser,
     SearchButtonGroup,
     DxLoadPanel,
+    DataOrderReport,
+    DxScrollView,
   },
   setup() {
     const vars = { dlg: {} };
@@ -160,19 +178,15 @@ export default {
       endDate: new Date(vars.now.getFullYear(), vars.now.getMonth(), vars.now.getDate(), 23, 59, 59),
     });
     vars.dlg.attachment = reactive({ show: false });
-    vars.dlg.approval = reactive({ 
-      visible: false,
-      key: null,
-      data: null,
-      formData: null,
-    });
+    vars.dlg.orderReport = reactive({ show: false, fk_business_id: 0, fk_request_emp_id: 0 });
+
     vars.dataSource = reactive({
       employee: [],
       approval_status: [],
       approval: getApproval([{
-        'name': 'register',
+        'name': 'fk_request_emp_id',
         'op': 'eq',
-        'val': authService.getUserName(),
+        'val': authService.user?.emp_id,
       }]),
       attachment: [],
     });
@@ -234,17 +248,13 @@ export default {
       async documentPopupShow(data) {
         try {
           const formData = data.data;
-          const response = await approvalDocumentStatus.load({
-            filter: ['manager', '=', authService.getUserName()]
-          });
-          if (response.data) {
-            formData.approval_document = response.data[formData.fk_document_id -1];
+          console.log("formData : ", formData);
+          if (formData.fk_business_id) {
+            vars.dlg.orderReport.fk_business_id = formData.fk_business_id;
           }
+          vars.dlg.orderReport.show = true;
+          vars.dlg.orderReport.fk_request_emp_id = formData.fk_request_emp_id;
 
-          vars.dlg.approval.visible = true;
-          vars.dlg.approval.key = formData.fk_document_id;
-          vars.dlg.approval.data = formData.approval_document;
-          vars.dlg.approval.formData = formData;
         } catch (error) {
           alert("오류 발생<br/>관리자에게 문의하세요", "오류")
           console.log("error : ", error);
