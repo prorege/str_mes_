@@ -28,6 +28,7 @@
               <tr style="height: 45px;">
                 <td v-for="line in vars.dataSource.approvalLine" :key="line.id">
                     <div class="approval-sign-box">
+                      <img v-if="signImages[line.approval_employee?.id]?.hasImage" :src="signImages[line.approval_employee?.id]?.src" alt="" style="" class="approval-sign-image">
                       <span>{{ line.approval_employee?.emp_name || '' }}</span>
                     </div>
                 </td>
@@ -35,7 +36,7 @@
               <tr style="height: 20px;">
                 <td v-for="line in vars.dataSource.approvalLine" :key="line.id">
                   <div class="approval-sign-box">
-                    <span>{{ '' }}</span>
+                    <span>{{ line.approval_date ? moment(line.approval_date).format('YYMMDD') : '' }}</span>
                   </div>
                 </td>
               </tr>
@@ -240,18 +241,19 @@
 </template>
 
 <script>
-import { reactive, onMounted, watch } from 'vue';
+import moment from 'moment';
+import { reactive, onMounted, watch, computed } from 'vue';
 import { DxForm, DxGroupItem, DxSimpleItem, DxLabel, DxRequiredRule } from 'devextreme-vue/form';
 import { DxNumberBox } from 'devextreme-vue/number-box'
 import { DxDataGrid, DxColumn, DxScrolling, DxPaging, DxSummary, DxTotalItem, } from 'devextreme-vue/data-grid';
 import { DxButton } from 'devextreme-vue/button';
 import { getProjectBusinessCost, projectBusiness } from '../../data-source/project';
-import { approvalDocumentStatus, approvalLine } from '../../data-source/approval';
+import { approvalDocumentStatus, approvalLine, approval } from '../../data-source/approval';
 import ArrayStore from 'devextreme/data/array_store';
 import authService from '@/auth';
 import { groupBy, sortBy } from 'lodash';
 import html2canvas from 'html2canvas';
-import { filter } from 'lodash';
+
 export default {
   components: {
     DxForm, DxGroupItem, DxSimpleItem, DxLabel, DxRequiredRule, DxNumberBox, DxDataGrid, DxColumn, DxScrolling, DxPaging, DxSummary, DxTotalItem, DxButton,
@@ -292,42 +294,57 @@ export default {
       purchase_supply_price: 0,
     });
     vars.dataSource = reactive({
-      cost : new ArrayStore({ key: 'item_code', data: [] }),
-      approvalLine : [],
-      approvalLineResult : [],
+      cost: new ArrayStore({ key: 'item_code', data: [] }),
+      approvalLine: [],
+      employee: [],
     });
+
     vars.formState = reactive({
       readOnly: true,
     });
+
+    const signImages = computed(() => {
+      if (!vars.dataSource.approvalLine.length) return {};
+      
+      return vars.dataSource.approvalLine.reduce((acc, line, index) => {
+        const key = line.approval_employee?.id;
+        if (!key) return acc;
+
+        if(line.closing_yn && line.approval_employee?.emp_sign_path){
+          acc[key] = {
+            hasImage: true,
+            src: line.approval_employee?.emp_sign_path,
+          };
+        } else if (!line.closing_yn && line.approval_result == '반려'){
+          acc[key] = {
+            hasImage: true,
+            src: '/api/mes/v1/file-manager/read/approval-attachment/반려.png/반려.png',
+          };
+        } else {
+          acc[key] = {
+            hasImage: false,
+            src: '',
+          };
+        }
+
+        return acc;
+      }, {});
+    });
+
     const methods = {
       async initById(id){
         try {
-            
-            const { data : approvalLineData } = await approvalLine.load({
-            filter: [
-              ['fk_request_emp_id', '=', props.fk_request_emp_id],
-              'and',
-              ['fk_document_id', '=', 1]
-            ],
-            sort: [
-              {
-                selector: 'line_order',
-                desc: false
-              }
-            ]
-          });
-          vars.dataSource.approvalLine = approvalLineData;
-          console.log("approvalLineData : ", approvalLineData);
-          
           if (id) {
             const { data : businessData } = await projectBusiness.load({
               filter: ['id', '=', id]
             });
+           
             Object.assign(vars.formData, businessData[0]);
 
             if (vars.formData.id){
+
               const { data : costData } = await getProjectBusinessCost([{ name: 'fk_business_id', op: 'eq', val: vars.formData.id }]).load();
-            
+
               const groupedData = groupBy(costData, 'item.main_category');
               
               const processedData = [];
@@ -375,6 +392,29 @@ export default {
                 key: 'item_code', 
                 data: processedData 
               });
+
+
+              const { data : approvalData } = await approval.load({
+                filter: ['fk_business_id', '=', vars.formData.id]
+              })
+              if (approvalData.length > 0){
+                vars.dataSource.approvalLine = approvalData[0].approval_line_result;
+              } else {
+                const { data : approvalLineData } = await approvalLine.load({
+                  filter: [
+                    ['fk_request_emp_id', '=', props.fk_request_emp_id],
+                    'and',
+                    ['fk_document_id', '=', 1]
+                  ],
+                  sort: [
+                    {
+                      selector: 'line_order',
+                      desc: false
+                    }
+                  ]
+                });
+                vars.dataSource.approvalLine = approvalLineData;
+              }
             }
           }
         } catch (error) {
@@ -511,7 +551,7 @@ export default {
       { immediate: true }
     )
     
-    return { vars, methods };
+    return { vars, methods, moment, signImages };
   }
 }
 </script>
@@ -600,8 +640,19 @@ export default {
             background-color: #ffffff;
           }
           .approval-line-table {
-          border-collapse: collapse;  
-
+            border-collapse: collapse;  
+            .approval-sign-box {
+              position: relative;
+              .approval-sign-image {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 45px;
+                height: 45px;
+                opacity: 0.7;   
+              }
+            }
           }
         }
       }

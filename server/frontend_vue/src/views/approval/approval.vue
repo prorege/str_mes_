@@ -25,7 +25,7 @@
           <div class="search-status">
             <span class="search-title">상신자</span>
             <dx-lookup
-              value-expr="emp_name"
+              value-expr="id"
               display-expr="emp_name"  
               v-model:value="vars.formData.manager"
               :data-source="vars.dataSource.employee"
@@ -66,9 +66,9 @@
           @data-error-occurred="methods.onDataError"
         >
           <dx-column caption="상신일자" data-field="approval.approval_date" data-type="date" format="yyyy-MM-dd" :allow-editing="false" />
-          <dx-column caption="문서명" data-field="approval_document.document_name" :allow-editing="false" />
+          <dx-column caption="문서명" data-field="approval.document_name" :allow-editing="false" />
           <dx-column caption="상신번호" data-field="approval.approval_number" :allow-editing="false" />
-          <dx-column caption="상신자" data-field="approval.register" :allow-editing="false" />
+          <dx-column caption="상신자" data-field="request_employee.emp_name" :allow-editing="false" />
           <dx-column caption="결재문서" data-field="approval_attachment" cell-template="attachment-template" :allow-editing="false" alignment="center" :allow-sorting="false" />
           <dx-column caption="결재처리" data-field="approval_result" :allow-editing="false" alignment="center" cell-template="approval-result-template" />
           <dx-column caption="반려사유" data-field="approval_reason" :allow-editing="false" />
@@ -101,6 +101,8 @@
       height="800px"
       :resize-enabled="true"
       :scroll-by-content="true"
+      @hidden="methods.onPopupHidden"
+      @initialized="evt => methods.onGridInitialized(evt, 'popup-order-report')"
     >
     <dx-toolbar-item widget="dxButton" toolbar="top" location="after"
         :options="{ 
@@ -128,6 +130,7 @@
 </template>
 
 <script>
+import { useRouter } from 'vue-router';
 import moment from 'moment';
 import numeral from 'numeral';
 import { notifyInfo, notifyError } from '../../utils/notify';
@@ -166,13 +169,14 @@ export default {
     DataOrderReport,
   },
   setup() {
+    const router = useRouter();
     const vars = { dlg: {} };
 
     vars.init = ref(false);
     vars.grid = {};
     vars.now = new Date();
 
-    vars.dlg.orderReport = reactive({ show: false, fk_business_id: 0, fk_request_emp_id: 0 });
+    vars.dlg.orderReport = reactive({ show: false, fk_business_id: 0, fk_request_emp_id: 0, data: null });
     vars.formData = reactive({
       manager: '',
       approval_result: '',
@@ -199,6 +203,9 @@ export default {
         ]
       ),
     });
+    vars.dataSource.approvalLineResult.load().then((res) => {
+      console.log("res : ", res);
+    })
    
     onMounted(async () => {
       await methods.loadBaseCode();
@@ -237,7 +244,7 @@ export default {
           }
 
           if (vars.formData.manager && vars.formData.manager != '전체') {
-            filters.push(['approval', 'has', { name :'register', op : 'eq', val : vars.formData.manager}]);
+            filters.push(['approval', 'has', { name :'fk_request_emp_id', op : 'eq', val : vars.formData.manager}]);
           }
 
           if (vars.formData.approval_result && vars.formData.approval_result != '전체') {
@@ -266,6 +273,7 @@ export default {
       async documentPopupShow(data){
         try {
           const formData = data.data;
+          vars.dlg.orderReport.data = formData;
           if (formData.approval.fk_business_id) {
             vars.dlg.orderReport.fk_business_id = formData.approval.fk_business_id;
           }
@@ -315,49 +323,94 @@ export default {
         });
 
       },
-      // async handleApproval(data){
-      //   await approvalLineResult.update(data.data.id, {'approval_result': '결재완료', 'approval_reason': '', 'closing_yn': true, 'approval_date': moment().format('YYYY-MM-DD HH:mm:ss')})
-      //   notifyInfo('결재처리가 완료되었습니다');
-      //   vars.grid['status'].refresh();
-      // },
-      // async handleRejection(data){
-      //   custom({
-      //     title: '반려사유',
-      //     messageHtml: `
-      //         <div>
-      //             <label for="rejectionReason">반려 사유:</label>
-      //             <input type="text" id="rejectionReason" placeholder="반려 사유를 입력하세요" 
-      //                   style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;" maxlength="300" />
-      //         </div>
-      //     `,
-      //     buttons: [
-      //       { text: '확인', onClick: () => {
-      //         const rejectionReason = document.getElementById('rejectionReason').value;
-      //         return rejectionReason;
-      //       } },
-      //       { text: '취소', onClick: () => {
-      //         return null;
-      //       } }
-      //     ],
-      //   }).show().then(async (result) => {
-      //     if (result !==  null) {
-      //       await approvalLineResult.update(data.data.id, {'approval_result': '반려', 'approval_reason': result, 'closing_yn': false, 'approval_date': moment().format('YYYY-MM-DD HH:mm:ss')})
-      //       await approval.update(data.data.fk_approval_id, {'approval_reason': result})
-      //       notifyInfo('반려처리가 완료되었습니다');
-      //       vars.grid['status'].refresh();
-      //     }else{
-      //       notifyInfo('반려처리가 취소되었습니다');
-      //     }
-      //   });
-      // },
-      approvalPopupClose(value) {
-        // vars.dlg.approval.visible = value;
-        // vars.dlg.approval.key = null;
-        // vars.dlg.approval.data = null;
-        // vars.dlg.approval.formData = null;
-        vars.grid['status'].refresh();
+      async handleApproval(data){
+        const resultData = vars.dlg.orderReport.data;
+        if(resultData.approval_result == '결재완료'){
+          alert('이미 결재가 완료 됐습니다.', '결재');
+          return;
+        }
+        let isSelect = await confirm('결재 하시겠습니까?', '결재');
+        if (!isSelect) {
+          return;
+        }
+       
+        try {
+          await approvalLineResult.update(resultData.id, {'approval_result': '결재완료', 'approval_reason': '', 'closing_yn': true, 'approval_date': moment().format('YYYY-MM-DD HH:mm:ss')})
+          await approval.update(resultData.fk_approval_id, {'approval_reason': ''});
+          notifyInfo('결재처리가 완료되었습니다');
+          vars.grid['status'].refresh();
+          vars.grid['popup-order-report'].hide();
+        }catch (ex) {
+          console.error(ex);
+        }
       },
-   
+      async handleRejection(data){
+        const resultData = vars.dlg.orderReport.data;
+        const { data : _approval } = await approval.byKey(resultData.fk_approval_id);
+        const _approvalLineResult = _approval.approval_line_result;
+ 
+        const currentIndex = _approvalLineResult.findIndex(item => item.id == resultData.id);
+        const nextItem = _approvalLineResult[currentIndex + 1] || null;
+
+        if (nextItem && (nextItem.approval_result == '결재완료' || nextItem.approval_result == '반려')) {
+          alert('이미 상위 결재자가 결재 또는 반려를 완료했습니다.', '반려');
+          return;
+        }
+
+        if(resultData.approval_result == '반려'){
+          alert('이미 반려가 완료 됐습니다.', '반려');
+          return;
+        }
+        let isSelect = await confirm('반려 하시겠습니까?', '반려');
+        if (!isSelect) {
+          return;
+        }
+        custom({
+          title: '반려사유',
+          messageHtml: `
+              <div>
+                  <label for="rejectionReason">반려 사유:</label>
+                  <input type="text" id="rejectionReason" placeholder="반려 사유를 입력하세요" 
+                        style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;" maxlength="300" />
+              </div>
+          `,
+          buttons: [
+            { text: '확인', onClick: () => {
+              const rejectionReason = document.getElementById('rejectionReason').value;
+              return rejectionReason;
+            } },
+            { text: '취소', onClick: () => {
+              return null;
+            } }
+          ],
+        }).show().then(async (result) => {
+          if (result !==  null) {
+            const params = {
+              'approval_result': '반려',
+              'approval_reason': result,
+              'closing_yn': false,
+              'active_yn': 1,
+              'approval_date': moment().format('YYYY-MM-DD HH:mm:ss')
+            }
+            await approvalLineResult.update(resultData.id, params)
+            if (nextItem) {
+              await approvalLineResult.update(nextItem.id, {'active_yn': 0});
+            }
+            await approval.update(resultData.fk_approval_id, {'approval_reason': result})
+            notifyInfo('반려처리가 완료되었습니다');
+            vars.grid['status'].refresh();
+            vars.grid['popup-order-report'].hide();
+          }else{
+            notifyInfo('반려처리가 취소되었습니다');
+          }
+        });
+      },
+      onPopupHidden() {
+        vars.dlg.orderReport.data = null;
+        vars.dlg.orderReport.fk_business_id = 0;
+        vars.dlg.orderReport.fk_request_emp_id = 0;
+        vars.dlg.orderReport.show = false;
+      },
     };
 
     return { vars, methods };

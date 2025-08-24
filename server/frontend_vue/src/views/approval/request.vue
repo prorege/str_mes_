@@ -57,7 +57,6 @@
           <dx-column caption="상신일자" data-field="approval_date" data-type="date" format="yyyy-MM-dd" :allow-editing="false" />
           <dx-column caption="문서명" data-field="approval_document.document_name" :allow-editing="false" />
           <dx-column caption="상신번호" data-field="approval_number" :allow-editing="false" />
-          <dx-column caption="상신자" data-field="register" :allow-editing="false" />
           <dx-column caption="문서명" data-field="approval_attachment" cell-template="attachment-template" :allow-editing="false"  :allow-sorting="false" alignment="center" width="110" />
           <dx-column caption="상신상황" data-field="approval_status" :allow-editing="false" alignment="center" cell-template="approval-status-template" />
           <dx-column caption="결재처리" alignment="center" data-field="approval_line_result" cell-template="approval-result-template" :allow-editing="false" :allow-sorting="false" />
@@ -68,7 +67,7 @@
           </template>
           <template #approval-result-template="{ data }">
             <span v-for="item in data.data.approval_line_result" :key="item.id" :class="`approval-result-template ${item.approval_result == '결재완료' ? 'approve' : 'reject'}`" >
-              <span>{{ item.approval_manager }}</span>
+              <span>{{ item.approval_employee?.emp_name || '' }}</span>
               <span> : </span>
               <span>{{ item.approval_result == null ? '대기중' : item.approval_result }}</span>
             </span>
@@ -248,7 +247,6 @@ export default {
       async documentPopupShow(data) {
         try {
           const formData = data.data;
-          console.log("formData : ", formData);
           if (formData.fk_business_id) {
             vars.dlg.orderReport.fk_business_id = formData.fk_business_id;
           }

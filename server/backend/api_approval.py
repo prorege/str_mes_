@@ -46,6 +46,9 @@ manager.create_api(Approval,
                        'GET_SINGLE': [check_token],
                        'GET_MANY': [check_token],
                        'DELETE_SINGLE': [check_token]
+                   },
+                   postprocessors={
+                       'GET_MANY': [LibApproval.get_many_postprocessor]
                    })
 
 manager.create_api(ApprovalLineResult,

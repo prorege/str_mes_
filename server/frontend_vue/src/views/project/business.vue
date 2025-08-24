@@ -1191,12 +1191,12 @@ setup(props){
         if (!result) return;
         
         const approvalFormData = {
+          document_name : '수주사항보고서',
           fk_business_id: vars.formData.id,
           fk_company_id: authService.getCompanyId(),
           fk_document_id: 1,
           approval_date: currentDateTime(),
           approval_status: '상신완료',
-          register: authService.getUserName(),
           title: '',
           content: '',
           etc: '',
@@ -1209,11 +1209,12 @@ setup(props){
           let count = 0;
           for (const line of approvalLineData) {
             const arFormData = {
+              line_header: line.line_header,
               approval_result: '대기중',
               fk_approval_id: approvalData.id,
               fk_approval_line_id: line.id,
-              approval_manager: line.approval_employee.emp_name,
               fk_approval_emp_id: line.fk_approval_emp_id,
+              fk_request_emp_id: line.fk_request_emp_id,
             }
             if (count == 0) {
               arFormData.active_yn = true;
@@ -1221,7 +1222,6 @@ setup(props){
             count++;
             const { data : approvalLineResultData } = await approvalLineResult.insert(arFormData);
             // console.log("approvalLineResultData : ", approvalLineResultData);
-            count++;
           }
           vars.dataSource.approval = '상신완료';
           notifyInfo('상신 요청이 완료 됐습니다.');
