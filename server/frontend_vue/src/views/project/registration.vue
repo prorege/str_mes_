@@ -17,6 +17,7 @@
                 type: 'add',
                 icon: 'add',
                 onClick: methods.newItem,
+                visible: false,
               }"
             />
             <dx-item

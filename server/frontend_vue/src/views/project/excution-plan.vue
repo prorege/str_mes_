@@ -21,6 +21,8 @@
                 icon: 'add',
                 disabled: vars.disabled.new,
                 onClick: methods.newItem,
+                visible: false,
+                
               }"
             />
             <dx-item
@@ -1980,7 +1982,9 @@ export default {
         }
       },
       setPurchaseUnitPrice(newData, value, currentRowData){
+        const response = calcPriceSummary(currentRowData.vat_type, value);
         newData.purchase_unit_price = value;
+        newData.vat = currentRowData.vat_type == '포함' ? 0 : response.vat;
         if(currentRowData.purchase_order_item){
           newData.purchase_order_item = {...currentRowData.purchase_order_item};
           newData.purchase_order_item.unit_price = value;
@@ -1997,9 +2001,7 @@ export default {
 
       },
       setSubcontractExpectAmount(newData, value, currentRowData){
-        const response = calcPriceSummary(currentRowData.vat_type, value);
         newData.expect_amount = value;
-        newData.vat = currentRowData.vat_type == '포함' ? 0 : response.vat;
         if(currentRowData.purchase_order_item){
           newData.purchase_order_item = {...currentRowData.purchase_order_item};
           newData.purchase_order_item.expect_unit_price = value;
