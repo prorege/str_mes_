@@ -77,6 +77,7 @@
           @exporting="methods.onExporting"
           @row-dbl-click="methods.goOrderDetail"
         >
+          <dx-column caption="프로젝트여부" data-field="project_yn" data-type="boolean" true-text="등록" false-text="미등록" />
           <dx-column caption="영업번호" data-field="business_number" />
           <dx-column caption="영업건명" data-field="business_name" />
           <dx-column caption="고객업체" data-field="client_company" />

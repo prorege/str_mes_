@@ -45,6 +45,7 @@ class ProjectBusiness(db.Model): # 프로젝트 - 영업관리
     fk_project_management_id = db.Column('fk_project_management_id', db.Integer, comment="프로젝트 FK")
     project = db.relationship('ProjectManagement', viewonly=True, primaryjoin='foreign(ProjectBusiness.fk_project_management_id) == ProjectManagement.id')
     fk_company_id = db.Column('fk_company_id', db.Integer, db.ForeignKey(Companies.id), comment='회사 FK')
+    project_yn = db.Column('project_yn', db.Boolean, comment = "프로젝트여부")
     
     def excel_import_columns(self):
         return dict(
@@ -176,7 +177,7 @@ class ProjectManagement(db.Model):  # 프로젝트관리 - 프로젝트
     business = db.relationship('ProjectBusiness', foreign_keys=[fk_business_id])
     excution_plan = db.relationship('ProjectExcutionPlan', viewonly=True, primaryjoin='foreign(ProjectManagement.fk_excution_plan_id) == ProjectExcutionPlan.id')
     fk_company_id = db.Column('fk_company_id', db.Integer, db.ForeignKey(Companies.id), comment='회사 FK')
-    
+    excution_yn = db.Column('excution_yn', db.Boolean, comment = "실행계획여부")
 class ProjectItem(db.Model):  # 프로젝트 - 계약품목
     __tablename__ = 'project_item'
     __table_args__ = {

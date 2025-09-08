@@ -64,7 +64,13 @@
           @exporting="methods.onExporting"
           @row-dbl-click="methods.goProjectDetail"
         >
-          <dx-column caption="실행계획" data-field="fk_excution_plan_id" data-type="boolean" />
+          <dx-column 
+            caption="실행계획"
+            data-field="excution_yn"
+            data-type="boolean"
+            true-text="등록"
+            false-text="미등록"
+          />
           <dx-column caption="프로젝트번호" data-field="project_number" :sort-index="1" sort-order="desc" />
           <dx-column caption="프로젝트명" data-field="project_name" />
           <dx-column caption="등록일자" data-field="project_date" data-type="date" format="yyyy-MM-dd" :sort-index="0" sort-order="desc" />
