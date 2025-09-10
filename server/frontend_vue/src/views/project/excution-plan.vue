@@ -1693,7 +1693,7 @@ export default {
           data.vat_type = methods.getFirstItemName(vars.dataSource.vat_type); 
           data.vat = 0; 
           data.closing_yn = 0;
-          data.confirm_yn = 0;
+          data.confirmed = 0;
           data.delivery_require = 0; 
           data.delivery_date = null; 
           data.order_date = null;

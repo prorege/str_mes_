@@ -92,7 +92,7 @@
           <dx-column caption="프로젝트" data-field="project.project_number" />
           <dx-column caption="수정자" data-field="modify_manager" />
           <dx-column caption="수정일자" data-field="modify_date" data-type="date" format="yyyy-MM-dd" />
-         
+
           <dx-summary>
             <dx-total-item column="business_amount" summary-type="sum" value-format="fixedPoint" display-format="영업금액: {0}" />
           </dx-summary>
