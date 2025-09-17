@@ -62,6 +62,10 @@ const projectCostLog = new RestlessStore(
   '/api/mes/v1/project/cost_log'
 );
 
+const projectOutCostLog = new RestlessStore(
+  '/api/mes/v1/project/out_cost_log'
+);
+
 const projectCompletion = new RestlessStore(
   '/api/mes/v1/project/completion'
 );
@@ -190,6 +194,12 @@ const getProjectCostLog = defaultFilters => {
   return instance;
 };
 
+const getProjectOutCostLog = defaultFilters => {
+  const instance = new RestlessStore('/api/mes/v1/project/out_cost_log');
+  instance.defaultFilters = defaultFilters;
+  return instance;
+};
+
 const getProjectCompletion = defaultFilters => {
   const instance = new RestlessStore('/api/mes/v1/project/completion');
   instance.defaultFilters = defaultFilters;
@@ -252,6 +262,7 @@ export {
   projectHappyCall,
   projectDailyLog,
   projectCostLog,
+  projectOutCostLog,
   projectCompletion,
   projectCustomerInformation,
   projectCustomerHistory,
@@ -275,6 +286,7 @@ export {
   getProjectHappyCall,
   getProjectDailyLog,
   getProjectCostLog,
+  getProjectOutCostLog,
   getProjectCompletion,
   getProjectCustomerInformation,
   getProjectCustomerHistory,

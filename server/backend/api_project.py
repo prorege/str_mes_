@@ -1187,6 +1187,21 @@ manager.create_api(ProjectCostLog,
                        'DELETE_SINGLE': [check_token]
                    })
 
+manager.create_api(ProjectOutCostLog,
+                   url_prefix='/api/mes/v1/project',
+                   collection_name='out_cost_log',
+                   methods=['GET', 'DELETE', 'PATCH', 'POST'],
+                   allow_patch_many=True,
+                   results_per_page=0,
+                   max_results_per_page=100000000,
+                   preprocessors={
+                       'POST': [check_token],
+                       'PATCH_SINGLE': [check_token],
+                       'GET_SINGLE': [check_token],
+                       'GET_MANY': [check_token],
+                       'DELETE_SINGLE': [check_token]
+                   })
+
 manager.create_api(ProjectCompletion,
                    url_prefix='/api/mes/v1/project',
                    collection_name='completion',

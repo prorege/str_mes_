@@ -488,6 +488,26 @@ class ProjectCostLog(db.Model): # 프로젝트 - 비용관리
     fk_project_management_id = db.Column('fk_project_management_id', db.Integer, db.ForeignKey(ProjectManagement.id, onupdate="CASCADE", ondelete="CASCADE"), comment='프로젝트관리 FK')
     project_management = db.relationship("ProjectManagement", foreign_keys=[fk_project_management_id])
 
+class ProjectOutCostLog(db.Model): # 프로젝트 - 외주기성관리
+    __tablename__ = 'project_out_cost_log'
+    __table_args__ = {
+        'comment': '프로젝트(외주기성관리)'
+    }
+    id = db.Column('id', db.Integer, primary_key=True, comment='UID')
+    created = db.Column('created', db.DateTime, default=datetime.now, comment='생성시간')
+    cost_date = db.Column('cost_date', db.DateTime, comment='일자')
+    prev_cost = db.Column('prev_cost', db.BigInteger, comment='전월기성')
+    curr_cost = db.Column('curr_cost', db.BigInteger, comment='현재기성')
+    cumulative_cost = db.Column('cumulative_cost', db.BigInteger, comment='누적기성')
+    remaining_cost = db.Column('remaining_cost', db.Float, comment='잔여기성')
+    total_cost_rate = db.Column('total_cost_rate', db.Float, comment='총기성률')
+    etc = db.Column('etc', db.String(256), comment='비고')
+    register = db.Column('register', db.String(48), comment='등록자')
+    register_date = db.Column('register_date', db.DateTime, comment='등록일자')
+    fk_project_management_id = db.Column('fk_project_management_id', db.Integer, db.ForeignKey(ProjectManagement.id, onupdate="CASCADE", ondelete="CASCADE"), comment='프로젝트관리 FK')
+    project_management = db.relationship("ProjectManagement", foreign_keys=[fk_project_management_id])
+
+
 class ProjectCompletion(db.Model): # 프로젝트 - 준공관리
     __tablename__ = 'project_completion'
     __table_args__ = {

@@ -17,7 +17,7 @@
                 type: 'add',
                 icon: 'add',
                 onClick: methods.newItem,
-                visible: false,
+                visible: true
               }"
             />
             <dx-item
@@ -647,90 +647,6 @@
               </div>
             </template>
           </dx-item>
-          <dx-item title="AS접수및결과">
-            <template #default>
-              <div class="pa-2">
-                <dx-data-grid
-                  class="fixed-header-table"
-                  height="calc(100vh - 416px)"
-                  date-serialization-format="yyyy-MM-ddTHH:mm:ss"
-                  column-resizing-mode="widget"
-                  :on-initialized="
-                    evt => methods.onGridInitialized(evt, 'projectReceipt')
-                  "
-                  :data-source="vars.dataSource.projectReceipt"
-                  :remote-operations="true"
-                  :show-borders="true"
-                  :allow-column-reordering="true"
-                  :allow-column-resizing="true"
-                  :column-auto-width="true"
-                  :select-text-on-edit-start="true"
-                  :row-alternation-enabled="true"
-                  :focused-row-enabled="true"
-                  @focused-cell-changed="evt => methods.onFocusedCellChanged(evt, 'projectReceipt')"
-                  @saving="methods.onSavingItem"
-                >
-                  <dx-grid-toolbar>
-                      <dx-grid-item template="addRowButtonProjectReceipt" location="after" :visible="!vars.formState.readOnly" />
-                      <dx-grid-item template="itemSaveButtonProjectReceipt" location="after" :visible="!vars.formState.readOnly" />
-                      <dx-grid-item name="revertButton" location="after" />
-                  </dx-grid-toolbar>
-                  <template #addRowButtonProjectReceipt>
-                      <dx-button text="접수 추가" icon="add" @click="methods.addItemRowButton('projectReceipt')" />
-                  </template>
-                  <template #itemSaveButtonProjectReceipt>
-                      <dx-button text="저장" icon="save" @click="methods.itemSaveButton('projectReceipt')" />
-                  </template>
-                  <dx-column type="buttons" :visible="!vars.formState.readOnly"/>
-                  <dx-column caption="요청일자" data-field="request_date" data-type="date" format="yyyy-MM-dd" />
-                  <dx-column data-field="request_company" caption="요청업체" :editor-options="{ 
-                    ...methods.generateItemButtonOption('search', methods.createFindPopupFn('request_company', '요청업체 조회')) }" />
-                  <dx-column caption="AS요청자" data-field="request_manager" :editor-options="{
-                    buttons:[
-                      {name: 'search', location: 'after', options: {
-                        stylingMode: 'text',
-                        icon: 'search',
-                        onClick: methods.resultManagerOnClick
-                      }}
-                    ], 
-                  }" />
-                  <dx-column caption="AS증상" data-field="problem" :editor-options="{
-                    ...methods.generateItemButtonOption('rename', methods.createFindPopupFn('etc', 'AS증상')),
-                  }"/>
-                  <dx-column caption="준비자재" data-field="materials" :editor-options="{
-                    ...methods.generateItemButtonOption('rename', methods.createFindPopupFn('etc', '준비자재')),
-                  }" />
-                  <dx-column caption="투입장비" data-field="equipment" :editor-options="{
-                    ...methods.generateItemButtonOption('rename', methods.createFindPopupFn('etc', '투입장비')),
-                  }" />
-                  <dx-column data-field="involved_people" caption="투입인원"
-                  :editor-options="{
-                    ...methods.generateItemButtonOption('search', methods.createFindPopupFn('involved_people', '투입인원 조회'))
-                  }" />
-                  <dx-column caption="투입비용" data-field="involved_price" data-type="number" format="currency" />
-                  <dx-column caption="투입비용세부" data-field="involved_price_detail" :editor-options="{
-                    ...methods.generateItemButtonOption('rename', methods.createFindPopupFn('etc', '투입비용세부')),
-                  }" />
-                  <dx-column caption="조치결과" data-field="result" :editor-options="{
-                    ...methods.generateItemButtonOption('rename', methods.createFindPopupFn('etc', '조치결과')),
-                  }" />
-                  <dx-column caption="원인" data-field="reason" :editor-options="{
-                    ...methods.generateItemButtonOption('rename', methods.createFindPopupFn('etc', '원인')),
-                  }" />
-                  <dx-column caption="개선요청사항" data-field="note" :editor-options="{
-                    ...methods.generateItemButtonOption('rename', methods.createFindPopupFn('etc', '개선요청사항')),
-                  }" />
-                  <dx-editing
-                    :allow-adding="!vars.formState.readOnly"
-                    :allow-updating="!vars.formState.readOnly"
-                    :allow-deleting="!vars.formState.readOnly"
-                    mode="batch"
-                  />
-                  <dx-scrolling mode="standard" />
-                </dx-data-grid>
-              </div>
-            </template>
-          </dx-item>
           <dx-item title="일지등록">
             <template #default>
               <div class="pa-2">
@@ -839,8 +755,8 @@
                       <dx-button text="저장" icon="save" @click="methods.itemSaveButton('projectCostLog')" />
                   </template>
                   <dx-column type="buttons" :visible="!vars.formState.readOnly">
-                    <dx-grid-button name="edit" @click="methods.onEditRowButton" />
-                    <dx-grid-button name="delete" @click="methods.onDeleteRowButton" />
+                    <dx-grid-button name="edit" @click="methods.onEditRowButtonCostLog" />
+                    <dx-grid-button name="delete" @click="methods.onDeleteRowButtonCostLog" />
                   </dx-column>
                   <dx-column caption="일자" data-field="cost_date" data-type="date" format="yyyy-MM-dd" :set-cell-value="methods.setCostDate" />
                   <dx-column caption="전월기성" data-field="prev_cost" data-type="number" format="currency" :allow-editing="false" />
@@ -855,6 +771,67 @@
                     :allow-adding="!vars.formState.readOnly"
                     :allow-updating="!vars.formState.readOnly"
                     :allow-deleting="!vars.formState.readOnly"
+                    new-row-position="last"
+                    mode="row"
+                  />
+                  <dx-scrolling mode="standard" />
+                </dx-data-grid>
+              </div>
+            </template>
+          </dx-item>
+          <dx-item title="외주기성관리">
+            <template #default>
+              <div class="pa-2">
+                <dx-data-grid
+                  class="fixed-header-table"
+                  height="calc(100vh - 416px)"
+                  width="100%"
+                  date-serialization-format="yyyy-MM-ddTHH:mm:ss"
+                  column-resizing-mode="widget"
+                  :on-initialized="
+                    evt => methods.onGridInitialized(evt, 'projectOutCostLog')
+                  "
+                  :remote-operations="true"
+                  :data-source="vars.dataSource.projectOutCostLog"
+                  :show-borders="true"
+                  :allow-column-reordering="true"
+                  :allow-column-resizing="true"
+                  :column-auto-width="true"
+                  :select-text-on-edit-start="true"
+                  :row-alternation-enabled="true"
+                  :focused-row-enabled="true"
+                  @saving="methods.onSavingItem"
+                  @init-new-row="evt => methods.initNewRow(evt, 'projectOutCostLog')"
+                >
+                  <dx-grid-toolbar>
+                      <dx-grid-item template="addRowButtonProjectOutCostLog" location="after" :visible="!vars.formState.readOnly" />
+                      <dx-grid-item template="itemSaveButtonProjectOutCostLog" location="after" :visible="!vars.formState.readOnly" />
+                      <dx-grid-item name="revertButton" location="after" />
+                  </dx-grid-toolbar>
+                  <template #addRowButtonProjectOutCostLog>
+                      <dx-button text="외주기성 추가" icon="add" @click="methods.addItemRowButton('projectOutCostLog')" />
+                  </template>
+                  <template #itemSaveButtonProjectOutCostLog>
+                      <dx-button text="저장" icon="save" @click="methods.itemSaveButton('projectOutCostLog')" />
+                  </template>
+                  <dx-column type="buttons" :visible="!vars.formState.readOnly">
+                    <dx-grid-button name="edit" @click="methods.onEditRowButtonOutCostLog" />
+                    <dx-grid-button name="delete" @click="methods.onDeleteRowButtonOutCostLog" />
+                  </dx-column>
+                  <dx-column caption="일자" data-field="cost_date" data-type="date" format="yyyy-MM-dd" :set-cell-value="methods.setOutCostDate" />
+                  <dx-column caption="전월기성" data-field="prev_cost" data-type="number" format="currency" :allow-editing="false" />
+                  <dx-column caption="당월기성" data-field="curr_cost" data-type="number" format="currency" :set-cell-value="methods.setCurrCost" />
+                  <dx-column caption="누적기성" data-field="cumulative_cost" data-type="number" format="currency" :allow-editing="false" />
+                  <dx-column caption="잔여기성" data-field="remaining_cost" data-type="number" format="currency" :allow-editing="false" />
+                  <dx-column caption="총기성률" data-field="total_cost_rate" data-type="number" format="percent" :allow-editing="false" />
+                  <dx-column caption="비고" data-field="etc" />
+                  <dx-column caption="등록자" data-field="register" :allow-editing="false" />
+                  <dx-column caption="등록시간" data-field="register_date" data-type="date" :allow-editing="false" />
+                  <dx-editing
+                    :allow-adding="!vars.formState.readOnly"
+                    :allow-updating="!vars.formState.readOnly"
+                    :allow-deleting="!vars.formState.readOnly"
+                    new-row-position="last"
                     mode="row"
                   />
                   <dx-scrolling mode="standard" />
@@ -897,8 +874,8 @@
                       <dx-button text="저장" icon="save" @click="methods.itemSaveButton('projectCompletion')" />
                   </template>
                   <dx-column type="buttons" :visible="!vars.formState.readOnly">
-                    <dx-grid-button name="edit" @click="methods.onEditRowButton" />
-                    <dx-grid-button name="delete" @click="methods.onDeleteRowButton" />
+                    <dx-grid-button name="edit"/>
+                    <dx-grid-button name="delete" />
                   </dx-column>
                   <dx-column caption="준공일자" data-field="completion_date" data-type="date" format="yyyy-MM-dd" />
                   <dx-column caption="준공도면" data-field="completion_drawing" />
@@ -1107,11 +1084,6 @@
           @change="methods.finderReturnHandler"
         />
         <data-grid-client
-          v-else-if="vars.dlg.finder.key === 'request_company'"
-          :filters="vars.dlg.finder.data"
-          @change="methods.finderReturnHandler"
-        />
-        <data-grid-client
           v-else-if="vars.dlg.finder.key === 'company_name'"
           :filters="vars.dlg.finder.data"
           @change="methods.finderReturnHandler"
@@ -1126,11 +1098,7 @@
 
         <data-grid-client-manager v-else-if="vars.dlg.finder.key === 'company_manager'" :filters="vars.dlg.finder.data" @change="methods.finderReturnHandler" />
 
-        <data-grid-client-manager v-else-if="vars.dlg.finder.key === 'request_manager'" :filters="vars.dlg.finder.data" @change="methods.finderReturnHandler" />
-
         <data-grid-employee v-else-if="vars.dlg.finder.key === 'project_manager'" :filters="vars.dlg.finder.data" @change="methods.finderReturnHandler" />
-
-        <data-grid-employee-select v-else-if="vars.dlg.finder.key === 'involved_people'" :filters="vars.dlg.finder.data" @change="methods.finderReturnHandler" />
     
         <div v-else-if="vars.dlg.finder.key === 'etc'">
           <div class="mb-2">
@@ -1217,9 +1185,9 @@ import {
   getProjectParticipant,
   getProjectCompany,
   getProjectDocument,
-  getProjectReceipt,
   getProjectDailyLog,
   getProjectCostLog,
+  getProjectOutCostLog,
   getProjectCompletion,
   getProjectBusinessCost,
   getProjectCustomerInformation,
@@ -1313,7 +1281,6 @@ export default {
     vars.focus = reactive({
       projectCompany: null,
       projectParticipant: null,
-      projectReceipt: null,
     })
     vars.grid = {
       items: null,
@@ -1322,7 +1289,6 @@ export default {
       projectDocument: null,
       businessCost: null,
       quoteItem: null,
-      projectReceipt: null,
       projectDailyLog: null,
       projectCostLog: null,
       projectCompletion: null,
@@ -1395,13 +1361,6 @@ export default {
           val: props.id || 0,
         },
       ],
-      projectReceipt: [
-        {
-          name: 'fk_project_management_id',
-          op: 'eq',
-          val: props.id || 0,
-        },
-      ],
       projectDailyLog: [
         {
           name: 'fk_project_management_id',
@@ -1410,6 +1369,13 @@ export default {
         },
       ],
       projectCostLog: [
+        {
+          name: 'fk_project_management_id',
+          op: 'eq',
+          val: props.id || 0,
+        },
+      ],
+      projectOutCostLog: [
         {
           name: 'fk_project_management_id',
           op: 'eq',
@@ -1451,12 +1417,11 @@ export default {
       businessCost: null,
       quoteItem: null,
       vat_type: null,
-      projectReceipt: null,
       projectDailyLog: null,
       projectCostLog: null,
       projectCompletion: null,
       work_type: null,
-      
+      projectOutCostLog: null,
     });
     vars.dataSource.note = getProjectBusinessNote(vars.filter.note);
 
@@ -1470,11 +1435,11 @@ export default {
 
     vars.dataSource.projectDocument = getProjectDocument(vars.filter.projectDocument);
 
-    vars.dataSource.projectReceipt = getProjectReceipt(vars.filter.projectReceipt);
-
     vars.dataSource.projectDailyLog = getProjectDailyLog(vars.filter.projectDailyLog);
 
     vars.dataSource.projectCostLog = getProjectCostLog(vars.filter.projectCostLog);
+
+    vars.dataSource.projectOutCostLog = getProjectOutCostLog(vars.filter.projectOutCostLog);
 
     vars.dataSource.projectCompletion = getProjectCompletion(vars.filter.projectCompletion);
 
@@ -1508,7 +1473,6 @@ export default {
         methods.gridProjectParticipantRefresh(id);
         methods.gridProjectCompanyRefresh(id);
         methods.gridProjectDocumentRefresh(id);
-        methods.gridProjectReceiptRefresh(id);
         methods.gridProjectDailyLogRefresh(id);
         methods.gridProjectCostLogRefresh(id);
         methods.gridProjectCompletionRefresh(id);
@@ -1618,7 +1582,6 @@ export default {
         methods.gridProjectParticipantRefresh();
         methods.gridProjectCompanyRefresh();
         methods.gridProjectDocumentRefresh();
-        methods.gridProjectReceiptRefresh();
         methods.gridProjectDailyLogRefresh();
         methods.gridProjectCostLogRefresh();
         methods.gridProjectCompletionRefresh();
@@ -1743,15 +1706,6 @@ export default {
           vars.grid.projectDocument.refresh();
         }
       },
-      async gridProjectReceiptRefresh(id) {
-        if (!id) id = 0;
-        vars.filter.projectReceipt[0].val = id;
-        vars.dataSource.projectReceipt.defaultFilters = vars.filter.projectReceipt;
-        if (vars.grid.projectReceipt) {
-          vars.grid.projectReceipt.cancelEditData();
-          vars.grid.projectReceipt.refresh();
-        }
-      },
       async gridProjectDailyLogRefresh(id) {
         if (!id) id = 0;
         vars.filter.projectDailyLog[0].val = id;
@@ -1810,22 +1764,6 @@ export default {
             }
             break;
           }
-          case 'request_company': {
-            if(vars.focus.projectReceipt){
-              vars.grid.projectReceipt.cellValue(
-                vars.focus.projectReceipt.rowIndex,
-                'request_company',
-                data.name
-              );
-            }else{
-              vars.grid.projectReceipt.cellValue(
-                0,
-                'request_company',
-                data.name
-              );
-            }
-            break;
-          }
           case 'company_manager':{
             if(vars.focus.projectCompany){
               vars.grid.projectCompany.cellValue(
@@ -1841,44 +1779,6 @@ export default {
               )
               }
               
-            }
-            break;
-          }
-          case 'request_manager':{
-            if(vars.focus.projectReceipt){
-              vars.grid.projectReceipt.cellValue(
-                vars.focus.projectReceipt.rowIndex,
-                'request_manager',
-                data.name
-              )
-              
-            }
-            break;
-          }
-          case 'etc': {
-            // vars.formData.etc = vars.dlg.finder.data;
-            if(vars.focus.projectReceipt){
-              let column = '';
-              if(vars.dlg.finder.title == 'AS증상'){
-                column = 'problem';
-              }else if(vars.dlg.finder.title == '준비자재'){
-                column = 'materials';
-              }else if(vars.dlg.finder.title == '투입장비'){
-                column = 'equipment';
-              }else if(vars.dlg.finder.title == '투입비용세부'){
-                column = 'involved_price_detail';
-              }else if(vars.dlg.finder.title == '조치결과'){
-                column = 'result';
-              }else if(vars.dlg.finder.title == '원인'){
-                column = 'reason';
-              }else if(vars.dlg.finder.title == '개선요청사항'){
-                column = 'note';
-              }
-              vars.grid.projectReceipt.cellValue(
-                    vars.focus.projectReceipt.rowIndex,
-                    column,
-                    vars.dlg.finder.data
-                  )
             }
             break;
           }
@@ -1917,22 +1817,6 @@ export default {
             }
             break;
           }
-          case 'involved_people': {
-            if(vars.focus.projectReceipt){
-              vars.grid.projectReceipt.cellValue(
-                vars.focus.projectReceipt.rowIndex,
-                'involved_people',
-                data.map(item=> item.emp_name).join(', ')
-              )
-            }else{
-              vars.grid.projectParticipant.cellValue(
-                0,
-                'involved_people',
-                data.map(item=> item.emp_name).join(', ')
-              );
-            }
-            break;
-          }
         }
 
         vars.dlg.finder.show = false;
@@ -1961,26 +1845,6 @@ export default {
         vars.dlg.finder.show = true;
 
       },
-      async resultManagerOnClick(){
-        if(!vars.grid.projectReceipt || !vars.focus.projectReceipt)return;
- 
-          const cellValue = vars.grid.projectReceipt.cellValue(vars.focus.projectReceipt.rowIndex, 'request_company');
-
-          if(!cellValue) return;
-
-          const { data } = await baseClient.load({
-            filter: [
-              ['name', '=', cellValue]
-            ]
-          })
-
-          if(!data.length) return;
-
-          vars.dlg.finder.key = 'request_manager';
-          vars.dlg.finder.data = { fk_client_id: data[0].id };
-          vars.dlg.finder.title = 'AS요청담당자';
-          vars.dlg.finder.show = true;
-      },
       updateEtcValue(v) {
         vars.dlg.finder.data = v;
       },
@@ -1996,7 +1860,6 @@ export default {
           const projectParticipant = vars.grid.projectParticipant;
           const projectCompany = vars.grid.projectCompany;
           const projectDocument = vars.grid.projectDocument;
-          const projectReceipt = vars.grid.projectReceipt;
           const projectDailyLog = vars.grid.projectDailyLog;
           const projectCostLog = vars.grid.projectCostLog;
           const projectCompletion = vars.grid.projectCompletion;
@@ -2040,10 +1903,6 @@ export default {
             
             if (projectDocument) {
               await projectDocument.saveEditData();
-            }
-
-            if (projectReceipt) {
-              await projectReceipt.saveEditData();
             }
 
             if (projectDailyLog) {
@@ -2094,10 +1953,6 @@ export default {
       
             if (projectDocument && projectDocument.hasEditData()) {
               await projectDocument.saveEditData();
-            }
-
-            if (projectReceipt && projectReceipt.hasEditData()) {
-              await projectReceipt.saveEditData();
             }
 
             if (projectDailyLog && projectDailyLog.hasEditData()) {
@@ -2171,6 +2026,27 @@ export default {
         }
   
       },
+      setOutCostDate(newData, value, currentRowData){
+        
+        const getVisibleRows = vars.grid.projectOutCostLog.getVisibleRows();
+        const filteredRows = getVisibleRows.filter(row => row.data.id !== undefined);
+        if(filteredRows.length == 0){
+          newData.cost_date = moment(value).format('YYYY-MM-DD');
+          return;
+        }
+        const maxKeyRow = filteredRows.reduce((max, row) => {
+          return (row.data.id > max.data.id) ? row : max;
+        }, filteredRows[0]);
+
+        const newCostDate = moment(value).format('YYYY-MM-DD');
+        
+    
+        if (moment(maxKeyRow.data.cost_date).isBefore(newCostDate)) {
+          newData.cost_date = newCostDate;
+        } else {
+          notifyError('일자는 이전 외주기성 일자보다 이후여야 합니다');
+        }
+      },
       setCurrCost(newData, value, currentRowData){
         const remaining_cost = currentRowData.remaining_cost + currentRowData.curr_cost;
         const cumulative_cost = currentRowData.cumulative_cost - currentRowData.curr_cost;
@@ -2180,7 +2056,7 @@ export default {
         newData.cumulative_cost = cumulative_cost + value;
         newData.total_cost_rate = (newData.cumulative_cost / vars.formData.company_amount);
       },
-      onEditRowButton(e){
+      onEditRowButtonCostLog(e){
         const grid = vars.grid.projectCostLog.getVisibleRows()
           .sort((a, b) => a.data.key - b.data.key);
   
@@ -2193,7 +2069,20 @@ export default {
           notifyError('마지막 기성 외에는 내역을 수정할 수 없습니다');
         }
       },
-      onDeleteRowButton(e){
+      onEditRowButtonOutCostLog(e) {
+        const grid = vars.grid.projectOutCostLog.getVisibleRows()
+          .sort((a, b) => a.data.key - b.data.key);
+  
+        const maxKey = grid.reduce((max, row) => {
+          return (row.data.id > max) ? row.data.id : max;
+        }, grid[0].data.id);
+        if(maxKey == e.row.key){
+          e.component.editRow(e.row.rowIndex)
+        }else{
+          notifyError('마지막 외주기성 외에는 내역을 수정할 수 없습니다');
+        }
+      },
+      onDeleteRowButtonCostLog(e){
         const grid = vars.grid.projectCostLog.getVisibleRows()
           .sort((a, b) => a.data.key - b.data.key);
   
@@ -2204,6 +2093,19 @@ export default {
           e.component.deleteRow(e.row.rowIndex)
         }else{
           notifyError('마지막 기성 외에는 내역을 삭제할 수 없습니다');
+        }
+      },
+      onDeleteRowButtonOutCostLog(e){
+        const grid = vars.grid.projectOutCostLog.getVisibleRows()
+          .sort((a, b) => a.data.key - b.data.key);
+  
+        const maxKey = grid.reduce((max, row) => {
+          return (row.data.id > max) ? row.data.id : max;
+        }, grid[0].data.id);
+        if(maxKey == e.row.key){
+          e.component.deleteRow(e.row.rowIndex)
+        }else{
+          notifyError('마지막 외주기성 외에는 내역을 삭제할 수 없습니다');
         }
       },
       async deleteItem() {
@@ -2225,7 +2127,6 @@ export default {
             methods.gridProjectParticipantRefresh();
             methods.gridProjectCompanyRefresh();
             methods.gridProjectDocumentRefresh();
-            methods.gridProjectReceiptRefresh();
             methods.gridProjectDailyLogRefresh();
             methods.gridProjectCostLogRefresh();
             methods.gridProjectCompletionRefresh();
@@ -2629,6 +2530,23 @@ export default {
           e.data.register_date = currentDateTime();
         }else if(item == 'projectCostLog'){
           const getVisibleRows = vars.grid.projectCostLog.getVisibleRows();
+          if(getVisibleRows.length <= 0){
+            e.data.prev_cost = 0;
+            e.data.curr_cost = 0;
+            e.data.cumulative_cost = 0;
+            e.data.remaining_cost = vars.formData.company_amount;
+            e.data.total_cost_rate = 0;
+          }else{
+            e.data.prev_cost = getVisibleRows[getVisibleRows.length - 1].data.cumulative_cost;
+            e.data.curr_cost = 0;
+            e.data.cumulative_cost = getVisibleRows[getVisibleRows.length - 1].data.cumulative_cost;
+            e.data.remaining_cost = getVisibleRows[getVisibleRows.length - 1].data.remaining_cost;
+            e.data.total_cost_rate = getVisibleRows[getVisibleRows.length - 1].data.total_cost_rate;
+          }
+          e.data.register = userName;
+          e.data.register_date = currentDateTime();
+        }else if(item == 'projectOutCostLog') {
+          const getVisibleRows = vars.grid.projectOutCostLog.getVisibleRows();
           if(getVisibleRows.length <= 0){
             e.data.prev_cost = 0;
             e.data.curr_cost = 0;
