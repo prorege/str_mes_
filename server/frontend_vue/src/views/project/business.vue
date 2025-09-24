@@ -1903,10 +1903,10 @@ setup(props){
   margin: 0;
 }
 ::v-deep(.form-group > div:first-child > div:first-child > div:first-child > div:first-child > div:first-child > div:first-child > div:first-child > div:first-child > div:nth-child(1)) {
-  flex: 2 1 0px !important;
+  flex: 1.5 2 0px !important;
 }
 ::v-deep(.form-group > div:first-child > div:first-child > div:first-child > div:first-child > div:first-child > div:first-child > div:nth-child(2) > div:first-child > div:nth-child(1)) {
-  flex: 2 1 0px !important;
+  flex: 1.5 2 0px !important;
 }
 .barobill-state {
   padding: 6px 20px;

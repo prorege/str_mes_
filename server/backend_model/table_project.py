@@ -432,6 +432,7 @@ class ProjectBusinessTripLog(db.Model): # 프로젝트 - 출장 / 외근 관리
     stopover = db.Column('stopover', db.String(96), comment='경유지')
     vehicle = db.Column('vehicle', db.String(48), comment='운행차량')
     project_name = db.Column('project_name', db.String(96), comment='프로젝트명')
+    file_name = db.Column('file_name', db.String(256), comment='파일')  # ✨ 이 라인을 추가
 
 class ProjectHappyCall(db.Model):  # 프로젝트 - 해피콜관리
     __tablename__ = 'project_happy_call'
