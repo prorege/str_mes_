@@ -70,14 +70,14 @@
                                 data-field="trip_start_date"
                                 data-type="datetime"
                                 format="yyyy-MM-dd HH:mm"
-                                caption="시작날짜"
-                                :allow-sorting="false">
+                                caption="시작일시"
+                                :allow-sorting="true">
                             </dx-column>
                             <dx-column 
                                 data-field="trip_end_date"
                                 data-type="datetime" 
                                 format="yyyy-MM-dd HH:mm"
-                                caption="종료날짜"
+                                caption="종료일시"
                                 :allow-sorting="false">
                             </dx-column>
                             <dx-column
