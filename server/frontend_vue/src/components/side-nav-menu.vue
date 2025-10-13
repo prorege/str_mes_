@@ -49,6 +49,7 @@ export default {
       '/import': 'import',
       '/export': 'export',
       '/approval': 'textdocument',
+      '/as': 'activefolder',
     };
 
     const isLargeScreen = sizes()['screen-large'];

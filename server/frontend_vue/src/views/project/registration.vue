@@ -1563,7 +1563,7 @@ export default {
       },
       onGridInitialized(evt, key) {
         vars.grid[key] = evt.component;
-        stateStore.bind(key, evt.component);
+        stateStore.bind(`project-registration-${key}`, evt.component);
       },
       loadBaseCode(){
         return baseCodeLoader(['부가세구분', '진행단계', '중요', '업체구분', '하자기간', '업무유형']).then(response =>{

@@ -100,6 +100,7 @@ from backend.api_import import *
 from backend.api_export import *
 from backend.api_barobill import *
 from backend.api_approval import *
+from backend.api_as import *
 
 @app.after_request
 def after_request(response):

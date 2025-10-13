@@ -23,6 +23,7 @@ import RtCost from './routes/cost';
 import RtImport from './routes/import';
 import RtExport from './routes/export';
 import RtApproval from './routes/approval';
+import RtAs from './routes/as';
 
 function loadView(view) {
   return () => import(/* webpackChunkName: "login" */ `../views/${view}.vue`);
@@ -46,6 +47,7 @@ const router = new createRouter({
     ...RtImport,
     ...RtExport,
     ...RtApproval,
+    ...RtAs,
     {
       path: '/home',
       name: 'home',
