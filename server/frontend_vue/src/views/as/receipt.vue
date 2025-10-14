@@ -104,10 +104,14 @@
                 </dx-simple-item>
                   <dx-simple-item 
                   data-field="receipt_manager" 
-                  editor-type="dxTextBox" 
+                  editor-type="dxSelectBox"
                   :editor-options="{
-                      ...vars.formState,
-                    }">
+                    dataSource: vars.dataSource.b_employee,
+                    displayExpr: 'emp_name',
+                    valueExpr: 'emp_name',
+                    ...vars.formState,
+                  }"
+                >
                   <dx-label text="접수 담당자" :show-colon="false" />
                 </dx-simple-item>
               </dx-group-item>
@@ -394,7 +398,8 @@ baseClient,
 baseItem,
 baseDepartment,
 baseEmployee,
-baseClientManager
+baseClientManager,
+getBaseEmployee
 } from '../../data-source/base';
 import DataGridClient from '../../components/base/data-client.vue';
 import DataGridAsReceipt from '../../components/as/data-as-receipt.vue';
@@ -490,6 +495,7 @@ setup(props) {
       item: getAsReceiptItem(vars.filter.item),
       paid_type: [{ code_name: '유상', code_value: '유상' }, { code_name: '무상', code_value: '무상' }],
       employee: [],
+      b_employee: getBaseEmployee(),
     });
 
     vars.disabled = reactive({
@@ -502,7 +508,6 @@ setup(props) {
     
     onMounted(async () => {
         await loadDepartment(vars.dataSource);
-       
         methods.initById(props.id);
     
     });

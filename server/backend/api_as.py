@@ -107,6 +107,16 @@ manager.create_api(AsResultExpense,
                        'DELETE_SINGLE': [check_token]
                    })
 
+manager.create_api(AsReceiptResultStatus,
+                   url_prefix='/api/mes/v1/as',
+                   collection_name='receipt-result-status',
+                   methods=['GET'],
+                   results_per_page=0,
+                   max_results_per_page=100000000,
+                   preprocessors={
+                       'GET': [check_token]
+                   })
+
 @app.route('/api/server/v1/as-result-attachment/remove/<int:attachment_id>', methods=['POST'])
 def as_result_attachment_remove(attachment_id):
     attachment = db.session.query(AsResultAttachment).filter(AsResultAttachment.id == attachment_id).first()

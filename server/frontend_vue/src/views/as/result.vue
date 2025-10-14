@@ -246,7 +246,6 @@
                     :on-initialized="evt => methods.onGridInitialized(evt, 'item')"
                     @saving="methods.onSavingItem"
                     @data-error-occurred="methods.onDataError"
-                    @init-new-row="methods.initNewRow"
                     >
                     <dx-grid-toolbar>
                         <dx-grid-item template="addItemRowButton" location="after" :visible="!vars.formState.readOnly" />
@@ -265,7 +264,7 @@
                     <dx-column caption="규격" data-field="item.item_standard" />
                     <dx-column caption="수량" data-field="item_quantity" data-type="number" format="fixedPoint" :set-cell-value="methods.setQuantity" />
                     <dx-column caption="단가" data-field="unit_price" data-type="number" format="currency" :set-cell-value="methods.setUnitPrice" />
-                    <dx-column caption="공급가" data-field="supply_price" data-type="number" format="currency" />
+                    <dx-column caption="공급가" data-field="supply_price" data-type="number" format="currency" :allow-editing="false" />
                     <dx-column caption="비고" data-field="etc" />
                     <dx-scrolling mode="standard" />
                     <dx-summary :recalculate-while-editing="true" :calculate-custom-summary="methods.calcSummaryItem">
@@ -333,6 +332,59 @@
               </div>
             </template>
           </dx-item>
+          <dx-item title="경비">
+              <template #default>
+                <div class="pa-2">
+                  <dx-data-grid
+                    class="fixed-header-table"
+                    height="calc(100vh - 516px)"
+                    data-serialization-format="yyyy-MM-ddTHH:mm:ss"
+                    column-resizing-mode="widget"
+                    :show-borders="true"
+                    :remote-operations="false"
+                    :column-auto-width="true"
+                    :focused-row-enabled="true"
+                    :allow-column-resizing="true"
+                    :allow-column-reordering="true"
+                    :row-alternation-enabled="true"
+                    :select-text-onedit-start="true"
+                    :data-source="vars.dataSource.expense"
+                    :on-initialized="evt => methods.onGridInitialized(evt, 'expense')"
+                    @saving="methods.onSavingItem"
+                    @data-error-occurred="methods.onDataError"
+                    @init-new-row="(e) => methods.initNewRow(e, 'expense')"
+                    >
+                    <dx-grid-toolbar>
+                        <dx-grid-item template="addItemRowButtonExpense" location="after" :visible="!vars.formState.readOnly" />
+                        <dx-grid-item template="itemSaveButton" location="after" :visible="false" />
+                        <dx-grid-item name="revertButton" location="after" />
+                    </dx-grid-toolbar>
+                    <template #addItemRowButtonExpense>
+                        <dx-button text="경비 추가" icon="add" @click="methods.addItemRowButton('expense')" />
+                    </template>
+                    <template #itemSaveButtonExpense>
+                        <dx-button text="저장" icon="save" @click="methods.itemSaveButton('expense')" />
+                    </template>
+                    <dx-column type="buttons" :visible="!vars.formState.readOnly"/>
+                    <dx-column caption="지출일자" data-field="expense_date" data-type="date" format="yyyy-MM-dd" />
+                    <dx-column caption="경비항목" data-field="expense_description" />
+                    <dx-column caption="등록자" data-field="register" :allow-editing="false" />
+                    <dx-column caption="금액" data-field="expense_amount" data-type="number" format="currency" />
+                    <dx-column caption="비고" data-field="etc" />
+                    <dx-scrolling mode="standard" />
+                    <dx-summary :recalculate-while-editing="true" :calculate-custom-summary="methods.calcSummaryItem">
+                        <dx-total-item name="expense_amount" summary-type="custom" />
+                    </dx-summary>
+                    <dx-editing mode="batch"
+                      :use-icons="true"
+                      :allow-adding="!vars.formState.readOnly"
+                      :allow-updating="!vars.formState.readOnly"
+                      :allow-deleting="!vars.formState.readOnly"
+                      />
+                  </dx-data-grid>
+                </div>
+              </template>
+            </dx-item>
           </dx-tab-panel>
         </div>
       </div>
@@ -450,7 +502,7 @@ import { notifyInfo, notifyError } from '../../utils/notify';
 import { currentDateTime } from '../../utils/util';
 import { loadDepartment } from '../../utils/data-loader';
 import { DxNumberBox } from 'devextreme-vue/number-box';
-import { asResult, getAsResultItem, getAsResultAttachment } from '../../data-source/as';
+import { asResult, getAsResultItem, getAsResultAttachment, getAsResultExpense } from '../../data-source/as';
 import DataGridProject from '../../components/project/data-project.vue';
 import DataGridAsResult from '../../components/as/data-as-result.vue';
 import ApiService from '../../utils/api-service';
@@ -509,6 +561,7 @@ setup(props) {
     vars.summary = reactive({
         item: {
             supply_price: 0,
+            expense_amount: 0,
         },
     });
     vars.grid = {
@@ -543,6 +596,7 @@ setup(props) {
     vars.dataSource = reactive({
       item: getAsResultItem(vars.filter.item),
       attachment: getAsResultAttachment(vars.filter.item),
+      expense: getAsResultExpense(vars.filter.item),
       employee: [],
     });
 
@@ -565,6 +619,7 @@ setup(props) {
         async initById(id) {
           methods.gridItemRefresh(id);
           methods.gridAttachmentRefresh(id);
+          methods.gridExpenseRefresh(id);
           if (!id) {
               methods.clearFormData();
               vars.disabled.edit = true;
@@ -593,6 +648,13 @@ setup(props) {
           if (vars.grid.attachment) {
             vars.grid.attachment.cancelEditData();
             vars.grid.attachment.refresh();
+          }
+        },
+        gridExpenseRefresh(id) {
+          vars.dataSource.expense.defaultFilters = methods.setIdToGridFilter(vars.filter.item, id);
+          if (vars.grid.expense) {
+            vars.grid.expense.cancelEditData();
+            vars.grid.expense.refresh();
           }
         },
         setIdToGridFilter(filter, id) {
@@ -648,6 +710,7 @@ setup(props) {
         async newItem() { 
           methods.gridItemRefresh();
           methods.gridAttachmentRefresh();
+          methods.gridExpenseRefresh();
           if (vars.formData.id) {
               methods.clearFormData();
               methods.redirect();
@@ -753,6 +816,9 @@ setup(props) {
                 if (vars.grid.attachment && vars.grid.attachment.hasEditData()) {
                   await vars.grid.attachment.saveEditData();
                 }
+                if (vars.grid.expense && vars.grid.expense.hasEditData()) {
+                  await vars.grid.expense.saveEditData();
+                }
 
                 vars.formState.readOnly = true;
 
@@ -777,7 +843,9 @@ setup(props) {
                 if (vars.grid.attachment && vars.grid.attachment.hasEditData()) {
                   await vars.grid.attachment.saveEditData();
                 }
-
+                if (vars.grid.expense && vars.grid.expense.hasEditData()) {
+                  await vars.grid.expense.saveEditData();
+                }
                 notifyInfo('저장되었습니다');
                 methods.redirect(data.id);
                 vars.formState.readOnly = true;
@@ -826,6 +894,7 @@ setup(props) {
                 methods.redirect();
                 methods.gridItemRefresh();
                 methods.gridAttachmentRefresh();
+                methods.gridExpenseRefresh();
                 vars.formState.readOnly = true;
             }
             }
@@ -856,7 +925,17 @@ setup(props) {
                     options.totalValue += Number(options.value.supply_price);
                 } else if (options.summaryProcess === 'finalize') {
                     vars.summary.item.supply_price = options.totalValue;
-                    vars.formData.result_price = vars.summary.item.supply_price;
+                    vars.formData.result_price = vars.summary.item.supply_price + vars.summary.item.expense_amount;
+                }
+            }
+            if (options.name === 'expense_amount') {
+                if (options.summaryProcess === 'start') {
+                    options.totalValue = 0;
+                } else if (options.summaryProcess === 'calculate') {
+                    options.totalValue += Number(options.value.expense_amount);
+                } else if (options.summaryProcess === 'finalize') {
+                    vars.summary.item.expense_amount = options.totalValue;
+                    vars.formData.result_price = vars.summary.item.supply_price + vars.summary.item.expense_amount;
                 }
             }
         },
@@ -981,8 +1060,12 @@ setup(props) {
                 notifyError('첨부파일이 아직 저장되지 않았습니다');
             }
         },
-        initNewRow(e){
-            console.log("e : ", e);
+        initNewRow(e, item){
+            if(item === 'expense'){
+                e.data.expense_date = currentDateTime();
+                e.data.register = authService.getUserName();
+                e.data.expense_amount = 0;
+            }
         },
 
         async exportInvoice () {

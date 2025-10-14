@@ -3,7 +3,7 @@
 print("module [backend_model.table_as.py] loaded")
 
 from datetime import datetime
-from sqlalchemy import DDL, event
+from sqlalchemy import DDL, event, text
 from backend_model.database import DBManager
 from backend_model.table_common import Companies
 from sqlalchemy.dialects.mysql import MEDIUMTEXT
@@ -95,18 +95,74 @@ class AsResultExpense(db.Model):
     __table_args__ = {'comment': '(A/S처리) 비용'}
     id = db.Column('id', db.Integer, primary_key=True, comment='UID')
     created = db.Column('created', db.DateTime, default=datetime.now, comment='생성시간')
-    expense_description = db.Column('expense_description', db.String(64), comment='경비내역')
-    expense_amount = db.Column('expense_amount', db.BigInteger, comment='예정소요경비')
-    excution_amount = db.Column('excution_amount', db.BigInteger, comment='소요경비')
-    plan_amount = db.Column('plan_amount', db.Float, comment='계획소요경비')
-    time_amount = db.Column('time_amount', db.BigInteger, comment='시간')
-    day_amount = db.Column('day_amount', db.Float, comment='일수')
-    vat_type = db.Column('vat_type', db.String(48), comment='부가세구분')
-    vat = db.Column('vat', db.Integer, comment='부가세')
-    expense_source = db.Column('expense_source', db.String(64), comment='지출처')
     expense_date = db.Column('expense_date', db.DateTime, comment='지출일자')
     register = db.Column('register', db.String(48), comment='등록자')
-    modify_register = db.Column('modify_register', db.String(48), comment='수정자')
-    modify_date = db.Column('modify_date', db.DateTime, comment='수정일자')
+    expense_description = db.Column('expense_description', db.String(64), comment='경비항목')
+    expense_amount = db.Column('expense_amount', db.BigInteger, comment='금액')
+    etc = db.Column('etc', db.String(512), comment='비고')
     fk_as_result_id = db.Column('fk_as_result_id', db.Integer, db.ForeignKey(AsResult.id, ondelete='CASCADE', onupdate='CASCADE'), comment='A/S처리 FK')
     as_result = db.relationship('AsResult', foreign_keys=[fk_as_result_id])
+
+
+class AsReceiptResultStatus(db.Model):
+    __tablename__ = 'v_as_receipt_result_status'
+    __table_args__ = {'comment': 'A/S 접수-처리 현황'}
+    
+    # AsReceipt 
+    receipt_id = db.Column('receipt_id', db.Integer, comment='접수 ID')
+    receipt_number = db.Column('receipt_number', db.String(48), comment='접수번호')
+    receipt_manager = db.Column('receipt_manager', db.String(48), comment='접수 담당자')
+    receipt_detail = db.Column('receipt_detail', db.String(512), comment='접수 내용')
+    receipt_date = db.Column('receipt_date', db.DateTime, comment='접수일자')
+    paid_type = db.Column('paid_type', db.String(48), comment='유무상 구분')
+    closing_yn = db.Column('closing_yn', db.Boolean, comment='종결여부')
+    
+    # AsResult 
+    result_id = db.Column('result_id', db.Integer, comment='처리 ID')
+    result_number = db.Column('result_number', db.String(48), comment='A/S처리번호')
+    result_date = db.Column('result_date', db.DateTime, comment='A/S처리일자')
+    result_manager = db.Column('result_manager', db.String(48), comment='처리담당자')
+    result_detail = db.Column('result_detail', db.String(512), comment='처리내용')
+    result_price = db.Column('result_price', db.Integer, comment='A/S처리비용')
+    
+    fk_project_management_id = db.Column('fk_project_management_id', db.Integer, comment='프로젝트 FK')
+    fk_company_id = db.Column('fk_company_id', db.Integer, comment='회사 FK')
+    
+    # ProjectManagement  
+    project_number = db.Column('project_number', db.String(48), comment='프로젝트번호')
+    project_name = db.Column('project_name', db.String(128), comment='프로젝트명')
+    contract_company = db.Column('contract_company', db.String(128), comment='수요기관')
+    
+    __mapper_args__ = {
+        'primary_key': [receipt_id, result_id]
+    }
+
+
+create_as_receipt_result_status = DDL("""
+DROP VIEW IF EXISTS v_as_receipt_result_status;
+CREATE OR REPLACE VIEW v_as_receipt_result_status AS
+SELECT 
+    ar.id as receipt_id,
+    ar.receipt_number, -- 접수번호
+    ar.receipt_date, -- 접수일자
+    ar.receipt_manager, -- 접수담당자
+    ar.receipt_detail, -- 접수내용
+    ar.paid_type, -- 유무상구분
+    ar.closing_yn,
+    ars.id as result_id,
+    ars.result_number, -- A/S처리번호
+    ars.result_date, -- A/S처리일자
+    ars.result_manager, -- A/S처리담당자
+    ars.result_detail, -- A/S처리내용
+    ars.result_price, -- A/S처리비용
+    ar.fk_project_management_id,
+    ar.fk_company_id,
+    pm.project_number, -- 프로젝트번호
+    pm.project_name, -- 프로젝트명
+    pm.contract_company -- 수요기관
+FROM as_receipt ar
+LEFT JOIN as_result ars ON ar.id = ars.fk_as_receipt_id
+LEFT JOIN project_management pm ON ar.fk_project_management_id = pm.id
+""")
+
+event.listen(AsReceiptResultStatus.__table__, 'after_create', create_as_receipt_result_status.execute_if(dialect='mysql'))

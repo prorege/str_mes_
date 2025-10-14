@@ -12,6 +12,7 @@ const asResultAttachment = new RestlessStore('/api/mes/v1/as/result-attachment')
 
 const asResultExpense = new RestlessStore('/api/mes/v1/as/result-expense');
 
+const asReceiptResultStatus = new RestlessStore('/api/mes/v1/as/receipt-result-status');  
 
 const getAsReceipt = (defaultFilters) => {
   const instance = new RestlessStore('/api/mes/v1/as/receipt');
@@ -51,6 +52,12 @@ const getAsResultExpense = (defaultFilters) => {
   return instance;
 };
 
+const getAsReceiptResultStatus = (defaultFilters) => {
+  const instance = new RestlessStore('/api/mes/v1/as/receipt-result-status', {}, 'processed', 'receipt_id');
+  instance.defaultFilters = defaultFilters;
+  return instance;
+};
+
 
 export { 
     asReceipt, 
@@ -59,10 +66,12 @@ export {
     asResultItem,
     asResultAttachment,
     asResultExpense,
+    asReceiptResultStatus,
     getAsReceipt,
     getAsReceiptItem,
     getAsResult,
     getAsResultItem,
     getAsResultAttachment,
-    getAsResultExpense
+    getAsResultExpense,
+    getAsReceiptResultStatus
 };
