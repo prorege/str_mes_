@@ -19,13 +19,21 @@ class AsReceipt(db.Model):
     id = db.Column('id', db.Integer, primary_key=True, comment='UID')
     created = db.Column('created', db.DateTime, default=datetime.now, comment='생성시간')
     receipt_number = db.Column('receipt_number', db.String(48), comment='접수번호')
+    project_name = db.Column('project_name', db.String(96), comment='프로젝트명')
     receipt_manager = db.Column('receipt_manager', db.String(48), comment='접수 담당자')
     receipt_detail = db.Column('receipt_detail', db.String(512), comment='접수 내용')
+    order_company = db.Column('order_company', db.String(48), comment='계약업체')
+    contract_company = db.Column('contract_company', db.String(48), comment='수요기관')
     department = db.Column('department', db.String(48), comment='등록부서')
     manager = db.Column('manager', db.String(48), comment='등록담당자')
+    contract_date = db.Column('contract_date', db.DateTime, comment='계약일자')
+    defect_end_date = db.Column('defect_end_date', db.DateTime, comment='하자만기')
+    completion_date = db.Column('completion_date', db.DateTime, comment='준공일자')
+    defect_period = db.Column('defect_period', db.String(48), comment='하자기간')
     client_manager = db.Column('client_manager', db.String(48), comment='고객사  담당자')
     client_manager_phone = db.Column('client_manager_phone', db.String(48), comment='고객사 담당자 연락처')
     receipt_date = db.Column('receipt_date', db.DateTime, comment='접수일자')
+    defect_period = db.Column('defect_period', db.String(48), comment='하자기간')
     paid_type = db.Column('paid_type', db.String(48), comment='유무상 구분')
     closing_yn = db.Column('closing_yn', db.Boolean, server_default='0', comment='종결여부')
     fk_project_management_id = db.Column('fk_project_management_id', db.Integer, db.ForeignKey(ProjectManagement.id, onupdate='CASCADE'), comment='프로젝트 FK')
@@ -58,6 +66,8 @@ class AsResult(db.Model):
     result_manager_check = db.Column('result_manager_check', db.String(48), comment='처리담당자 확인')
     result_detail = db.Column('result_detail', db.String(512), comment='처리내용')
     result_price = db.Column('result_price', db.Integer, comment='A/S처리비용')
+    process_status = db.Column('process_status', db.String(48), comment='처리현황')
+    final_status = db.Column('final_status', db.String(48), comment='최종현황')
     fk_project_management_id = db.Column('fk_project_management_id', db.Integer, db.ForeignKey(ProjectManagement.id, onupdate='CASCADE'), comment='프로젝트관리 FK')
     fk_as_receipt_id = db.Column('fk_as_receipt_id', db.Integer, db.ForeignKey(AsReceipt.id, onupdate='CASCADE', ondelete='CASCADE'), comment='A/S접수 FK')
     fk_company_id = db.Column('fk_company_id', db.Integer, db.ForeignKey(Companies.id, onupdate='CASCADE'), comment='회사 FK')
@@ -111,6 +121,13 @@ class AsReceiptResultStatus(db.Model):
     # AsReceipt 
     receipt_id = db.Column('receipt_id', db.Integer, comment='접수 ID')
     receipt_number = db.Column('receipt_number', db.String(48), comment='접수번호')
+    project_name = db.Column('project_name', db.String(96), comment='프로젝트명')
+    order_company = db.Column('order_company', db.String(48), comment='계약업체')
+    contract_company = db.Column('contract_company', db.String(48), comment='수요기관')
+    contract_date = db.Column('contract_date', db.DateTime, comment='계약일자')
+    defect_end_date = db.Column('defect_end_date', db.DateTime, comment='하자만기')
+    completion_date = db.Column('completion_date', db.DateTime, comment='준공일자')
+    defect_period = db.Column('defect_period', db.String(48), comment='하자기간')
     receipt_manager = db.Column('receipt_manager', db.String(48), comment='접수 담당자')
     receipt_detail = db.Column('receipt_detail', db.String(512), comment='접수 내용')
     receipt_date = db.Column('receipt_date', db.DateTime, comment='접수일자')
@@ -123,6 +140,8 @@ class AsReceiptResultStatus(db.Model):
     result_date = db.Column('result_date', db.DateTime, comment='A/S처리일자')
     result_manager = db.Column('result_manager', db.String(48), comment='처리담당자')
     result_detail = db.Column('result_detail', db.String(512), comment='처리내용')
+    process_status = db.Column('process_status', db.String(48), comment='처리현황')
+    final_status = db.Column('final_status', db.String(48), comment='최종현황') 
     result_price = db.Column('result_price', db.Integer, comment='A/S처리비용')
     
     fk_project_management_id = db.Column('fk_project_management_id', db.Integer, comment='프로젝트 FK')
@@ -130,8 +149,6 @@ class AsReceiptResultStatus(db.Model):
     
     # ProjectManagement  
     project_number = db.Column('project_number', db.String(48), comment='프로젝트번호')
-    project_name = db.Column('project_name', db.String(128), comment='프로젝트명')
-    contract_company = db.Column('contract_company', db.String(128), comment='수요기관')
     
     __mapper_args__ = {
         'primary_key': [receipt_id, result_id]
@@ -145,6 +162,13 @@ SELECT
     ar.id as receipt_id,
     ar.receipt_number, -- 접수번호
     ar.receipt_date, -- 접수일자
+    ar.project_name, -- 프로젝트명
+    ar.order_company, -- 계약업체
+    ar.contract_company, -- 수요기관
+    ar.contract_date, -- 계약일자
+    ar.defect_end_date, -- 하자만기
+    ar.completion_date, -- 준공일자
+    ar.defect_period, -- 하자기간
     ar.receipt_manager, -- 접수담당자
     ar.receipt_detail, -- 접수내용
     ar.paid_type, -- 유무상구분
@@ -155,11 +179,11 @@ SELECT
     ars.result_manager, -- A/S처리담당자
     ars.result_detail, -- A/S처리내용
     ars.result_price, -- A/S처리비용
+    ars.process_status, -- 처리현황
+    ars.final_status, -- 최종현황
     ar.fk_project_management_id,
     ar.fk_company_id,
-    pm.project_number, -- 프로젝트번호
-    pm.project_name, -- 프로젝트명
-    pm.contract_company -- 수요기관
+    pm.project_number -- 프로젝트번호
 FROM as_receipt ar
 LEFT JOIN as_result ars ON ar.id = ars.fk_as_receipt_id
 LEFT JOIN project_management pm ON ar.fk_project_management_id = pm.id

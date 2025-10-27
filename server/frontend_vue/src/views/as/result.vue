@@ -8,7 +8,10 @@
               <dx-item location="before"
                 ><div class="content-title">A/S처리</div></dx-item
               >
-              <dx-item location="after" locate-in-menu="auto" widget="dxButton" :visible="false"
+              <dx-item location="after">
+                <div class="barobill-state" v-if="vars.dlg.invoice.state">{{ vars.dlg.invoice.state }}</div>
+              </dx-item>
+              <dx-item location="after" locate-in-menu="auto" widget="dxButton" :visible="true"
                 :options="{ text: '전자세금계산서발행', type: 'copy', icon: 'paste', onClick: methods.exportInvoice }"
                 />
               <dx-item
@@ -63,69 +66,83 @@
           </div>
           <dx-form
           :form-data="vars.formData">
-            <dx-group-item :col-count="5">
-              <dx-group-item>
-                <dx-simple-item
-                  data-field="result_number"
-                  :editor-options="{
-                    onValueChanged: methods.onValueChanged,
-                    placeholder: '(자동 or 직접입력)',
-                    ...methods.generateItemButtonOption(
-                      'search',
-                      methods.createFindPopupFn('result_number', 'A/S처리조회')
-                    ),
-                  }"
-                >
-                  <dx-label text="A/S처리번호" :show-colon="false" />
-                </dx-simple-item>
-                <dx-simple-item
-                  data-field="as_receipt.receipt_number"
-                  :editor-options="{
-                    ...vars.formState,
-                    ...methods.generateItemButtonOption(
-                      'search',
-                      methods.createFindPopupFn('receipt_number', 'A/S접수조회')
-                    ),
-                  }"
-                >
-                  <dx-label text="A/S접수번호" :show-colon="false" />
-                </dx-simple-item>
-                <dx-simple-item
-                  data-field="project_management.project_number"
-                  :editor-options="{
-                    readOnly: true,
-                  }"
-                >
-                  <dx-label text="프로젝트번호" :show-colon="false" />
-                </dx-simple-item>
+            <dx-group-item :col-count=5>
+              <dx-group-item :col-span=2 :col-count=2>
+                <dx-group-item :col-span=1 :col-count=1> 
+                  <dx-simple-item
+                    data-field="result_number"
+                    :editor-options="{
+                      onValueChanged: methods.onValueChanged,
+                      placeholder: '(자동 or 직접입력)',
+                      ...methods.generateItemButtonOption(
+                        'search',
+                        methods.createFindPopupFn('result_number', 'A/S처리조회')
+                      ),
+                    }"
+                  >
+                    <dx-label text="A/S처리번호" :show-colon="false" />
+                  </dx-simple-item>
+                  <dx-simple-item
+                    data-field="as_receipt.receipt_number"
+                    :editor-options="{
+                      ...vars.formState,
+                      ...methods.generateItemButtonOption(
+                        'search',
+                        methods.createFindPopupFn('receipt_number', 'A/S접수조회')
+                      ),
+                    }"
+                  >
+                    <dx-label text="A/S접수번호" :show-colon="false" />
+                  </dx-simple-item>
+                  <dx-simple-item
+                    data-field="project_management.project_number"
+                    :editor-options="{
+                      readOnly: true,
+                    }"
+                  >
+                    <dx-label text="프로젝트번호" :show-colon="false" />
+                  </dx-simple-item>
+                </dx-group-item>
+                <dx-group-item :col-span=1 :col-count=1>
+                  <dx-simple-item
+                    data-field="as_receipt.receipt_date"
+                    editor-type="dxDateBox"
+                    :editor-options="{
+                      readOnly: true,
+                    }"
+                  >
+                    <dx-label text="접수일자" :show-colon="false" />
+                  </dx-simple-item>
+                  <dx-simple-item
+                    data-field="as_receipt.department"
+                    :editor-options="{
+                      readOnly: true,
+                    }"
+                  >
+                    <dx-label text="접수부서" :show-colon="false" />
+                  </dx-simple-item>
+                  <dx-simple-item
+                    data-field="as_receipt.manager"
+                    editor-type="dxTextBox"
+                    :editor-options="{
+                      readOnly: true,
+                    }"
+                  >
+                    <dx-label text="접수 담당자" :show-colon="false" />
+                  </dx-simple-item>
+                </dx-group-item>
+                <dx-group-item :col-span=2 :col-count=1>
+                  <dx-simple-item
+                    :col-span=2
+                    data-field="as_receipt.project_name"
+                    editor-type="dxTextBox"
+                    :editor-options="{
+                      readOnly: true,
+                    }"
+                  >
+                    <dx-label text="프로젝트 명" :show-colon="false" />
+                  </dx-simple-item>
               </dx-group-item>
-              <dx-group-item>
-                <dx-simple-item
-                  data-field="as_receipt.receipt_date"
-                  editor-type="dxDateBox"
-                  :editor-options="{
-                    readOnly: true,
-                  }"
-                >
-                  <dx-label text="접수일자" :show-colon="false" />
-                </dx-simple-item>
-                <dx-simple-item
-                  data-field="as_receipt.department"
-                  :editor-options="{
-                    readOnly: true,
-                  }"
-                >
-                  <dx-label text="접수부서" :show-colon="false" />
-                </dx-simple-item>
-                <dx-simple-item
-                  data-field="as_receipt.manager"
-                  editor-type="dxTextBox"
-                  :editor-options="{
-                    readOnly: true,
-                  }"
-                >
-                  <dx-label text="접수 담당자" :show-colon="false" />
-                </dx-simple-item>
               </dx-group-item>
               <dx-group-item :col-span=3 :col-count=3>
                 <dx-group-item :col-span=3 :col-count=3>
@@ -160,17 +177,16 @@
                 </dx-group-item>
                 <dx-group-item :col-span=3 :col-count=3>
                     <dx-simple-item
-                        data-field="result_department"
-                        editor-type="dxSelectBox"
-                        :editor-options="{
-                            dataSource: vars.dataSource.department,
-                            displayExpr: 'department_name',
-                            valueExpr: 'department_name',
-                            onValueChanged: methods.selectDepartment,
-                            ...vars.formState,
-                        }"
-                        >
-                        <dx-label text="처리부서" :show-colon="false" />
+                      data-field="result_date"
+                      editor-type="dxDateBox"
+                      :editor-options="{
+                        dateSerializationFormat: 'yyyy-MM-ddTHH:mm:ss',
+                        showClearButton: true,
+                        useMaskBehavior: true,
+                        ...vars.formState,
+                      }"
+                      >
+                      <dx-label text="처리일자" :show-colon="false" />
                     </dx-simple-item>
                     <dx-simple-item
                         data-field="result_manager"
@@ -195,6 +211,43 @@
                         <dx-label text="담당자 확인" :show-colon="false" />
                     </dx-simple-item>
                 </dx-group-item>
+                <dx-group-item :col-span=3 :col-count=3>
+                  <dx-simple-item
+                      data-field="result_department"
+                      editor-type="dxSelectBox"
+                      :editor-options="{
+                          dataSource: vars.dataSource.department,
+                          displayExpr: 'department_name',
+                          valueExpr: 'department_name',
+                          onValueChanged: methods.selectDepartment,
+                          ...vars.formState,
+                      }"
+                      >
+                      <dx-label text="처리부서" :show-colon="false" />
+                  </dx-simple-item>
+                  <dx-simple-item 
+                        data-field="process_status" 
+                        editor-type="dxSelectBox"
+                        :editor-options="{
+                            dataSource: vars.dataSource.process_status,
+                            displayExpr: 'code_name',
+                            valueExpr: 'code_name',
+                        ...vars.formState,
+                        }">
+                        <dx-label text="처리현황" :show-colon="false" />
+                    </dx-simple-item>
+                    <dx-simple-item 
+                        data-field="final_status" 
+                        editor-type="dxSelectBox"
+                        :editor-options="{
+                            dataSource: vars.dataSource.process_status,
+                            displayExpr: 'code_name',
+                            valueExpr: 'code_name',
+                        ...vars.formState,
+                        }">
+                        <dx-label text="최종현황" :show-colon="false" />
+                    </dx-simple-item>
+                </dx-group-item>
                 <dx-group-item :col-span=3 :col-count=1>
                     <dx-simple-item 
                         data-field="result_detail" 
@@ -205,18 +258,6 @@
                     </dx-simple-item>
                 </dx-group-item>
               </dx-group-item>
-            </dx-group-item>
-            <dx-group-item :col-count=5>
-                <dx-simple-item
-                  :col-span=2
-                  data-field="project_management.project_name"
-                  editor-type="dxTextBox"
-                  :editor-options="{
-                    readOnly: true,
-                  }"
-                >
-                  <dx-label text="프로젝트 명" :show-colon="false" />
-                </dx-simple-item>
             </dx-group-item>
           </dx-form>
         </div>
@@ -495,6 +536,7 @@ import { useRouter } from 'vue-router';
 import stateStore from '@/utils/state-store';
 import {
     baseEmployee,
+    baseCodeLoader,
 } from '../../data-source/base';
 import DataGridAsReceipt from '../../components/as/data-as-receipt.vue';
 import authService from '../../auth';
@@ -507,6 +549,21 @@ import DataGridProject from '../../components/project/data-project.vue';
 import DataGridAsResult from '../../components/as/data-as-result.vue';
 import ApiService from '../../utils/api-service';
 import ShipmentBillForm from '../../components/shipment/bill.vue';
+
+const BAROBILL_STATE = {
+    1000 : '임시저장',
+    2010 : '발급예정 승인대기',
+    2011 : '발급예정 승인완료',
+    2020 : '역발행요청 발급대기',
+    3011 : '발급예정 발급완료',
+    3021 : '역발행요청 발급완료',
+    3014 : '발급완료',
+    4012 : '발급예정 거부',
+    4022 : '역발행요청 거부',
+    5013 : '발급예정 승인 전 공급자에 의한 취소',
+    5023 : '역발행요청 승인 전 공급받는자에 의한 취소',
+    5031 : '발급예정 승인 후, 또는 발급완료 후 공급자에 의한 취소'
+}
 export default {
 components: {
     DxToolbar,
@@ -554,6 +611,7 @@ props: {
 setup(props) {
 
     const router = useRouter();
+    const barobillService = new ApiService('/api/mes/v1/barobill');
     const vars = { dlg: {} };
     vars.init = ref(true);
     vars.loading = ref(false);
@@ -584,6 +642,8 @@ setup(props) {
       result_manager: '',
       result_manager_check: '',
       result_detail: '',
+      process_status: '',
+      final_status: '',
       result_price: 0,
       fk_project_management_id: null,
       fk_as_receipt_id: null,
@@ -598,6 +658,7 @@ setup(props) {
       attachment: getAsResultAttachment(vars.filter.item),
       expense: getAsResultExpense(vars.filter.item),
       employee: [],
+      process_status: [],
     });
 
     vars.attchFiles = reactive({})
@@ -610,7 +671,7 @@ setup(props) {
     
     onMounted(async () => {
         await loadDepartment(vars.dataSource);
-       
+        await methods.loadBaseCode();
         methods.initById(props.id);
     
     });
@@ -635,6 +696,18 @@ setup(props) {
           vars.disabled.edit = false;
           methods.enableDelete();
           methods.enableSave();
+
+          const {data: state} = await barobillService.get(`state/${vars.formData.result_number}`)
+
+        
+          vars.dlg.invoice.state = BAROBILL_STATE[state.data.BarobillState]
+          console.log(`세금계산서 상태: ${state.data.BarobillState} [${BAROBILL_STATE[state.data.BarobillState]}]`)
+        },
+        async loadBaseCode() {
+          await baseCodeLoader(['처리현황']).then(response => {
+            vars.dataSource.process_status = response['처리현황'];
+
+          });
         },
         gridItemRefresh(id) {
           vars.dataSource.item.defaultFilters = methods.setIdToGridFilter(vars.filter.item, id);
@@ -671,6 +744,8 @@ setup(props) {
             vars.formData.result_manager = '';
             vars.formData.result_manager_check = '';
             vars.formData.result_detail = '';
+            vars.formData.process_status = '';
+            vars.formData.final_status = '';
             vars.formData.result_price = 0;
             vars.formData.fk_as_receipt_id = null;
             vars.formData.fk_project_management_id = null;
@@ -772,8 +847,8 @@ setup(props) {
               case 'receipt_number': {
                   vars.formData.fk_as_receipt_id = data.id;
                   vars.formData.as_receipt = data;
-                  vars.formData.fk_project_management_id = data.project_management.id;
-                  vars.formData.project_management = data.project_management;
+                  vars.formData.fk_project_management_id = data.project_management?.id || null;
+                  vars.formData.project_management = data.project_management || null;
                   break;
               }
               case 'result_number': {
@@ -797,10 +872,12 @@ setup(props) {
             
             if (vars.formData.id) {       
                 const updateDate = Object.assign({}, vars.formData);
+                delete updateDate.id;
                 delete updateDate.created;
                 delete updateDate.result_number;
                 delete updateDate.project_management;
                 delete updateDate.as_receipt;
+              console.log("updateDate : ", updateDate)
                 const { data } = await asResult.update(
                   vars.formData.id,
                   updateDate
@@ -971,6 +1048,14 @@ setup(props) {
             e.error.message = '권한이 없습니다';
             }
         },
+        async refreshBarobillState () {
+          if (!vars.formData.result_number) return
+          console.info('세금계산서 상태 업데이트 (부모 페이지)')
+          const {data: state} = await barobillService.get(`state/${vars.formData.result_number}`)
+
+          vars.dlg.invoice.state = BAROBILL_STATE[state.data.BarobillState]
+          console.log(`세금계산서 상태: ${state.data.BarobillState} [${BAROBILL_STATE[state.data.BarobillState]}]`)
+        },
         onSavingItem(e) {
           e.changes.forEach((element) => {
             if (element.type != 'remove') {
@@ -1070,11 +1155,25 @@ setup(props) {
 
         async exportInvoice () {
             if (!vars.formData.id) return
-            const {data: item} = await vars.dataSource.item.load()
-            vars.dlg.invoice.data = {...vars.formData}
-            vars.dlg.invoice.items = item
-            vars.dlg.invoice.number = vars.formData.result_number
-            vars.dlg.invoice.show = true
+            const {data: item} = await vars.dataSource.item.load();
+            for (let ele of item) {
+              ele.statement_item = ele.item_name;
+            }
+            const {data: expense } = await vars.dataSource.expense.load();
+            for (let ele of expense) {
+              ele.statement_item = ele.expense_description;
+              ele.supply_price = ele.expense_amount;
+            }
+            const formData = {...vars.formData};
+            formData.vat_type = '별도';
+            formData.approval_type = '청구';
+            formData.sales_number = formData.result_number;
+            formData.sales_date = formData.result_date;
+            formData.client_company = formData.as_receipt.order_company;
+            vars.dlg.invoice.data = formData;
+            vars.dlg.invoice.items = [...item, ...expense];
+            vars.dlg.invoice.number = formData.result_number;
+            vars.dlg.invoice.show = true;
         },
 
       };
@@ -1092,7 +1191,7 @@ setup(props) {
   };
   </script>
   
-  <style lang="scss">
+  <style lang="scss" >
   .vat-data-box{
     // border: 1px dashed #ddd;
     // border-radius: 15px;
@@ -1117,6 +1216,16 @@ setup(props) {
     text-decoration: underline;
     cursor: pointer;
   }
-  
+    
   </style>
   
+<style lang="scss" scoped>
+.barobill-state {
+  padding: 6px 20px;
+  border-radius: 4px;
+  border: 1px solid #d7d7d7;
+  box-shadow: inset 0px 1px 3px 0px #38530d6b;
+  background-color: #e3ffb8;
+  color: #5c8816;
+}
+</style>

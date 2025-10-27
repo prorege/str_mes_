@@ -10,19 +10,19 @@
         @selection-changed="methods.onSelectionChanged"
         >
         <dx-column caption="A/S접수번호" data-field="receipt_number" data-type="string" />
+        <dx-column caption="접수일자" data-field="receipt_date" data-type="date" format="yyyy-MM-dd" :sort-index="0" sort-order="desc" />
         <dx-column caption="프로젝트번호" data-field="project_management.project_number" data-type="string" />
-        <dx-column caption="프로젝트명" data-field="project_management.project_name" data-type="string" />
+        <dx-column caption="프로젝트명" data-field="project_name" data-type="string" />
         <dx-column caption="접수담당자" data-field="receipt_manager" data-type="string" />
-        <dx-column caption="계약업체" data-field="project_management.order_company" data-type="string" />
-        <dx-column caption="수요기관" data-field="project_management.contract_company" data-type="string" />
+        <dx-column caption="계약업체" data-field="order_company" data-type="string" />
+        <dx-column caption="수요기관" data-field="contract_company" data-type="string" />
         <dx-column caption="등록부서" data-field="department" data-type="string" />
         <dx-column caption="등록담당자" data-field="manager" data-type="string" />
-        <dx-column caption="계약일자" data-field="project_management.contract_date" data-type="date" format="yyyy-MM-dd" />
-        <dx-column caption="하자만기" data-field="project_management.defect_end_date" data-type="date" format="yyyy-MM-dd" />
+        <dx-column caption="계약일자" data-field="contract_date" data-type="date" format="yyyy-MM-dd" />
+        <dx-column caption="하자만기" data-field="defect_end_date" data-type="date" format="yyyy-MM-dd" />
         <dx-column caption="고객사 담당자" data-field="client_manager" data-type="string" />
         <dx-column caption="고객사 담당자 연락처" data-field="client_manager_phone" data-type="string" />
         <dx-column caption="유무상구분" data-field="paid_type" data-type="string" />
-        <dx-column caption="접수일자" data-field="receipt_date" data-type="date" format="yyyy-MM-dd" />
         <dx-paging :page-size="20" />
         <dx-filter-row :visible="true" />
         <dx-selection :mode="vars.mode" select-all-mode="page" show-check-boxes-mode="always" />

@@ -531,6 +531,38 @@ class ProjectCompletion(db.Model): # 프로젝트 - 준공관리
     fk_project_management_id = db.Column('fk_project_management_id', db.Integer, db.ForeignKey(ProjectManagement.id, onupdate="CASCADE", ondelete="CASCADE"), comment='프로젝트관리 FK')
     project_management = db.relationship("ProjectManagement", foreign_keys=[fk_project_management_id])
 
+
+class ProjectMaterialApproval(db.Model): # 프로젝트 - 자재승인관리
+    __tablename__ = 'project_material_approval'
+    __table_args__ = {
+        'comment': '프로젝트(자재승인관리)'
+    }
+    id = db.Column('id', db.Integer, primary_key=True, comment='UID')
+    created = db.Column('created', db.DateTime, default=datetime.now, comment='생성시간')
+    document_number = db.Column('document_number', db.String(48), comment='문서번호')
+    etc = db.Column('etc', db.String(256), comment='비고')
+    file_name = db.Column('file_name', db.String(64), comment='첨부파일')
+    file_path = db.Column('file_path', db.String(256), comment='첨부파일경로')
+    fk_project_management_id = db.Column('fk_project_management_id', db.Integer, db.ForeignKey(ProjectManagement.id, onupdate="CASCADE", ondelete="CASCADE"), comment='프로젝트관리 FK')
+    project_management = db.relationship("ProjectManagement", foreign_keys=[fk_project_management_id])
+
+class ProjectConstruction(db.Model): # 프로젝트 - 착공계
+    __tablename__ = 'project_construction'
+    __table_args__ = {
+        'comment': '프로젝트(착공계)'
+    }
+    id = db.Column('id', db.Integer, primary_key=True, comment='UID')
+    created = db.Column('created', db.DateTime, default=datetime.now, comment='생성시간')
+    document_name = db.Column('document_name', db.String(96), comment='문서명')
+    reference = db.Column('reference', db.String(48), comment='참조')
+    contract_number = db.Column('contract_number', db.String(48), comment='계약번호')
+    purchase_number = db.Column('purchase_number', db.String(48), comment='구매번호')
+    etc = db.Column('etc', db.String(256), comment='비고')
+    file_name = db.Column('file_name', db.String(64), comment='첨부파일')
+    file_path = db.Column('file_path', db.String(256), comment='첨부파일경로')
+    fk_project_management_id = db.Column('fk_project_management_id', db.Integer, db.ForeignKey(ProjectManagement.id, onupdate="CASCADE", ondelete="CASCADE"), comment='프로젝트관리 FK')
+    project_management = db.relationship("ProjectManagement", foreign_keys=[fk_project_management_id])
+
 class ProjectCustomerInformation(db.Model): # 프로젝트 - 고객정보관리
     __tablename__ = 'project_customer_information'
     __table_args__ = {

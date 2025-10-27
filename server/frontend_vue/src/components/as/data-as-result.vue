@@ -9,15 +9,15 @@
         :allow-column-reordering="true"
         @selection-changed="methods.onSelectionChanged"
         >
-        <dx-column caption="A/S처리번호" data-field="receipt_number" data-type="string" />
+        <dx-column caption="A/S처리번호" data-field="result_number" data-type="string" />
         <dx-column caption="A/S접수번호" data-field="as_receipt.receipt_number" data-type="string" />
-        <dx-column caption="프로젝트명" data-field="project_management.project_name" data-type="string" />
+        <dx-column caption="처리일자" data-field="result_date" data-type="date" format="yyyy-MM-dd" :sort-index="0" sort-order="desc" />
+        <dx-column caption="프로젝트명" data-field="as_receipt.project_name" data-type="string" />
         <dx-column caption="프로젝트번호" data-field="project_management.project_number" data-type="string" />
         <dx-column caption="접수부서" data-field="as_receipt.department" data-type="string" />
         <dx-column caption="접수담당자" data-field="as_receipt.manager" data-type="string" />
         <dx-column caption="처리부서" data-field="result_department" data-type="string" />
         <dx-column caption="처리담당자" data-field="result_manager" data-type="string" />
-        <dx-column caption="처리일자" data-field="result_date" data-type="date" format="yyyy-MM-dd" />
         <dx-column caption="접수일자" data-field="as_receipt.receipt_date" data-type="date" format="yyyy-MM-dd" />
         <dx-paging :page-size="20" />
         <dx-filter-row :visible="true" />

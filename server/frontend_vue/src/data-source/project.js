@@ -94,6 +94,14 @@ const projectMandayResigration = new RestlessStore(
   '/api/mes/v1/project/manday_resigration'
 );
 
+const projectMaterialApproval = new RestlessStore(
+  '/api/mes/v1/project/material_approval'
+);
+
+const projectConstruction = new RestlessStore(
+  '/api/mes/v1/project/construction'
+);
+
 const getProjectRegistration = defaultFilters => {
   const instance = new RestlessStore('/api/mes/v1/project/project_management');
   instance.defaultFilters = defaultFilters;
@@ -242,6 +250,18 @@ const getProjectMandayResigration = defaultFilters => {
   return instance;
 };
 
+const getProjectMaterialApproval = defaultFilters => {
+  const instance = new RestlessStore('/api/mes/v1/project/material_approval');
+  instance.defaultFilters = defaultFilters;
+  return instance;
+};
+
+const getProjectConstruction = defaultFilters => {
+  const instance = new RestlessStore('/api/mes/v1/project/construction');
+  instance.defaultFilters = defaultFilters;
+  return instance;
+};
+
 export {
   projectRegistration,
   projectItem,
@@ -269,6 +289,8 @@ export {
   projectBusinessQuote,
   projectBusinessCost,
   projectBusinessBasic,
+  projectMaterialApproval,
+  projectConstruction,
   getProjectRegistration,
   getProjectItem,
   getProjectParticipant,
@@ -292,5 +314,7 @@ export {
   getProjectCustomerHistory,
   getProjectBusinessQuote,
   getProjectBusinessCost,
-  getProjectBusinessBasic
+  getProjectBusinessBasic,
+  getProjectMaterialApproval,
+  getProjectConstruction
 };

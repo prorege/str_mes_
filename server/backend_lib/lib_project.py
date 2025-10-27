@@ -30,11 +30,39 @@ class LibProjectManagement(object):
         projectDocument = db.session.query(ProjectDocument).filter(
             ProjectDocument.fk_project_management_id == instance_id)
         for item in projectDocument.all():
-            file_path = os.path.join(app.config['UPLOAD_BASE_DIR'], item.file_path)
-            try:
-                os.remove(file_path)
-            except IsADirectoryError:
-                pass
+            if item.file_path:
+                file_path = os.path.join(app.config['UPLOAD_BASE_DIR'], item.file_path)
+                try:
+                    os.remove(file_path)
+                except IsADirectoryError:
+                    pass
+        projectMaterialApproval = db.session.query(ProjectMaterialApproval).filter(
+            ProjectMaterialApproval.fk_project_management_id == instance_id)
+        for item in projectMaterialApproval.all():
+            if item.file_path:
+                file_path = os.path.join(app.config['UPLOAD_BASE_DIR'], item.file_path)
+                try:
+                    os.remove(file_path)
+                except IsADirectoryError:
+                    pass
+        projectDailyLog = db.session.query(ProjectDailyLog).filter(
+            ProjectDailyLog.fk_project_management_id == instance_id)
+        for item in projectDailyLog.all():
+            if item.attachment_path:
+                file_path = os.path.join(app.config['UPLOAD_BASE_DIR'], item.attachment_path)
+                try:
+                    os.remove(file_path)
+                except IsADirectoryError:
+                    pass
+        projectConstruction = db.session.query(ProjectConstruction).filter(
+            ProjectConstruction.fk_project_management_id == instance_id)
+        for item in projectConstruction.all():
+            if item.file_path:
+                file_path = os.path.join(app.config['UPLOAD_BASE_DIR'], item.file_path)
+                try:
+                    os.remove(file_path)
+                except IsADirectoryError:
+                    pass
         db.session.query(
             ProjectBusiness
         ).filter(

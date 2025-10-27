@@ -44,7 +44,11 @@ def route_post_invoice():
     invoice.AmountTotal = payload['AmountTotal']
     invoice.TaxTotal = payload['TaxTotal']
     invoice.TotalAmount = payload['TotalAmount']
-    invoice.Remark1 = payload['Remark1']
+    
+    if 'Remark1' in payload:
+        invoice.Remark1 = payload['Remark1']
+    else:
+        invoice.Remark1 = ''
 
     if 'WriteDate' in payload:
         invoice.WriteDate = payload['WriteDate']

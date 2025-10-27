@@ -69,12 +69,18 @@
             @row-dbl-click="methods.goReceiptDetail"
           >
             <dx-column caption="A/S접수번호" data-field="receipt_number" :sort-index="1" sort-order="desc" />
+            <dx-column caption="A/S처리번호" data-field="result_number" />
+            <dx-column caption="처리일자" data-field="result_date" data-type="date" format="yyyy-MM-dd" alignment="center" />
             <dx-column caption="접수일자" data-field="receipt_date" sort-order="desc" data-type="date" format="yyyy-MM-dd" alignment="center" />
+            <dx-column caption="프로젝트명" data-field="project_name" />
             <dx-column caption="프로젝트번호" data-field="project_number" />
             <dx-column caption="수요기관" data-field="contract_company" />
             <dx-column caption="접수 담당자" data-field="receipt_manager" alignment="center" />
             <dx-column caption="처리 담당자" data-field="result_manager" alignment="center" />
             <dx-column caption="접수내용" data-field="receipt_detail" />
+            <dx-column caption="처리내용" data-field="result_detail" />
+            <dx-column caption="처리현황" data-field="process_status" />
+            <dx-column caption="최종현황" data-field="final_status" />
             <dx-column caption="완료여부" data-field="closing_yn" />
             <dx-column caption="유무상 구분" data-field="paid_type" alignment="center" />
             <dx-column caption="A/S처리비용" data-field="result_price" data-type="number" format="currency"/>

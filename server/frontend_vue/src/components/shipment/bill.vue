@@ -118,6 +118,7 @@ async function getClientInfoByName (name) {
         Object.assign(customerInfo.value, list[0])
     }
     else {
+        formData.value.processDetail = '고객사 정보가 없습니다'
         console.error('고객사 정보가 없습니다')
     }
 }
@@ -127,14 +128,15 @@ async function updateState () {
     for (const key of Object.keys(props.formData)) {
         formData.value[key] = props.formData[key]
     }
-
+    formData.value.processDetail = ''
     await getClientInfoByName(formData.value.client_company)
     console.log(customerInfo.value)
 
-    formData.value.processDetail = ''
+    
     loading.value = true
     const {data: state} = await apiService.get(`state/${props.number}`)
     formData.value.stateCode = state.data.BarobillState
+
     if (state.success === false) formData.value.stateString = state.error_message
     else {
         formData.value.stateString = BAROBILL_STATE[formData.value.stateCode]
@@ -181,12 +183,17 @@ function calcPriceSummary (vat_type, total) {
 async function registerInvoice () {
     console.info('세금계산서 등록 및 발행')
     if (!props.items.length) {
+        notifyError('품목이 없습니다')
         return console.error('품목 없음')
+    }
+    if (!customerInfo.value.business_number) {
+        notifyError('고객사 정보가 없습니다')
+        return console.error('고객사 정보가 없습니다')
     }
     loading.value = true
     const {data: company} = await getCompanyInfo()
     const total = props.items.reduce((t, a) => {
-        t += a.supply_price
+        t += Number(a.supply_price)
         return t
     }, 0)
 

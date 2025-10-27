@@ -13,6 +13,66 @@
               locate-in-menu="auto"
               widget="dxButton"
               :options="{
+                text: '계측제어',
+                type: '',
+                icon: 'link',
+                onClick: () => methods.onReportShow('measurement'),
+                visible: true
+              }"
+            />
+            <dx-item
+              location="after"
+              locate-in-menu="auto"
+              widget="dxButton"
+              :options="{
+                text: '자동제어',
+                type: '',
+                icon: 'link',
+                onClick: () => methods.onReportShow('automatic'),
+                visible: true
+              }"
+            />
+            <dx-item
+              location="after"
+              locate-in-menu="auto"
+              widget="dxButton"
+              :options="{
+                text: '에스텍',
+                type: '',
+                icon: 'link',
+                onClick: () => methods.onReportShow('stech'),
+                visible: true
+              }"
+            />
+            <dx-item
+              location="after"
+              locate-in-menu="auto"
+              widget="dxButton"
+              :options="{
+                text: '착수계(계측제어)',
+                type: '',
+                icon: 'link',
+                onClick: () => methods.onReportShow('workStartMeasurement'),
+                visible: true
+              }"
+            />
+            <dx-item
+              location="after"
+              locate-in-menu="auto"
+              widget="dxButton"
+              :options="{
+                text: '착수계(자동제어)',
+                type: '',
+                icon: 'link',
+                onClick: () => methods.onReportShow('workStartAutomatic'),
+                visible: true
+              }"
+            />
+            <dx-item
+              location="after"
+              locate-in-menu="auto"
+              widget="dxButton"
+              :options="{
                 text: '신규',
                 type: 'add',
                 icon: 'add',
@@ -839,7 +899,7 @@
               </div>
             </template>
           </dx-item>
-          <dx-item title="준공관리">
+          <dx-item title="준공계">
             <template #default>
               <div class="pa-2">
                 <dx-data-grid
@@ -901,7 +961,7 @@
               </div>
             </template>
           </dx-item>
-          <dx-item title="참고사항">
+          <dx-item title="자재승인원">
             <template #default>
               <div class="pa-2">
                 <dx-data-grid
@@ -917,28 +977,114 @@
                   :allow-column-reordering="true"
                   :row-alternation-enabled="true"
                   :select-text-onedit-start="true"
-                  :data-source="vars.dataSource.note"
-                  :on-initialized="evt => methods.onGridInitialized(evt, 'note')"
-                  @saving="(e) => methods.onSavingItem(e, 'note')"
+                  :data-source="vars.dataSource.materialApproval"
+                  :on-initialized="evt => methods.onGridInitialized(evt, 'materialApproval')"
+                  @saving="(e) => methods.onSavingItem(e, 'materialApproval')"
                   @data-error-occurred="methods.onDataError"
-                  @focused-cell-changed="evt => methods.onFocusedCellChanged(evt, 'note')"
-                  @init-new-row="evt => methods.initNewRow(evt, 'note')"
+                  @focused-cell-changed="evt => methods.onFocusedCellChanged(evt, 'materialApproval')"
+                  @init-new-row="evt => methods.initNewRow(evt, 'materialApproval')"
+                  @row-removing="methods.onMaterialApprovalRemoving"
                   >
                   <dx-grid-toolbar>
-                      <dx-grid-item template="addNoteRowButton" location="after" :visible="!vars.formState.readOnly" />
-                      <dx-grid-item template="noteSaveButton" location="after" :visible="false" />
+                      <dx-grid-item template="addMaterialApprovalRowButton" location="after" :visible="!vars.formState.readOnly" />
+                      <dx-grid-item template="materialApprovalSaveButton" location="after" :visible="false" />
                       <dx-grid-item name="revertButton" location="after" />
                   </dx-grid-toolbar>
-                  <template #addNoteRowButton>
-                      <dx-button text="참고사항 추가" icon="add" @click="methods.addItemRowButton('note')" />
+                  <template #addMaterialApprovalRowButton>
+                      <dx-button text="자재승인원 추가" icon="add" @click="methods.addItemRowButton('materialApproval')" />
                   </template>
-                  <template #noteSaveButton>
-                      <dx-button text="저장" icon="save" @click="methods.itemSaveButton('note')" />
+                  <template #materialApprovalSaveButton>
+                      <dx-button text="저장" icon="save" @click="methods.itemSaveButton('materialApproval')" />
                   </template>
                   <dx-column type="buttons" :visible="!vars.formState.readOnly"/>
-                  <dx-column caption="등록자" data-field="note_manager" />
-                  <dx-column caption="등록일자" data-field="note_date" data-type="date" format="yyyy-MM-dd" />
-                  <dx-column caption="참고내용" data-field="note_detail" />
+                  <dx-column caption="문서번호" data-field="document_number" />
+                  <dx-column caption="참고사항" data-field="etc" />
+                  <dx-column caption="첨부파일" data-field="file_name" cell-template="download" edit-cell-template="upload" />
+                  <template #download="{data}">
+                    <a :href="`/api/mes/v1/${data.data['file_path']}`" download>{{data.data[data.column.dataField]}}</a>
+                  </template>
+                  <template #upload="{data}">
+                    <dx-text-box :value="data.data[data.column.dataField]">
+                      <dx-text-box-button location="after" name="upload"
+                        :options="{
+                          hint: '업로드', icon: 'upload',
+                          onClick: methods.addFile(data)
+                        }"
+                      />
+                    </dx-text-box>
+                  </template>
+                  <dx-scrolling mode="standard" />
+                  <dx-editing mode="batch"
+                    :use-icons="true"
+                    :allow-adding="true"
+                    :allow-updating="true"
+                    :allow-deleting="true"
+                    />
+                </dx-data-grid>
+              </div>
+            </template>
+          </dx-item>
+          <dx-item title="착공계">
+            <template #default>
+              <div class="pa-2">
+                <dx-data-grid
+                  class="fixed-header-table"
+                  height="calc(100vh - 516px)"
+                  data-serialization-format="yyyy-MM-ddTHH:mm:ss"
+                  column-resizing-mode="widget"
+                  :show-borders="true"
+                  :remote-operations="false"
+                  :column-auto-width="true"
+                  :focused-row-enabled="true"
+                  :allow-column-resizing="true"
+                  :allow-column-reordering="true"
+                  :row-alternation-enabled="true"
+                  :select-text-onedit-start="true"
+                  :data-source="vars.dataSource.projectConstruction"
+                  :on-initialized="evt => methods.onGridInitialized(evt, 'projectConstruction')"
+                  @saving="(e) => methods.onSavingItem(e, 'projectConstruction')"
+                  @data-error-occurred="methods.onDataError"
+                  @focused-cell-changed="evt => methods.onFocusedCellChanged(evt, 'projectConstruction')"
+                  @init-new-row="evt => methods.initNewRow(evt, 'projectConstruction')"
+                  @row-removing="methods.onProjectConstructionRemoving"
+                  >
+                  <dx-grid-toolbar>
+                      <dx-grid-item template="addProjectConstructionRowButton" location="after" :visible="!vars.formState.readOnly" />
+                      <dx-grid-item template="projectConstructionSaveButton" location="after" :visible="false" />
+                      <dx-grid-item name="revertButton" location="after" />
+                  </dx-grid-toolbar>
+                  <template #addProjectConstructionRowButton>
+                      <dx-button text="착공계 추가" icon="add" @click="methods.addItemRowButton('projectConstruction')" />
+                  </template>
+                  <template #projectConstructionSaveButton>
+                      <dx-button text="저장" icon="save" @click="methods.itemSaveButton('projectConstruction')" />
+                  </template>
+                  <dx-column type="buttons" :visible="!vars.formState.readOnly"/>
+                  <dx-column caption="문서명" data-field="document_name">
+                    <dx-lookup 
+                    :data-source="vars.dataSource.documentName"
+                    value-expr="code_name"
+                    display-expr="code_name"
+                    />
+                  </dx-column>
+                  <dx-column caption="참조" data-field="reference" />
+                  <dx-column caption="계약번호" data-field="contract_number" />
+                  <dx-column caption="구매번호" data-field="purchase_number" />
+                  <dx-column caption="참고사항" data-field="etc" />
+                  <dx-column caption="첨부파일" data-field="file_name" cell-template="download" edit-cell-template="upload" />
+                  <template #download="{data}">
+                    <a :href="`/api/mes/v1/${data.data['file_path']}`" download>{{data.data[data.column.dataField]}}</a>
+                  </template>
+                  <template #upload="{data}">
+                    <dx-text-box :value="data.data[data.column.dataField]">
+                      <dx-text-box-button location="after" name="upload"
+                        :options="{
+                          hint: '업로드', icon: 'upload',
+                          onClick: methods.addFile(data)
+                        }"
+                      />
+                    </dx-text-box>
+                  </template>
                   <dx-scrolling mode="standard" />
                   <dx-editing mode="batch"
                     :use-icons="true"
@@ -1137,6 +1283,21 @@
             <popup-client-detail :client-name="vars.dataSource.clientDetail"/>
         </template>
     </dx-popup>
+    <dx-popup
+      v-model:visible="vars.dlg.report.measurement.show"
+      content-template="popup-content"
+      title="계측제어 보고서"
+      :resize-enabled="true"
+      :close-on-outside-click="true"
+      width="230mm"
+      height="700px"
+    >
+      <template #popup-content>
+        <dx-scroll-view width="100%" height="100%">
+          <data-measurement-report />
+        </dx-scroll-view>
+      </template>
+    </dx-popup>
   </div>
 </template>
 
@@ -1144,6 +1305,7 @@
 import moment from 'moment';
 import numeral from 'numeral';
 import DxToolbar, { DxItem } from 'devextreme-vue/toolbar';
+import { DxScrollView } from 'devextreme-vue/scroll-view';
 import DxTextArea from 'devextreme-vue/text-area';
 import {
   DxForm,
@@ -1190,8 +1352,12 @@ import {
   getProjectOutCostLog,
   getProjectCompletion,
   getProjectBusinessCost,
+  getProjectMaterialApproval,
   getProjectCustomerInformation,
-  getProjectBusinessNote
+  getProjectBusinessNote,
+  getProjectConstruction,
+  projectExcutionPlan,
+  projectBusiness
 } from '../../data-source/project';
 import {
   baseCodeLoader,
@@ -1211,7 +1377,6 @@ import PopupItem from '../../components/base/popup-item.vue';
 import DataGridClientManager from '../../components/base/data-client-manager.vue';
 import DataGridEmployee from '../../components/base/data-employee.vue';
 import DataGridEmployeeSelect from '../../components/base/data-employee-select.vue';
-import { projectBusiness, projectExcutionPlan } from '../../data-source/project';
 import authService from '../../auth';
 import ApiService from '../../utils/api-service';
 import { notifyInfo, notifyError } from '../../utils/notify';
@@ -1220,11 +1385,13 @@ import PopupClientDetail from '@/components/base/popup-client-detail';
 import { loadEmployee, loadWarehouse, loadDepartment, loadClientManager } from '../../utils/data-loader';
 import { DxNumberBox } from 'devextreme-vue/number-box';
 import ArrayStore from 'devextreme/data/array_store';
+import DataMeasurementReport from '@/components/project/data-measurement-report.vue';
 export default {
   components: {
     DxToolbar,
     DxItem,
     DxTextArea,
+    DxScrollView,
     DxLoadPanel,
     DxForm,
     DxSelection,
@@ -1263,7 +1430,8 @@ export default {
     PopupItem,
     DxNumberBox,
     DataGridEmployeeSelect,
-    DxGridButton
+    DxGridButton,
+    DataMeasurementReport
   },
   props: {
     id: [String, Number],
@@ -1289,6 +1457,7 @@ export default {
       projectDocument: null,
       businessCost: null,
       quoteItem: null,
+      materialApproval: null,
       projectDailyLog: null,
       projectCostLog: null,
       projectCompletion: null,
@@ -1303,6 +1472,14 @@ export default {
       key: null,
       data: null,
     });
+
+    vars.dlg.report = {
+      measurement: reactive({ show: false }),
+      automatic: reactive({ show: false }),
+      stech: reactive({ show: false }),
+      workStartMeasurement: reactive({ show: false }),
+      workStartAutomatic: reactive({ show: false }),
+    }
     vars.formData = reactive({
       business: null,
       id: null,
@@ -1389,6 +1566,20 @@ export default {
           val: props.id || 0,
         },
       ],
+      materialApproval: [
+        {
+          name: 'fk_project_management_id',
+          op: 'eq',
+          val: props.id || 0,
+        },
+      ],
+      projectConstruction: [
+        {
+          name: 'fk_project_management_id',
+          op: 'eq',
+          val: props.id || 0,
+        },
+      ],
       customer_information: [
         { 
           name: 'fk_business_id', op: 'eq', val: 0 
@@ -1416,12 +1607,15 @@ export default {
       defect_period: null,
       businessCost: null,
       quoteItem: null,
+      materialApproval: null,
       vat_type: null,
       projectDailyLog: null,
       projectCostLog: null,
       projectCompletion: null,
       work_type: null,
       projectOutCostLog: null,
+      projectConstruction: null,
+      documentName: null,
     });
     vars.dataSource.note = getProjectBusinessNote(vars.filter.note);
 
@@ -1442,6 +1636,10 @@ export default {
     vars.dataSource.projectOutCostLog = getProjectOutCostLog(vars.filter.projectOutCostLog);
 
     vars.dataSource.projectCompletion = getProjectCompletion(vars.filter.projectCompletion);
+
+    vars.dataSource.materialApproval = getProjectMaterialApproval(vars.filter.materialApproval);
+
+    vars.dataSource.projectConstruction = getProjectConstruction(vars.filter.projectConstruction);
 
     vars.disabled = reactive({
       edit: true,
@@ -1476,6 +1674,8 @@ export default {
         methods.gridProjectDailyLogRefresh(id);
         methods.gridProjectCostLogRefresh(id);
         methods.gridProjectCompletionRefresh(id);
+        methods.gridMaterialApprovalRefresh(id);
+        methods.gridProjectConstructionRefresh(id);
         // 아이디 없으면 끝냄(props)
         if (!id) {
           methods.clearFormData();
@@ -1566,7 +1766,7 @@ export default {
         stateStore.bind(`project-registration-${key}`, evt.component);
       },
       loadBaseCode(){
-        return baseCodeLoader(['부가세구분', '진행단계', '중요', '업체구분', '하자기간', '업무유형']).then(response =>{
+        return baseCodeLoader(['부가세구분', '진행단계', '중요', '업체구분', '하자기간', '업무유형', '착공계(문서명)']).then(response =>{
           // vars.dataSource.vat_type = response['부가세구분'];
           vars.dataSource.vat_type = response['부가세구분'].filter((v)=> v.code_name != "영세");
           vars.dataSource.progress_status = response['진행단계'];
@@ -1574,6 +1774,7 @@ export default {
           vars.dataSource.company_type = response['업체구분'];
           vars.dataSource.defect_period = response['하자기간']
           vars.dataSource.work_type = response['업무유형']
+          vars.dataSource.documentName = response['착공계(문서명)']
         })
         .then(() => (vars.init.value = true));
       },
@@ -1733,6 +1934,24 @@ export default {
           vars.grid.projectCompletion.refresh();
         }
       },
+      async gridMaterialApprovalRefresh(id) {
+        if (!id) id = 0;
+        vars.filter.materialApproval[0].val = id;
+        vars.dataSource.materialApproval.defaultFilters = vars.filter.materialApproval;
+        if (vars.grid.materialApproval) {
+          vars.grid.materialApproval.cancelEditData();
+          vars.grid.materialApproval.refresh();
+        }
+      },
+      async gridProjectConstructionRefresh(id) {
+        if (!id) id = 0;
+        vars.filter.projectConstruction[0].val = id;
+        vars.dataSource.projectConstruction.defaultFilters = vars.filter.projectConstruction;
+        if (vars.grid.projectConstruction) {
+          vars.grid.projectConstruction.cancelEditData();
+          vars.grid.projectConstruction.refresh();
+        }
+      },
       finderReturnHandler(data) {
         switch (vars.dlg.finder.key) {
           case 'project': {
@@ -1863,6 +2082,8 @@ export default {
           const projectDailyLog = vars.grid.projectDailyLog;
           const projectCostLog = vars.grid.projectCostLog;
           const projectCompletion = vars.grid.projectCompletion;
+          const materialApproval = vars.grid.materialApproval;
+          const projectConstruction = vars.grid.projectConstruction;
           const projectNote = vars.grid.note;
           const projectCustomerInformation = vars.grid.customer_information;
           if (vars.formData.id) {
@@ -1917,6 +2138,14 @@ export default {
               await projectCompletion.saveEditData();
             }
 
+            if (materialApproval) {
+              await materialApproval.saveEditData();
+            }
+
+            if (projectConstruction) {
+              await projectConstruction.saveEditData();
+            }
+
             vars.formState.readOnly = true;
 
             notifyInfo('저장되었습니다');
@@ -1965,6 +2194,14 @@ export default {
 
             if (projectCompletion && projectCompletion.hasEditData()) {
               await projectCompletion.saveEditData();
+            }
+
+            if (materialApproval && materialApproval.hasEditData()) {
+              await materialApproval.saveEditData();
+            }
+
+            if (projectConstruction && projectConstruction.hasEditData()) {
+              await projectConstruction.saveEditData();
             }
 
             notifyInfo('저장되었습니다');
@@ -2130,6 +2367,8 @@ export default {
             methods.gridProjectDailyLogRefresh();
             methods.gridProjectCostLogRefresh();
             methods.gridProjectCompletionRefresh();
+            methods.gridMaterialApprovalRefresh();
+            methods.gridProjectConstructionRefresh();
             methods.gridQuoteItemsRefresh();
             methods.gridBusinessCostRefresh();
           }
@@ -2587,6 +2826,14 @@ export default {
         const apiService = new ApiService('/api/server/v1/project-document');
         return await apiService.post(`remove/${e.data.id}`) 
       },
+      async onMaterialApprovalRemoving(e){
+        const apiService = new ApiService('/api/server/v1/project-material-approval');
+        return await apiService.post(`remove/${e.data.id}`) 
+      },
+      async onProjectConstructionRemoving(e){
+        const apiService = new ApiService('/api/server/v1/project-construction');
+        return await apiService.post(`remove/${e.data.id}`) 
+      },
       async onDailyLogRemoving(e){
         const apiService = new ApiService('/api/server/v1/project-daily-log');
         return await apiService.post(`remove/${e.data.id}`) 
@@ -2782,6 +3029,10 @@ export default {
         }
         
         
+      },
+      onReportShow(reportType){
+      
+        // vars.dlg.report[reportType].show = true;
       }
     };
 

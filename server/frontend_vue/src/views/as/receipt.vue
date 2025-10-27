@@ -89,15 +89,10 @@
                   <dx-label text="프로젝트번호" :show-colon="false" />
                 </dx-simple-item>
                 <dx-simple-item
-                  data-field="project_management.project_name"
+                  data-field="project_name"
                   editor-type="dxTextBox"
                   :editor-options="{
                     ...vars.formState,
-                    onValueChanged: methods.onValueChanged,
-                    ...methods.generateItemButtonOption(
-                      'search',
-                      methods.createFindPopupFn('project', '프로젝트조회')
-                    ),
                   }"
                 >
                   <dx-label text="프로젝트 명" :show-colon="false" />
@@ -117,17 +112,27 @@
               </dx-group-item>
               <dx-group-item>
                 <dx-simple-item
-                  data-field="project_management.order_company"
+                  data-field="order_company"
                   :editor-options="{
-                    readOnly: true,
+                    ...methods.generateItemButtonOption(
+                      'search',
+                      methods.createFindPopupFn('order_company', '계약업체조회', { name: vars.formData.order_company })
+                    ),
+                    ...vars.formState,
+                    onEnterKey: methods.createFindPopupFn('order_company', '계약업체조회', { name: vars.formData.order_company }),
                   }"
                 >
                   <dx-label text="계약업체" :show-colon="false" />
                 </dx-simple-item>
                 <dx-simple-item
-                  data-field="project_management.contract_company"
+                  data-field="contract_company"
                   :editor-options="{
-                    readOnly: true,
+                    ...methods.generateItemButtonOption(
+                      'search',
+                      methods.createFindPopupFn('contract_company', '수요기관조회', { name: vars.formData.contract_company })
+                    ),
+                    ...vars.formState,
+                    onEnterKey: methods.createFindPopupFn('contract_company', '수요기관조회', { name: vars.formData.contract_company }),
                   }"
                 >
                   <dx-label text="수요기관" :show-colon="false" />
@@ -162,25 +167,26 @@
   
               <dx-group-item>
                 <dx-simple-item
-                  data-field="project_management.contract_date"
+                  data-field="contract_date"
                   editor-type="dxDateBox"
                   :editor-options="{
                     dateSerializationFormat: 'yyyy-MM-ddTHH:mm:ss',
                     showClearButton: true,
                     useMaskBehavior: true,
-                    readOnly: true,
+                    ...vars.formState,
                   }"
                 >
                   <dx-label text="계약일자" :show-colon="false" />
                 </dx-simple-item>
                 <dx-simple-item
-                  data-field="project_management.defect_end_date"
+                  data-field="defect_end_date"
                   editor-type="dxDateBox"
                   :editor-options="{
                     dateSerializationFormat: 'yyyy-MM-ddTHH:mm:ss',
+                    onValueChanged: methods.defectEndDateChanged,
                     showClearButton: true,
                     useMaskBehavior: true,
-                    readOnly: true,
+                    ...vars.formState,
                   }"
                 >
                   <dx-label text="하자만기" :show-colon="false" />
@@ -209,23 +215,26 @@
               </dx-group-item>
               <dx-group-item>
                 <dx-simple-item
-                  data-field="project_management.completion_date"
+                  data-field="completion_date"
                   editor-type="dxDateBox"
                   :editor-options="{
                     dateSerializationFormat: 'yyyy-MM-ddTHH:mm:ss',
+                    onValueChanged: methods.completionDateChanged,
                     showClearButton: true,
                     useMaskBehavior: true,
-                    readOnly: true,
+                    ...vars.formState,
                   }"
                 >
                   <dx-label text="준공일자" :show-colon="false" />
                 </dx-simple-item>
-                
                 <dx-simple-item
-                  data-field="project_management.defect_period" 
-                  editor-type="dxTextBox"
+                  data-field="defect_period" editor-type="dxSelectBox"
                   :editor-options="{
-                    readOnly: true,
+                    dataSource: vars.dataSource.defect_period,
+                    valueExpr: 'code_name',
+                    displayExpr: 'code_name',
+                    onValueChanged: methods.defectPeriodChanged,
+                    ...vars.formState,
                   }"
                 >
                   <dx-label text="하자기간" :show-colon="false" />
@@ -301,7 +310,13 @@
                         <dx-button text="저장" icon="save" @click="methods.itemSaveButton('item')" />
                     </template>
                     <dx-column type="buttons" :visible="!vars.formState.readOnly"/>
-                    <dx-column caption="담당자" data-field="manager" width="100" />
+                    <dx-column caption="담당자" data-field="manager" width="100" :set-cell-value="methods.setCellValue" >
+                      <dx-lookup 
+                          :data-source="vars.dataSource.b_employee" 
+                          display-expr="emp_name" 
+                          value-expr="emp_name"
+                      />
+                    </dx-column>
                     <dx-column caption="담당자 연락처" data-field="manager_phone" />
                     <dx-scrolling mode="standard" />
                     <dx-editing mode="batch"
@@ -329,8 +344,18 @@
         @initialized="evt => methods.onGridInitialized(evt, 'find-popup')"
       >
         <template #popup-content>
+          <data-grid-client
+            v-if="vars.dlg.finder.key === 'order_company'"
+            :filters="vars.dlg.finder.data"
+            @change="methods.finderReturnHandler"
+          />
+          <data-grid-client
+            v-else-if="vars.dlg.finder.key === 'contract_company'"
+            :filters="vars.dlg.finder.data"
+            @change="methods.finderReturnHandler"
+          />
           <data-grid-as-receipt
-            v-if="vars.dlg.finder.key === 'receipt_number'"
+            v-else-if="vars.dlg.finder.key === 'receipt_number'"
             @change="methods.finderReturnHandler"
           />
           <data-grid-project v-else-if="vars.dlg.finder.key === 'project'" @change="methods.finderReturnHandler" />
@@ -413,6 +438,7 @@ import { loadEmployee, loadWarehouse, loadDepartment, loadClientManager } from '
 import { DxNumberBox } from 'devextreme-vue/number-box';
 import { asReceipt, getAsReceiptItem } from '../../data-source/as';
 import DataGridProject from '../../components/project/data-project.vue';
+
 export default {
 components: {
     DxToolbar,
@@ -451,7 +477,7 @@ components: {
     DataGridEmployee,
     DxNumberBox,
     DxGridButton,
-    DataGridProject
+    DataGridProject,
 },
 props: {
     id: [String, Number],
@@ -478,9 +504,16 @@ setup(props) {
       created: null,
       receipt_number: '',
       receipt_manager: '',
+      project_name: '',
       receipt_detail: '',
+      order_company: '',
+      contract_company: '',
       department: '',
       manager: '',
+      contract_date: '',
+      defect_end_date: '',
+      completion_date: '',
+      defect_period: '',
       client_manager: '',
       client_manager_phone: '',
       receipt_date: '',
@@ -495,7 +528,8 @@ setup(props) {
       item: getAsReceiptItem(vars.filter.item),
       paid_type: [{ code_name: '유상', code_value: '유상' }, { code_name: '무상', code_value: '무상' }],
       employee: [],
-      b_employee: getBaseEmployee(),
+      b_employee: [],
+      defect_period: []
     });
 
     vars.disabled = reactive({
@@ -508,6 +542,7 @@ setup(props) {
     
     onMounted(async () => {
         await loadDepartment(vars.dataSource);
+        await methods.loadBaseCode();
         methods.initById(props.id);
     
     });
@@ -547,10 +582,17 @@ setup(props) {
             vars.formData.id = null;
             vars.formData.created = null;
             vars.formData.receipt_number = '';
-            vars.formData.receipt_manager = '';
+            vars.formData.project_name = '';
             vars.formData.receipt_detail = '';
+            vars.formData.receipt_manager = '';
+            vars.formData.order_company = '';
+            vars.formData.contract_company = '';
             vars.formData.department = '';
             vars.formData.manager = '';
+            vars.formData.contract_date = '';
+            vars.formData.defect_end_date = '';
+            vars.formData.completion_date = '';
+            vars.formData.defect_period = '';
             vars.formData.client_manager = '';
             vars.formData.client_manager_phone = '';
             vars.formData.receipt_date = '';
@@ -586,6 +628,14 @@ setup(props) {
             vars.grid[key] = evt.component;
             stateStore.bind(`as-receipt-${key}`, evt.component);
         },
+        loadBaseCode(){
+          baseEmployee.load().then(response =>{
+            vars.dataSource.b_employee = response.data;
+          });
+          return baseCodeLoader(['하자기간']).then(response =>{
+            vars.dataSource.defect_period = response['하자기간'];
+          });
+        },
         async newItem() { 
           methods.gridItemRefresh();
           if (vars.formData.id) {
@@ -601,9 +651,12 @@ setup(props) {
         setFormData(){
             vars.formData.department = authService.getDepartmentName();
             vars.formData.manager = authService.getUserName();
+            vars.formData.contract_date = currentDateTime();
+            vars.formData.completion_date = currentDateTime();
             vars.formData.receipt_date = currentDateTime();
             vars.formData.paid_type = methods.getFirstItemName(vars.dataSource.paid_type);
             vars.formData.fk_company_id = authService.getCompanyId();
+            vars.formData.defect_period = methods.getFirstItemName(vars.dataSource.defect_period);
             vars.formState.readOnly = false;
         },
         async editItem() {
@@ -618,11 +671,25 @@ setup(props) {
             await nextTick();
             Object.assign(vars.formData, saveFormData);
         },
-
         finderReturnHandler(data) {
             switch (vars.dlg.finder.key) {
+              case 'order_company': {
+                vars.formData.order_company = data.name;
+                break;
+              }
+              case 'contract_company': {
+                vars.formData.contract_company = data.name;
+                break;
+              }
               case 'project': {
                   vars.formData.project_management = data;
+                  vars.formData.project_name = data.project_name;
+                  vars.formData.order_company = data.order_company;
+                  vars.formData.contract_company = data.contract_company;
+                  vars.formData.contract_date = data.contract_date; // 계약일자
+                  vars.formData.defect_end_date = data.defect_end_date; // 하자만기
+                  vars.formData.completion_date = data.completion_date; // 준공일자
+                  vars.formData.defect_period = data.defect_period; // 하자기간
                   vars.formData.fk_project_management_id = data.id;
                   break;
               }
@@ -749,7 +816,6 @@ setup(props) {
                 }
             }
         },
-        
         isFilledFormRequiredData(){
             if(vars.formData.department && vars.formData.manager){
             return true;
@@ -769,6 +835,11 @@ setup(props) {
             } else {
             vars.disabled.save = false;
             }
+        },
+        setCellValue(newData, value, currentRowData){
+          newData.manager = value;
+          const emp = vars.dataSource.b_employee.find(item => item.emp_name == value);
+          newData.manager_phone = emp?.emp_mobile || '';
         },
         onDataError(e) {
             console.log("e : ", e)
@@ -811,6 +882,54 @@ setup(props) {
         },
         initNewRow(e){
             console.log("e : ", e);
+        },
+        defectEndDateChanged(e) {
+          const selectedDate = new Date(e.value);
+     
+          const currentDate = new Date();
+     
+          if (selectedDate > currentDate) {
+            vars.formData.paid_type = vars.dataSource.paid_type[1].code_name;
+          } else {
+            vars.formData.paid_type = vars.dataSource.paid_type[0].code_name;
+          }
+
+        },
+        completionDateChanged(e){
+          if(!vars.formData.project_management?.completion_date || !vars.formData.defect_period) return;
+          methods.calDefectPeriod(vars.formData.defect_period);
+          
+        },
+        defectPeriodChanged(e){
+          if(!vars.formData.completion_date) return;
+          methods.calDefectPeriod(e.value);
+          
+        },
+        calDefectPeriod(v){
+          const regex = /^(\d+)(일|달|월|년)$/;
+          const match = v.match(regex);
+          if (!match) {
+            return;
+          }
+          const number = parseInt(match[1], 10);
+          const unit = match[2];
+
+          const completionDate = new Date(vars.formData.completion_date);
+          switch (unit) {
+          case '일':
+              completionDate.setDate(completionDate.getDate() + number);
+              break;
+          case '달':
+          case '월':
+              completionDate.setMonth(completionDate.getMonth() + number);
+              break;
+          case '년':
+              completionDate.setFullYear(completionDate.getFullYear() + parseInt(number));
+              break;
+          default:
+              throw new Error("알 수 없는 단위입니다.");
+          }
+          vars.formData.defect_end_date = completionDate.toISOString();
         },
 
 
