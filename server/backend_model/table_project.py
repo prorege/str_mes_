@@ -596,6 +596,20 @@ class ProjectCustomerHistory(db.Model): # 프로젝트 - 고객이력관리
     fk_business_id = db.Column('fk_business_id', db.Integer, db.ForeignKey(ProjectBusiness.id, onupdate="CASCADE", ondelete="CASCADE"), comment='영업 FK')
     project_business = db.relationship("ProjectBusiness", foreign_keys=[fk_business_id])
     
+class ProjectReport(db.Model): # 프로젝트 - 문서
+    __tablename__ = 'project_report'
+    __table_args__ = {
+        'comment': '프로젝트(문서)'
+    }
+    id = db.Column('id', db.Integer, primary_key=True, comment='UID')
+    created = db.Column('created', db.DateTime, default=datetime.now, comment='생성시간')
+    attr01 = db.Column('attr01', db.String(96), comment='참조')
+    attr02 = db.Column('attr02', db.String(96), comment='텍스트입력창 1')
+    attr03 = db.Column('attr03', db.String(96), comment='텍스트입력창 2')
+    attr04 = db.Column('attr04', db.String(96), comment='계약번호')
+    attr05 = db.Column('attr05', db.String(96), comment='구매번호')
+    fk_project_management_id = db.Column('fk_project_management_id', db.Integer, db.ForeignKey(ProjectManagement.id, onupdate="CASCADE", ondelete="CASCADE"), comment='프로젝트관리 FK')
+    project_management = db.relationship("ProjectManagement", foreign_keys=[fk_project_management_id])
 
 #   ----------------------------------------------------------------------------------------------------------------------
 # CREATE TRIGGER

@@ -102,6 +102,10 @@ const projectConstruction = new RestlessStore(
   '/api/mes/v1/project/construction'
 );
 
+const projectReport = new RestlessStore(
+  '/api/mes/v1/project/report'
+);
+
 const getProjectRegistration = defaultFilters => {
   const instance = new RestlessStore('/api/mes/v1/project/project_management');
   instance.defaultFilters = defaultFilters;
@@ -262,6 +266,12 @@ const getProjectConstruction = defaultFilters => {
   return instance;
 };
 
+const getProjectReport = defaultFilters => {
+  const instance = new RestlessStore('/api/mes/v1/project/report');
+  instance.defaultFilters = defaultFilters;
+  return instance;
+};
+
 export {
   projectRegistration,
   projectItem,
@@ -291,6 +301,7 @@ export {
   projectBusinessBasic,
   projectMaterialApproval,
   projectConstruction,
+  projectReport,
   getProjectRegistration,
   getProjectItem,
   getProjectParticipant,
@@ -316,5 +327,6 @@ export {
   getProjectBusinessCost,
   getProjectBusinessBasic,
   getProjectMaterialApproval,
-  getProjectConstruction
+  getProjectConstruction,
+  getProjectReport
 };

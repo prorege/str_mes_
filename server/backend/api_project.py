@@ -1344,3 +1344,19 @@ manager.create_api(ProjectConstruction,
                        'GET_MANY': [check_token],
                        'DELETE_SINGLE': [check_token]
                    })
+
+
+manager.create_api(ProjectReport,
+                   url_prefix='/api/mes/v1/project',
+                   collection_name='report',
+                   methods=['GET', 'DELETE', 'PATCH', 'POST'],
+                   allow_patch_many=True,
+                   results_per_page=0,
+                   max_results_per_page=100000000,
+                   preprocessors={
+                       'POST': [check_token],
+                       'PATCH_SINGLE': [check_token],
+                       'GET_SINGLE': [check_token],
+                       'GET_MANY': [check_token],
+                       'DELETE_SINGLE': [check_token]
+                   })   

@@ -10,82 +10,99 @@
             <div class="content-header">
                 <div class="content-header-container">
                     <div class="content-header-title" style="text-align: center;">
-                        <span style="font-size: 32px; font-weight: bold;">한국계측제어공업협동조합</span>
+                        <span style="font-size: 32px; font-weight: bold;">한국자동제어공업협동조합</span>
                     </div>
                 </div>
             </div>
             <div class="content-body">
                 <div class="content-body-container">
                     <div class="body-1">
-                        <table class="tb1">
-                            <tbody>
-                                <colgroup>
-                                    <col style="width: 45px;" />
-                                    <col style="width: 65px;" /> 
-                                    <col style="width: 30px;" />
-                                    <col style="width: 75px;" />
-                                    <col style="width: 30px;" />
-                                    <col style="width: 75px;" />
-                                    <col style="width: 110px;" />
-                                </colgroup>
-                                <tr>
-                                    <td>우편번호</td>
-                                    <td>: 08590</td>
-                                    <td>주 소</td>
-                                    <td colspan="4">: 서울시 금천구 가산디지털2로 14, (대륭테크노타운12차 211호)</td>
-                                </tr>
-                                <tr>
-                                    <td>담 당</td>
-                                    <td>: 박남연 과장</td>
-                                    <td>전 화</td>
-                                    <td>: 02-853-2623</td>
-                                    <td>전 송</td>
-                                    <td>: 02-853-2624</td>
-                                    <td style="color: #c56a6a;">kicic7815@daum.net</td>
-                                </tr>
-                                <tr>
-                                    <td colspan="7">
-                                        <div class="underline"></div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <div>
-                            <div style="display: flex;">
-                                <span style="width: 70px; display: flex; justify-content: space-between;">
-                                    <span>문</span>
-                                    <span>서</span>
-                                    <span>번</span>
-                                    <span>호</span>
-                                </span>
-                                <span>&nbsp;: 계제 제&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;호</span>
+                        <div style="text-align: center; margin-bottom: 3px;">서울시 송파구 송이로15길 14 (자동제어조합회관) / T:582-7834 (오영환) / F: 582-7803</div>
+                        <div class="underline"></div>
+                        <div style="width: 100%; display: flex; padding: 10px 3px;">
+                            <div style="width: 50%;">
+                                <div style="display: flex;">
+                                    <span style="width: 70px; display: flex; justify-content: space-between;">
+                                        <span>문</span>
+                                        <span>서</span>
+                                        <span>번</span>
+                                        <span>호</span>
+                                    </span>
+                                    <span>&nbsp;: 자제(사) 제&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;호</span>
+                                </div>
+                                <div style="display: flex;">
+                                    <span style="width: 70px; display: flex; justify-content: space-between;">
+                                        <span>시</span>
+                                        <span>행</span>
+                                        <span>일</span>
+                                        <span>자</span>
+                                    </span>
+                                    <span>&nbsp;: {{ methods.commencementDate() }}</span>
+                                </div>
+                                <div style="display: flex;">
+                                    <span style="width: 70px; display: flex; justify-content: space-between;">
+                                        <span>수</span>
+                                        <span>신</span>
+                                    </span>
+                                    <span>&nbsp;: {{ vars.formData.project_management.contract_company }} </span>
+                                </div>
+                                <div style="display: flex;">
+                                    <span style="width: 70px; display: flex; justify-content: space-between;">
+                                        <span>참</span>
+                                        <span>조</span>
+                                    </span>
+                                    <span v-if="!vars.formState.readOnly">&nbsp;: <input type="text" v-model="vars.formData.attr01"> </span>
+                                    <span v-else>&nbsp;: {{ vars.formData.attr01 }} </span>
+                                </div>
                             </div>
-                            <div style="height: 5px;"></div>
-                            <div style="display: flex;">
-                                <span style="width: 70px; display: flex; justify-content: space-between;">
-                                    <span>수</span>
-                                    <span>신</span>
-                                </span>
-                                <span>&nbsp;: {{ vars.formData.project_management.contract_company }} </span>
-                            </div>
-                            <div style="display: flex;">
-                                <span style="width: 70px; display: flex; justify-content: space-between;">
-                                    <span>참</span>
-                                    <span>조</span>
-                                </span>
-                                <span v-if="!vars.formState.readOnly">&nbsp;: <input type="text" v-model="vars.formData.attr01"> </span>
-                                <span v-else>&nbsp;: {{ vars.formData.attr01 }} </span>
-                            </div>
-                            <div style="display: flex;">    
-                                <span style="width: 70px; display: flex; justify-content: space-between;">
-                                    <span>제</span>
-                                    <span>목</span>
-                                </span>
-                                <span>&nbsp;: {{ vars.formData.project_management.project_name }} 관련 착수계 제출의 건 </span>
+                            <div style="width: 50%;">
+                                <table border="1">
+                                    <tbody>
+                                        <tr>
+                                            <td style="text-align: center;">취급</td>
+                                            <td colspan="3"></td>
+                                            <td colspan="4" style="text-align: center;"> 이 사 장 </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="text-align: center;">보존</td>
+                                            <td colspan="2" style="border-right: none;"></td>
+                                            <td style="border-left: none;">년</td>
+                                            <td colspan="4" style="text-align: center; border-bottom: none;"></td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="2" rowspan="2" style="text-align: center;">전무이사</td>
+                                            <td style="text-align: center;">전결</td>
+                                            <td rowspan="2" style="border-left: none;"></td>
+                                            <td colspan="4" rowspan="2" style="text-align: center; border-top: none;"></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="text-align: center; border-right: none;">&nbsp;</td>
+                                        </tr>
+                                        <tr height="40px;">
+                                            <td colspan="2" style="text-align: center;">이사</td>
+                                            <td colspan="2" style="text-align: center;">한관수</td>
+                                            <td colspan="4" style="border-bottom: none;"></td>
+                                        </tr>
+                                        <tr height="40px;">
+                                            <td colspan="2" style="text-align: center;">기안</td>
+                                            <td colspan="2" style="text-align: center;">오영한</td>
+                                            <td colspan="2" style="border-top: none;"></td>
+                                            <td colspan="2" style="text-align: center;">협조</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
+                        <div style="display: flex; padding: 0px 3px;">    
+                            <span style="width: 70px; display: flex; justify-content: space-between;">
+                                <span>제</span>
+                                <span>목</span>
+                            </span>
+                            <span>&nbsp;: {{ vars.formData.project_management.project_name }} 관련 착수계 제출의 건 </span>
+                        </div>
+                        
                     </div>
-                    <div class="body-2">
+                    <div class="body-2" >
                         <div>
                             <div>
                                 <span>1. 귀&nbsp;</span>
@@ -100,53 +117,47 @@
                         </div>
                         <div>
                             <div>
-                                <span>2. 귀&nbsp;</span>
-                                <span v-if="!vars.formState.readOnly">
-                                    <input type="text" v-model="vars.formData.attr03"> 
-                                    ({{ methods.contractData() }}) 우수조달공동상표 물품으로 계약 체곌한 "{{ vars.formData.project_management.project_name }}" 건과 관련하여 아래와 같이 착수게 및 관련 서류를 제출합니다.
-                                </span>
-                                <span v-else>
-                                    {{ vars.formData.attr03 }}&nbsp;
-                                    ({{ methods.contractData() }}) 우수조달공동상표 물품으로 계약 체결한 "{{ vars.formData.project_management.project_name }}" 건과 관련하여 아래와 같이 착수게 및 관련 서류를 제출합니다.
+                                <span>2.&nbsp;</span>
+                                <span>우수조달공동상표 물품으로 계약 체결한 "{{ vars.formData.project_management.project_name }}" 건과 관련하여 아래와 같이 착수게 및 관련 서류를 제출합니다.
                                 </span>
                             </div>
                             <div style="width: 100%; padding: 10px; display: flex; flex-direction: column; gap: 3px;">
                                 <div style="width: 100%; display: flex;">
                                     <div style="width: 30px;">가.</div>
-                                    <div style="width: 90px;">계약 건명 :&nbsp;</div>
-                                    <div>{{ vars.formData.project_management.project_name }}</div>
+                                    <div style="width: 90px;">계약 건명 </div>
+                                    <div>:&nbsp;{{ vars.formData.project_management.project_name }}</div>
                                 </div>
                                 <div style="width: 100%; display: flex;">
                                     <div style="width: 30px;">나.</div>
-                                    <div style="width: 90px;">계약 번호 :&nbsp;</div>
-                                    <div v-if="!vars.formState.readOnly"><input type="text" v-model="vars.formData.attr04"> (구매번호 : <input type="text" v-model="vars.formData.attr05">)</div>
-                                    <div v-else>{{ vars.formData.attr04 }} (구매번호 : {{ vars.formData.attr05 }})</div>
+                                    <div style="width: 90px;">계약 번호 </div>
+                                    <div v-if="!vars.formState.readOnly">: &nbsp;<input type="text" v-model="vars.formData.attr04"> (구매번호 : <input type="text" v-model="vars.formData.attr05">)</div>
+                                    <div v-else>:&nbsp;{{ vars.formData.attr04 }} (구매번호 : {{ vars.formData.attr05 }})</div>
                                 </div>
                                 <div style="width: 100%; display: flex;">
                                     <div style="width: 30px;">다.</div>
-                                    <div style="width: 90px;">계약 금액 :&nbsp;</div>
-                                    <div>一金 {{ methods.companyAmountStr() }}정 (₩ {{ methods.companyAmount() }} VAT 포함)</div>
+                                    <div style="width: 90px;">계약년월일 </div>
+                                    <div>:&nbsp;{{ methods.contractData() }}</div>
                                 </div>
                                 <div style="width: 100%; display: flex;">
                                     <div style="width: 30px;">라.</div>
-                                    <div style="width: 90px;">계약 일자 :&nbsp;</div>
-                                    <div>{{ methods.contractData() }}</div>
+                                    <div style="width: 90px;">착수년월일 </div>
+                                    <div>:&nbsp;{{ methods.commencementDate() }}</div>
                                 </div>
                                 <div style="width: 100%; display: flex;">
                                     <div style="width: 30px;">마.</div>
-                                    <div style="width: 90px;">착수 일자 :&nbsp;</div>
-                                    <div>{{ methods.commencementDate() }}</div>
+                                    <div style="width: 90px;">납품 기한 </div>
+                                    <div>:&nbsp;{{ methods.completionDate() }}</div>
                                 </div>
                                 <div style="width: 100%; display: flex;">
                                     <div style="width: 30px;">바.</div>
-                                    <div style="width: 90px;">납품 일자 :&nbsp;</div>
-                                    <div>{{ methods.completionDate() }}</div>
+                                    <div style="width: 90px;">계약 금액 </div>
+                                    <div>:&nbsp;一金 {{ methods.companyAmountStr() }}정 (₩ {{ methods.companyAmount() }} VAT 포함)</div>
                                 </div>
                                 <div style="width: 100%; display: flex;">
                                     <div style="width: 30px;">사.</div>
                                     <div style="width: 200px;">배정업체 세부사항&nbsp;</div>
                                 </div>
-                                <div style="width: 100%; display: flex; padding: 10px 30px;">
+                                <div style="width: 100%; display: flex; padding: 10px 0px;">
                                     <table border="1">
                                         <tbody>
                                             <colgroup>
@@ -170,7 +181,7 @@
                                 </div>
                                 
                             </div>
-                            <div style="width: 100%; display: flex;"> 
+                            <div style="width: 100%; display: flex; padding: 0px 3px;"> 
                                 <table style="table-layout: fixed; border-collapse: separate; border-spacing: 0 3px;">
                                     <tbody>
                                         <colgroup>
@@ -178,26 +189,23 @@
                                             <col style="width: 92%;" />
                                         </colgroup>
                                         <tr>
-                                            <td rowspan="7" style="vertical-align: top;">첨부</td>
+                                            <td rowspan="6" style="vertical-align: top;">첨부</td>
                                             <td>1.&nbsp;&nbsp;착수계 1부 </td>
                                         </tr>
                                         <tr>
                                             <td>2.&nbsp;&nbsp;계약서 및 계약내역서 1부</td>
                                         </tr>
                                         <tr>
-                                            <td>3.&nbsp;&nbsp;현장대리인계 1부</td>
+                                            <td>3.&nbsp;&nbsp;배정업체 등록서류 1부</td>
                                         </tr>
                                         <tr>
-                                            <td>4.&nbsp;&nbsp;배정업체 등록서류 1부</td>
+                                            <td>4.&nbsp;&nbsp;고용산재가입증명원 1부</td>
                                         </tr>
                                         <tr>
-                                            <td>5.&nbsp;&nbsp;시국세납입증명원 1부</td>
+                                            <td>5.&nbsp;&nbsp;현잔대리인계 1부</td>
                                         </tr>
                                         <tr>
-                                            <td>6.&nbsp;&nbsp;고용산재가입증명원 1부</td>
-                                        </tr>
-                                        <tr>
-                                            <td>7.&nbsp;&nbsp;예정공정표 1부 끝.</td>
+                                            <td>6.&nbsp;&nbsp;예정공정표 1부 끝.</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -207,8 +215,26 @@
                 </div>
             </div>
             <div class="content-footer">
-                <div style="text-align: center;">
-                    <span style="font-weight: bold; font-size: 32px;">한국계측제어공업협동조합이사장</span>
+                <div style="text-align: center; width: 55%; margin: 0 auto;">
+                    <div style="display: flex; justify-content: space-between; font-size: 32px; font-weight: bold;">
+                        <span>한</span>
+                        <span>국</span>
+                        <span>자</span>
+                        <span>동</span>
+                        <span>한</span>
+                        <span>제</span>
+                        <span>어</span>
+                        <span>공</span>
+                        <span>업</span>
+                        <span>협</span>
+                        <span>동</span>
+                        <span>조</span>
+                        <span>합</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 32px; font-weight: bold;">
+                        <span>이&nbsp;&nbsp;&nbsp;사&nbsp;&nbsp;&nbsp;장</span>
+                        <span>최&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;전&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;남</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -501,7 +527,7 @@ export default {
             .body-1 {
                 width: 100%;
                 padding-bottom: 10px;
-                border-bottom: 1px solid #000;
+                border-bottom: 1px dotted #000;
 
                 .underline {
                     width: 100%;
@@ -511,7 +537,8 @@ export default {
                 }
             }
             .body-2 {
-                padding-top: 10px;          
+                padding: 10px 3px 0px 3px;   
+               
             }
         }
     }    
