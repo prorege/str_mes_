@@ -801,7 +801,19 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-
+.d-completion-report {
+    width: 100%;
+    height: 100%;
+    // position: relative;
+    .buttons {
+        position: sticky;
+        top: 0px;
+        left: 40px;
+        z-index: 1000;
+        display: flex;
+        gap: 10px;
+    }
+}
 .report {
     font-family: sans-serif; 
     -webkit-print-color-adjust: exact; 
