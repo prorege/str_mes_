@@ -63,6 +63,15 @@ class LibProjectManagement(object):
                     os.remove(file_path)
                 except IsADirectoryError:
                     pass
+        projectCompletion = db.session.query(ProjectCompletion).filter(
+            ProjectCompletion.fk_project_management_id == instance_id)
+        for item in projectCompletion.all():
+            if item.file_path:
+                file_path = os.path.join(app.config['UPLOAD_BASE_DIR'], item.file_path)
+                try:
+                    os.remove(file_path)
+                except IsADirectoryError:
+                    pass
         db.session.query(
             ProjectBusiness
         ).filter(

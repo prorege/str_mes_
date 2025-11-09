@@ -265,6 +265,26 @@ def project_document_remove(document_id):
         pass
 
     return make_response('success', 200)
+@app.route('/api/server/v1/project-completion/remove/<int:completion_id>', methods=['POST'])
+def project_completion_remove(completion_id):
+    completion = db.session.query(ProjectCompletion).filter(ProjectCompletion.id == completion_id).first()
+    file_path = os.path.join(app.config['UPLOAD_BASE_DIR'], completion.file_path)
+    try:
+         os.remove(file_path)
+    except IsADirectoryError:
+        pass
+
+    return make_response('success', 200)
+@app.route('/api/server/v1/project-construction/remove/<int:construction_id>', methods=['POST'])
+def project_construction_remove(construction_id):
+    construction = db.session.query(ProjectConstruction).filter(ProjectConstruction.id == construction_id).first()
+    file_path = os.path.join(app.config['UPLOAD_BASE_DIR'], construction.file_path)
+    try:
+         os.remove(file_path)
+    except IsADirectoryError:
+        pass
+
+    return make_response('success', 200)
 
 @app.route('/api/server/v1/project-material-approval/remove/<int:material_approval_id>', methods=['POST'])
 def project_material_approval_remove(material_approval_id):
@@ -277,16 +297,6 @@ def project_material_approval_remove(material_approval_id):
 
     return make_response('success', 200)
 
-@app.route('/api/server/v1/project-construction/remove/<int:construction_id>', methods=['POST'])
-def project_construction_remove(construction_id):
-    construction = db.session.query(ProjectConstruction).filter(ProjectConstruction.id == construction_id).first()
-    file_path = os.path.join(app.config['UPLOAD_BASE_DIR'], construction.file_path)
-    try:
-        os.remove(file_path)
-    except IsADirectoryError:
-        pass
-    return make_response('success', 200)
-    
 @app.route('/api/server/v1/project-daily-log/remove/<int:daily_log_id>', methods=['POST'])
 def project_daily_log_remove(daily_log_id):
     daily_log = db.session.query(ProjectDailyLog).filter(ProjectDailyLog.id == daily_log_id).first()

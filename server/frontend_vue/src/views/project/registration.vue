@@ -860,6 +860,7 @@
                   :row-alternation-enabled="true"
                   :focused-row-enabled="true"
                   @saving="methods.onSavingItem"
+                  @row-removing="methods.onCompletionRemoving"
                   @init-new-row="evt => methods.initNewRow(evt, 'projectCompletion')"
                 >
                   <dx-grid-toolbar>
@@ -1008,7 +1009,7 @@
                   @data-error-occurred="methods.onDataError"
                   @focused-cell-changed="evt => methods.onFocusedCellChanged(evt, 'projectConstruction')"
                   @init-new-row="evt => methods.initNewRow(evt, 'projectConstruction')"
-                  @row-removing="methods.onProjectConstructionRemoving"
+                  @row-removing="methods.onConstructionRemoving"
                   >
                   <dx-grid-toolbar>
                       <dx-grid-item template="constructionReportButton" location="after" :visible="vars.formState.readOnly" />
@@ -2893,12 +2894,16 @@ export default {
         const apiService = new ApiService('/api/server/v1/project-document');
         return await apiService.post(`remove/${e.data.id}`) 
       },
-      async onMaterialApprovalRemoving(e){
-        const apiService = new ApiService('/api/server/v1/project-material-approval');
+      async onCompletionRemoving(e){
+        const apiService = new ApiService('/api/server/v1/project-completion');
         return await apiService.post(`remove/${e.data.id}`) 
       },
-      async onProjectConstructionRemoving(e){
+      async onConstructionRemoving(e){
         const apiService = new ApiService('/api/server/v1/project-construction');
+        return await apiService.post(`remove/${e.data.id}`) 
+      },
+      async onMaterialApprovalRemoving(e){
+        const apiService = new ApiService('/api/server/v1/project-material-approval');
         return await apiService.post(`remove/${e.data.id}`) 
       },
       async onDailyLogRemoving(e){
