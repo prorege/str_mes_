@@ -1288,7 +1288,7 @@
             <popup-client-detail :client-name="vars.dataSource.clientDetail"/>
         </template>
     </dx-popup>
-    <dx-popup
+    <!-- <dx-popup
       v-model:visible="vars.dlg.report.measurementDCompletion.show"
       content-template="popup-content"
       title="계측제어조합 납품완료계"
@@ -1304,8 +1304,12 @@
           :show="vars.dlg.report.measurementDCompletion.show" />
         </dx-scroll-view>
       </template>
-    </dx-popup>
-    <dx-popup
+    </dx-popup> -->
+    <data-measurement-d-completion-report
+      :fk_project_management_id="vars.formData.id"
+      v-model:visible="vars.dlg.report.measurementDCompletion.show"
+    />
+    <!-- <dx-popup
       v-model:visible="vars.dlg.report.measurementCompletion.show"
       content-template="popup-content"
       title="계측제어조합 완료계"
@@ -1321,8 +1325,12 @@
           :show="vars.dlg.report.measurementCompletion.show" />
         </dx-scroll-view>
       </template>
-    </dx-popup>
+    </dx-popup> -->
 
+    <data-measurement-completion-report
+      :fk_project_management_id="vars.formData.id"
+      v-model:visible="vars.dlg.report.measurementCompletion.show"
+    />
     <dx-popup
       v-model:visible="vars.dlg.report.measurement.show"
       content-template="popup-content"
@@ -3100,6 +3108,7 @@ export default {
       },
       onReportShow(reportType){
         if (!vars.formData.id) return;
+        console.log('onReportShow', vars.dlg.report.measurementDCompletion.show);
         vars.dlg.report[reportType].show = true;
       },
       onReportHiding(reportType){
