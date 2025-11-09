@@ -116,18 +116,69 @@ const printReport = async (documentName, data, _grid) => {
         </body>
     </html>
     `;
-    const printWindow = window.open('', '_blank', 'width=900,height=1200');
+    
+    let printWindow = window.open('', '_blank', 'width=900,height=1200');
 
-    printWindow.document.write(html);
-    printWindow.document.close();
-    await (async function waitForAllImages(doc) {
-    const imgs = Array.from(doc?.images || []);
-    if (!imgs.length) return;
-    await Promise.all(imgs.map(img => img.complete ? Promise.resolve() : new Promise(res => {
-        img.onload = img.onerror = res;
-    })));
-    })(printWindow.document);
-    printWindow.focus();
-    printWindow.print();
+    if (!printWindow) {
+  
+        const iframe = document.createElement('iframe');
+        iframe.style.position = 'fixed';
+        iframe.style.right = '0';
+        iframe.style.bottom = '0';
+        iframe.style.width = '0';
+        iframe.style.height = '0';
+        iframe.style.border = '0';
+        document.body.appendChild(iframe);
+        
+        const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+        if (!iframeDoc) {
+            document.body.removeChild(iframe);
+            console.error('인쇄를 위한 iframe을 생성할 수 없습니다.');
+            return;
+        }
+        
+        iframeDoc.open();
+        iframeDoc.write(html);
+        iframeDoc.close();
+        
+        await (async function waitForAllImages(doc) {
+            const imgs = Array.from(doc?.images || []);
+            if (!imgs.length) return;
+            await Promise.all(imgs.map(img => img.complete ? Promise.resolve() : new Promise(res => {
+                img.onload = img.onerror = res;
+            })));
+        })(iframeDoc);
+        
+        iframe.contentWindow?.focus();
+        iframe.contentWindow?.print();
+        
+        setTimeout(() => {
+            try {
+                if (iframe.parentNode) {
+                    document.body.removeChild(iframe);
+                }
+            } catch (e) {
+                console.warn('iframe 제거 실패:', e);
+            }
+        }, 1000);
+        return;
+    }
+
+    try {
+        printWindow.document.write(html);
+        printWindow.document.close();
+        await (async function waitForAllImages(doc) {
+            const imgs = Array.from(doc?.images || []);
+            if (!imgs.length) return;
+            await Promise.all(imgs.map(img => img.complete ? Promise.resolve() : new Promise(res => {
+                img.onload = img.onerror = res;
+            })));
+        })(printWindow.document);
+        printWindow.focus();
+        printWindow.print();
+    } catch (error) {
+        console.error('인쇄 중 오류 발생:', error);
+        printWindow.close();
+    }
 };
 export { printReport };

@@ -639,7 +639,7 @@ export default {
                     return;
                 }
                 const DOCUMNET = [
-                    '완료계 공문',
+                    '착수계 공문',
                     '계약서',
                     '계약내역서',
                     '현장대리인계',

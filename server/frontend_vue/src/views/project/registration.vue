@@ -897,17 +897,6 @@
                     display-expr="code_name"
                     />
                   </dx-column>
-                  <dx-column caption="준공일자" data-field="completion_date" data-type="date" format="yyyy-MM-dd" />
-                  <dx-column caption="준공도면" data-field="completion_drawing" />
-                  <dx-column caption="준공도면경로" data-field="completion_drawing_path"  :visible="false" />
-                  <dx-column caption="운영메뉴얼" data-field="completion_manual" />
-                  <dx-column caption="운영메뉴얼경로" data-field="completion_manual_path"  :visible="false"/>
-                  <dx-column caption="준공서류" data-field="completion_document" />
-                  <dx-column caption="준공서류경로" data-field="completion_document_path"  :visible="false"/>
-                  <dx-column caption="유지보수지침서" data-field="maintenance_manual" />
-                  <dx-column caption="유지보수지침서경로" data-field="maintenance_manual_path"  :visible="false" />
-                  <dx-column caption="하자이행보증증서" data-field="defect_guarantee" />
-                  <dx-column caption="하자이행보증증서경로" data-field="defect_guarantee_path" :visible="false" />
                   <dx-column caption="첨부파일" data-field="file_name" cell-template="download" edit-cell-template="upload" />
                   <template #download="{data}">
                     <a :href="`/api/mes/v1/${data.data['file_path']}`" download>{{data.data[data.column.dataField]}}</a>
@@ -922,8 +911,7 @@
                       />
                     </dx-text-box>
                   </template>
-                  <dx-column caption="등록자" data-field="register" :allow-editing="false" />
-                  <dx-column caption="등록시간" data-field="register_date" data-type="date" :allow-editing="false" />
+
                   <dx-editing
                     :allow-adding="!vars.formState.readOnly"
                     :allow-updating="!vars.formState.readOnly"
@@ -1042,7 +1030,10 @@
                   <template #projectConstructionSaveButton>
                       <dx-button text="저장" icon="save" @click="methods.itemSaveButton('projectConstruction')" />
                   </template>
-                  <dx-column type="buttons" :visible="!vars.formState.readOnly"/>
+                  <dx-column type="buttons" :visible="!vars.formState.readOnly">
+                    <dx-grid-button name="edit"/>
+                    <dx-grid-button name="delete" />
+                  </dx-column>
                   <dx-column caption="문서명" data-field="document_name">
                     <dx-lookup 
                     :data-source="vars.dataSource.construction"
@@ -1050,10 +1041,6 @@
                     display-expr="code_name"
                     />
                   </dx-column>
-                  <dx-column caption="참조" data-field="reference" />
-                  <dx-column caption="계약번호" data-field="contract_number" />
-                  <dx-column caption="구매번호" data-field="purchase_number" />
-                  <dx-column caption="참고사항" data-field="etc" />
                   <dx-column caption="첨부파일" data-field="file_name" cell-template="download" edit-cell-template="upload" />
                   <template #download="{data}">
                     <a :href="`/api/mes/v1/${data.data['file_path']}`" download>{{data.data[data.column.dataField]}}</a>
