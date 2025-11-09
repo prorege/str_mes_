@@ -1,5 +1,5 @@
 <template>
-    <div v-if="vars.init">
+    <div v-if="vars.init" class="d-completion-report">
         <div class="buttons">
             <button type="button" class="print-button" @click="methods.printReport">인쇄</button>
             <button type="button" class="edit-button" @click="methods.editReport">{{ vars.formState.readOnly ? '수정' : '취소' }}</button>
@@ -107,7 +107,7 @@
                                         <div style="width: 200px;">배정업체 세부사항&nbsp;</div>
                                     </div>
                                     <div style="width: 100%; display: flex; padding: 10px 30px;">
-                                        <table style="border: 2px solid #000; border-collapse: collapse; width: 100%;">
+                                        <table style="border: 1px solid #000; border-collapse: collapse; width: 100%;">
                                             <colgroup>
                                                 <col style="width: 25%;" />
                                                 <col style="width: 25%;" />
@@ -116,13 +116,13 @@
                                             </colgroup>
                                             <tbody>
                                                 <tr>
-                                                    <td style="text-align: center; border: 2px solid #000;">업 체 명</td>
-                                                    <td style="text-align: center; border: 2px solid #000;">에스텍아이앤씨(주)</td>
-                                                    <td style="text-align: center; border: 2px solid #000;">대 표 자</td>
-                                                    <td style="text-align: center; border: 2px solid #000;">박 길 현</td>
+                                                    <td style="text-align: center; border: 1px solid #000;">업 체 명</td>
+                                                    <td style="text-align: center; border: 1px solid #000;">에스텍아이앤씨(주)</td>
+                                                    <td style="text-align: center; border: 1px solid #000;">대 표 자</td>
+                                                    <td style="text-align: center; border: 1px solid #000;">박 길 현</td>
                                                 </tr>
                                                 <tr>
-                                                    <td style="text-align: center; border: 2px solid #000;">주소</td>
+                                                    <td style="text-align: center; border: 1px solid #000;">주소</td>
                                                     <td colspan="3" style="text-align: center; border: 2px solid #000;">대전광역시 유성구 문지로 272-37 (2층)</td>
                                                 </tr>
                                             </tbody>
@@ -517,6 +517,7 @@ import html2canvas from 'html2canvas';
 import { reactive, onMounted, ref, watch, onUnmounted } from 'vue';
 import DxTextBox from 'devextreme-vue/text-box';
 import { projectRegistration, projectReport } from '../../data-source/project';
+import { alert } from 'devextreme/ui/dialog';
 
 export default {
     components: {
@@ -589,8 +590,12 @@ export default {
                 vars.oldFormData = reactive({});
             },
             async printReport() {
-                if (!vars.formData.id) return;
-                const items = document.querySelectorAll('.report');
+                if (!vars.formData.id) {
+                    alert('등록된 데이터가 없습니다. 먼저 데이터를 등록해주세요.', '인쇄');
+                    return;
+                }
+                const grid = document.querySelector('.d-completion-report');
+                const items = grid.querySelectorAll('.report');
                 const imgData = [];
                 for (const item of items) {
                     const canvas = await html2canvas(item, { backgroundColor: '#fff', scale: 2 });
