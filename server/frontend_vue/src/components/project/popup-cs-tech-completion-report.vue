@@ -2,7 +2,7 @@
      <dx-popup
       :visible="props.visible"
       content-template="popup-content"
-      title="씨에스테크 납품완료계"
+      title="씨에스테크 완료계"
       :resize-enabled="true"
       :close-on-outside-click="true"
       @update:visible="(value) => emit('update:visible', value)"
@@ -39,13 +39,13 @@
         <template #popup-content>
             <dx-scroll-view width="100%" height="100%">
 
-                <div v-if="vars.init" class="d-completion-report">
+                <div v-if="vars.init" class="cs-tech-report">
                     <div class="report-container">
                 
                         <div class="report">
                             
                             <div class="content-header">
-                                <img src="../../assets/stech.png" alt="logo" style="width: 150px;">
+                                <!-- <img src="../../assets/stech.png" alt="logo" style="width: 150px;"> -->
                                 <div class="content-header-container">
                                     <div class="content-header-title" style="text-align: center; display: flex; flex-direction: column; gap: 10px;">
                             
@@ -87,7 +87,7 @@
                                                     <span>제</span>
                                                     <span>목</span>
                                                 </span>
-                                                <span>&nbsp;: {{ vars.formData.project_management.project_name }} 건 납품완료계 제출 </span>
+                                                <span>&nbsp;: {{ vars.formData.project_management.project_name }} 건 완료계 제출 </span>
                                             </div>
                                         </div>
                                     </div>
@@ -111,11 +111,11 @@
                                                 <span>2. 귀&nbsp;</span>
                                                 <span v-if="!vars.formState.readOnly">
                                                     <input type="text" v-model="vars.formData.attr03">
-                                                    &nbsp;계약한 사업과 관련하여 아래와 같이 납품완료계를 제출합니다.
+                                                    &nbsp;계약한 사업과 관련하여 아래와 같이 완료계를 제출합니다.
                                                 </span>
                                                 <span v-else>
                                                     {{ vars.formData.attr03 }}
-                                                    &nbsp;계약한 사업과 관련하여 아래와 같이 납품완료계를 제출합니다.
+                                                    &nbsp;계약한 사업과 관련하여 아래와 같이 완료계를 제출합니다.
                                                 </span>
                                             </div>
                                             <div style="width: 100%; padding: 10px; display: flex; flex-direction: column; gap: 8px;">
@@ -154,7 +154,7 @@
                                                     <tbody>
                                                         <tr>
                                                             <td rowspan="7" style="vertical-align: top;">붙 임 :</td>
-                                                            <td>1.&nbsp;&nbsp;납품완료계 1부 </td>
+                                                            <td>1.&nbsp;&nbsp;완료계 1부 </td>
                                                         </tr>
                                                         <tr>
                                                             <td>2.&nbsp;&nbsp;계약서 1부</td>
@@ -230,7 +230,7 @@
                             <div class="content-header" style="margin-top: 50px; margin-bottom: 50px;">
                                 <div class="content-header-container">
                                     <div class="content-header-title" style="text-align: center;">
-                                        <span style="font-size: 32px; font-weight: 400; border-bottom: 2px solid #000; padding-bottom: 5px; display: inline-block;">납 품 완 료 계</span>
+                                        <span style="font-size: 32px; font-weight: 400; border-bottom: 2px solid #000; padding-bottom: 5px; display: inline-block;">&nbsp;완&nbsp;&nbsp;&nbsp;&nbsp;료&nbsp;&nbsp;&nbsp;&nbsp;계&nbsp;</span>
                                     </div>
                                 </div>
                             </div>
@@ -288,10 +288,11 @@
                                                 <div style="width: 100%; display: flex;">
                                                     <div style="width: 30px;">◉</div>
                                                     <div style="width: 150px; display: flex; justify-content: space-between; margin-right: 10px;">
-                                                        <span>납</span>
-                                                        <span>품</span>
-                                                        <span>기</span>
-                                                        <span>한</span>
+                                                        <span>완</span>
+                                                        <span>수</span>
+                                                        <span>년</span>
+                                                        <span>월</span>
+                                                        <span>일</span>
                                                         <span>:</span>
                                                     </div>
                                                     <div>{{ methods.completionDate() }}</div>
@@ -302,7 +303,7 @@
                                     </div>
                                     <div style="width: 100%; margin-top: 90px; margin-bottom: 90px; text-align: center;">
                                         <div>
-                                            위와 같이 납품 완료하였기에 납품완료계를 제출합니다.
+                                            위와 같이 완료하였기에 완료계를 제출합니다.
                                         </div>
                                     </div>
                                     <div style="width: 100%; margin-top: 90px; margin-bottom: 90px; text-align: center;">
@@ -429,7 +430,7 @@ export default {
                     alert('등록된 데이터가 없습니다. 먼저 데이터를 등록해주세요.', '인쇄');
                     return;
                 }
-                const grid = document.querySelector('.d-completion-report');
+                const grid = document.querySelector('.cs-tech-report');
                 const items = grid.querySelectorAll('.report');
                 const imgData = [];
                 for (const item of items) {
@@ -640,19 +641,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.d-completion-report {
-    width: 100%;
-    height: 100%;
-    // position: relative;
-    .buttons {
-        position: sticky;
-        top: 0px;
-        left: 40px;
-        z-index: 1000;
-        display: flex;
-        gap: 10px;
-    }
-}
 .report {
     font-family: sans-serif; 
     -webkit-print-color-adjust: exact; 

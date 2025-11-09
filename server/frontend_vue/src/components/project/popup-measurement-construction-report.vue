@@ -2,7 +2,7 @@
      <dx-popup
       :visible="props.visible"
       content-template="popup-content"
-      title="계측제어조합 납품완료계"
+      title="계측제어조합 착수계"
       :resize-enabled="true"
       :close-on-outside-click="true"
       @update:visible="(value) => emit('update:visible', value)"
@@ -39,7 +39,7 @@
         <template #popup-content>
             <dx-scroll-view width="100%" height="100%">
 
-                <div v-if="vars.init" class="measurement-d-report">
+                <div v-if="vars.init" class="measurement-construction-report">
                     <div class="report-container">
                 
                         <div class="report">
@@ -88,7 +88,7 @@
                                                     <span>제</span>
                                                     <span>목</span>
                                                 </span>
-                                                <span>&nbsp;: {{ vars.formData.project_management.project_name }} 관련 납품완료계 제출 </span>
+                                                <span>&nbsp;: {{ vars.formData.project_management.project_name }} 관련 착수계 제출 </span>
                                             </div>
                                         </div>
                                     </div>
@@ -108,7 +108,7 @@
                                                     "{{ vars.formData.project_management.project_name }}" 
                                                 </div>
                                                 <div style="margin-left: 10px;">
-                                                    건과 관련하여 아래와 같이 납품완료 서류를 제출드립니다.
+                                                    건과 관련하여 아래와 같이 착수계 서류를 제출드립니다.
                                                 </div>
                                             </div>
                                             <div style="width: 100%; padding: 10px; display: flex; flex-direction: column; gap: 3px;">
@@ -134,7 +134,7 @@
                                                 </div>
                                                 <div style="width: 100%; display: flex;">
                                                     <div style="width: 30px;">마.</div>
-                                                    <div style="width: 90px;">납품기한 :&nbsp;</div>
+                                                    <div style="width: 90px;">납품일자 :&nbsp;</div>
                                                     <div>{{ methods.completionDate() }}</div>
                                                 </div>
                                                 <div style="width: 100%; display: flex;">
@@ -165,7 +165,7 @@
                                                 </div>
                                                 
                                             </div>
-                                            <div style="width: 100%; display: flex;"> 
+                                            <div style="width: 100%; display: flex; padding: 10px;"> 
                                                 <table style="table-layout: fixed; border-collapse: separate; border-spacing: 0 3px;">
                                                     <colgroup>
                                                         <col style="width: 8%;" />
@@ -173,11 +173,11 @@
                                                     </colgroup>
                                                     <tbody>
                                                         <tr>
-                                                            <td rowspan="2" style="vertical-align: top;">첨부</td>
-                                                            <td>1.&nbsp;&nbsp;납품완료계 공문 </td>
+                                                            <td rowspan="2" style="vertical-align: top;">첨부 : </td>
+                                                            <td>1.&nbsp;&nbsp;착수계 공문 </td>
                                                         </tr>
                                                         <tr>
-                                                            <td>2.&nbsp;&nbsp;납품완료계</td>
+                                                            <td>2.&nbsp;&nbsp;착수계</td>
                                                         </tr>
                                                     </tbody>
                                                 </table>
@@ -300,7 +300,7 @@
                                                     <span>제</span>
                                                     <span>목</span>
                                                 </span>
-                                                <span>&nbsp;: {{ vars.formData.project_management.project_name }} 관련 납품완료계 제출의 건 </span>
+                                                <span>&nbsp;: {{ vars.formData.project_management.project_name }} 관련 착수계 제출의 건 </span>
                                             </div>
                                         </div>
                                     </div>
@@ -358,7 +358,7 @@
                                                 </div>
                                                 <div style="width: 100%; display: flex;">
                                                     <div style="width: 30px;">바.</div>
-                                                    <div style="width: 90px;">납품 기한 :&nbsp;</div>
+                                                    <div style="width: 90px;">납품 일자 :&nbsp;</div>
                                                     <div>{{ methods.completionDate() }}</div>
                                                 </div>
                                                 <div style="width: 100%; display: flex;">
@@ -389,7 +389,7 @@
                                                 </div>
                                                 
                                             </div>
-                                            <div style="width: 100%; display: flex;"> 
+                                            <div style="width: 100%; display: flex; padding: 10px;"> 
                                                 <table style="table-layout: fixed; border-collapse: separate; border-spacing: 0 8px;">
                                                     <colgroup>
                                                         <col style="width: 8%;" />
@@ -397,8 +397,8 @@
                                                     </colgroup>
                                                     <tbody>
                                                         <tr>
-                                                            <td rowspan="7" style="vertical-align: top;">첨부</td>
-                                                            <td>1.&nbsp;&nbsp;착수계 1부 </td>
+                                                            <td rowspan="7" style="vertical-align: top;">첨부 </td>
+                                                            <td>1.&nbsp;&nbsp;착수계 1부</td>
                                                         </tr>
                                                         <tr>
                                                             <td>2.&nbsp;&nbsp;계약서 및 계약내역서 1부</td>
@@ -436,7 +436,7 @@
                             <div class="content-header" style="margin-top: 50px; margin-bottom: 50px;">
                                 <div class="content-header-container">
                                     <div class="content-header-title" style="text-align: center;">
-                                        <span style="font-size: 32px; font-weight: 400; border-bottom: 2px solid #000; padding-bottom: 5px; display: inline-block;">&nbsp;납 품 완 료 계&nbsp;</span>
+                                        <span style="font-size: 32px; font-weight: 400; border-bottom: 2px solid #000; padding-bottom: 5px; display: inline-block;">&nbsp;착&nbsp;&nbsp;&nbsp;&nbsp;수&nbsp;&nbsp;&nbsp;&nbsp;계&nbsp;</span>
                                     </div>
                                 </div>
                             </div>
@@ -508,12 +508,12 @@
                                     </div>
                                     <div style="width: 100%; margin-top: 90px; margin-bottom: 90px; text-align: center;">
                                         <div>
-                                            위와 같이 납품 완료하였기에 납품완료계를 제출합니다.
+                                            위와 같이 착수하였기에 착수계를 제출합니다.
                                         </div>
                                     </div>
                                     <div style="width: 100%; margin-top: 90px; margin-bottom: 90px; text-align: center;">
                                         <div>
-                                            {{ methods.completionDate() }}
+                                            {{ methods.commencementDate() }}
                                         </div>
                                     </div>
                                     <div style="width: 100%; margin-top: 90px; margin-bottom: 90px; text-align: right; display: flex; flex-direction: column; gap: 10px;">
@@ -635,8 +635,8 @@ export default {
                 if (!vars.formData.id) {
                     alert('등록된 데이터가 없습니다. 먼저 데이터를 등록해주세요.', '인쇄');
                     return;
-                }
-                const grid = document.querySelector('.measurement-d-report');
+                    }
+                const grid = document.querySelector('.measurement-construction-report');
                 const items = grid.querySelectorAll('.report');
                 const imgData = [];
                 for (const item of items) {

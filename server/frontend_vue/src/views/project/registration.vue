@@ -869,9 +869,16 @@
                       <dx-grid-item name="revertButton" location="after" />
                   </dx-grid-toolbar>
                   <template #completionReportButton>
-                    <dx-button text="계측제어조합 납품완료계" icon="link" @click="methods.onReportShow('measurementDCompletion')" />
-                    <dx-button text="계측제어조합 완료계" icon="link" @click="methods.onReportShow('measurementCompletion')" />
-                    <dx-button text="씨에스테크 납품완료계" icon="link" @click="methods.onReportShow('csTechCompletion')" />
+                    <dx-button text="계측제어조합 납품완료계" @click="methods.onReportShow('measurementDCompletion')" />
+                    <dx-button text="계측제어조합 완료계" @click="methods.onReportShow('measurementCompletion')" />
+                    <dx-button text="씨에스테크 납품완료계" @click="methods.onReportShow('csTechDCompletion')" />
+                    <dx-button text="씨에스테크 완료계" @click="methods.onReportShow('csTechCompletion')" />
+                    <dx-button text="씨에스테크 준공계" @click="methods.onReportShow('csTechCCompletion')" />
+                    <dx-button text="에스텍 납품완료계" @click="methods.onReportShow('stechDCompletion')" />
+                    <dx-button text="에스텍 완료계" @click="methods.onReportShow('stechCompletion')" />
+                    <dx-button text="에스텍 준공계" @click="methods.onReportShow('stechCCompletion')" />
+                    <dx-button text="자동제어조합 납품완료계" @click="methods.onReportShow('autoDCompletion')" />
+                    <dx-button text="자동제어조합 완료계" @click="methods.onReportShow('autoCompletion')" />
                   </template>
                   <template #addRowButtonProjectCompletion>
                       <dx-button text="준공 추가" icon="add" @click="methods.addItemRowButton('projectCompletion')" />
@@ -995,10 +1002,19 @@
                   @row-removing="methods.onProjectConstructionRemoving"
                   >
                   <dx-grid-toolbar>
+                      <dx-grid-item template="constructionReportButton" location="after" :visible="vars.formState.readOnly" />
                       <dx-grid-item template="addProjectConstructionRowButton" location="after" :visible="!vars.formState.readOnly" />
                       <dx-grid-item template="projectConstructionSaveButton" location="after" :visible="false" />
                       <dx-grid-item name="revertButton" location="after" />
                   </dx-grid-toolbar>
+                  <template #constructionReportButton>
+                    <dx-button text="계측제어조합 착수계" @click="methods.onReportShow('measurementConstruction')" />
+                    <dx-button text="씨에스테크 착공계"  @click="methods.onReportShow('csTechConstruction')" />
+                    <dx-button text="씨에스테크 착수계"  @click="methods.onReportShow('csTechCommencement')" />
+                    <dx-button text="에스텍 착공계"  @click="methods.onReportShow('stechConstruction')" />
+                    <dx-button text="에스텍 착수계"  @click="methods.onReportShow('stechCommencement')" />
+                    <dx-button text="자동제어조합 착수계"  @click="methods.onReportShow('autoCommencement')" />
+                  </template>
                   <template #addProjectConstructionRowButton>
                       <dx-button text="착공계 추가" icon="add" @click="methods.addItemRowButton('projectConstruction')" />
                   </template>
@@ -1234,8 +1250,6 @@
       :fk_project_management_id="vars.formData.id"
       v-model:visible="vars.dlg.report.measurementDCompletion.show"
     />
-
-
     <popup-measurement-completion-report
       :fk_project_management_id="vars.formData.id"
       v-model:visible="vars.dlg.report.measurementCompletion.show"
@@ -1243,6 +1257,58 @@
     <popup-cs-tech-completion-report
       :fk_project_management_id="vars.formData.id"
       v-model:visible="vars.dlg.report.csTechCompletion.show"
+    />
+    <popup-cs-tech-d-completion-report
+      :fk_project_management_id="vars.formData.id"
+      v-model:visible="vars.dlg.report.csTechDCompletion.show"
+    />
+    <popup-cs-tech-c-completion-report
+      :fk_project_management_id="vars.formData.id"
+      v-model:visible="vars.dlg.report.csTechCCompletion.show"
+    />
+    <popup-stech-d-completion-report
+      :fk_project_management_id="vars.formData.id"
+      v-model:visible="vars.dlg.report.stechDCompletion.show"
+    />
+    <popup-stech-completion-report
+      :fk_project_management_id="vars.formData.id"
+      v-model:visible="vars.dlg.report.stechCompletion.show"
+    />
+    <popup-stech-c-completion-report
+      :fk_project_management_id="vars.formData.id"
+      v-model:visible="vars.dlg.report.stechCCompletion.show"
+    />
+    <popup-auto-d-completion-report
+      :fk_project_management_id="vars.formData.id"
+      v-model:visible="vars.dlg.report.autoDCompletion.show"
+    />
+    <popup-auto-completion-report
+      :fk_project_management_id="vars.formData.id"
+      v-model:visible="vars.dlg.report.autoCompletion.show"
+    />
+    <popup-measurement-construction-report
+      :fk_project_management_id="vars.formData.id"
+      v-model:visible="vars.dlg.report.measurementConstruction.show"
+    />
+    <popup-cs-tech-construction-report
+      :fk_project_management_id="vars.formData.id"
+      v-model:visible="vars.dlg.report.csTechConstruction.show"
+    />
+    <popup-cs-tech-commencement-report
+      :fk_project_management_id="vars.formData.id"
+      v-model:visible="vars.dlg.report.csTechCommencement.show"
+    />
+    <popup-stech-construction-report
+      :fk_project_management_id="vars.formData.id"
+      v-model:visible="vars.dlg.report.stechConstruction.show"
+    />
+    <popup-stech-commencement-report
+      :fk_project_management_id="vars.formData.id"
+      v-model:visible="vars.dlg.report.stechCommencement.show"
+    />
+    <popup-auto-commencement-report
+      :fk_project_management_id="vars.formData.id"
+      v-model:visible="vars.dlg.report.autoCommencement.show"
     />
   </div>
 </template>
@@ -1336,6 +1402,19 @@ import DataAutoReport from '@/components/project/data-auto-report.vue';
 import PopupMeasurementDCompletionReport from '@/components/project/popup-measurement-d-completion-report.vue';
 import PopupMeasurementCompletionReport from '@/components/project/popup-measurement-completion-report.vue';
 import PopupCsTechCompletionReport from '@/components/project/popup-cs-tech-completion-report.vue';
+import PopupCsTechDCompletionReport from '@/components/project/popup-cs-tech-d-completion-report.vue';
+import PopupCsTechCCompletionReport from '@/components/project/popup-cs-tech-c-completion-report.vue';
+import PopupStechDCompletionReport from '@/components/project/popup-stech-d-completion-report.vue';
+import PopupStechCompletionReport from '@/components/project/popup-stech-completion-report.vue';
+import PopupStechCCompletionReport from '@/components/project/popup-stech-c-completion-report.vue';
+import PopupAutoDCompletionReport from '@/components/project/popup-auto-d-completion-report.vue';
+import PopupAutoCompletionReport from '@/components/project/popup-auto-completion-report.vue';
+import PopupMeasurementConstructionReport from '@/components/project/popup-measurement-construction-report.vue';
+import PopupCsTechConstructionReport from '@/components/project/popup-cs-tech-construction-report.vue';
+import PopupCsTechCommencementReport from '@/components/project/popup-cs-tech-commencement-report.vue';
+import PopupStechConstructionReport from '@/components/project/popup-stech-construction-report.vue';
+import PopupStechCommencementReport from '@/components/project/popup-stech-commencement-report.vue';
+import PopupAutoCommencementReport from '@/components/project/popup-auto-commencement-report.vue';
 export default {
   components: {
     DxToolbar,
@@ -1385,7 +1464,20 @@ export default {
     DataAutoReport,
     PopupMeasurementDCompletionReport,
     PopupMeasurementCompletionReport,
-    PopupCsTechCompletionReport
+    PopupCsTechCompletionReport,
+    PopupCsTechDCompletionReport,
+    PopupCsTechCCompletionReport,
+    PopupStechDCompletionReport,
+    PopupStechCompletionReport,
+    PopupStechCCompletionReport,
+    PopupAutoDCompletionReport,
+    PopupAutoCompletionReport,
+    PopupMeasurementConstructionReport,
+    PopupCsTechConstructionReport,
+    PopupCsTechCommencementReport,
+    PopupStechConstructionReport,
+    PopupStechCommencementReport,
+    PopupAutoCommencementReport,
   },
   props: {
     id: [String, Number],
@@ -1431,6 +1523,19 @@ export default {
       measurementCompletion: reactive({ show: false }),
       measurementDCompletion: reactive({ show: false }),
       csTechCompletion: reactive({ show: false }),
+      csTechDCompletion: reactive({ show: false }),
+      csTechCCompletion: reactive({ show: false }),
+      stechDCompletion: reactive({ show: false }),
+      stechCompletion: reactive({ show: false }),
+      stechCCompletion: reactive({ show: false }),
+      autoDCompletion: reactive({ show: false }),
+      autoCompletion: reactive({ show: false }),
+      measurementConstruction: reactive({ show: false }),
+      csTechConstruction: reactive({ show: false }),
+      csTechCommencement: reactive({ show: false }),
+      stechConstruction: reactive({ show: false }),
+      stechCommencement: reactive({ show: false }),
+      autoCommencement: reactive({ show: false }),
     }
     vars.formData = reactive({
       business: null,

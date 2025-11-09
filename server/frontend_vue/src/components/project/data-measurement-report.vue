@@ -219,7 +219,7 @@ import html2canvas from 'html2canvas';
 import { reactive, onMounted, ref, watch, onUnmounted } from 'vue';
 import DxTextBox from 'devextreme-vue/text-box';
 import { projectRegistration, projectReport } from '../../data-source/project';
-
+import { alert } from 'devextreme/ui/dialog';
 export default {
     components: {
         DxTextBox,
@@ -291,7 +291,10 @@ export default {
                 vars.oldFormData = reactive({});
             },
             async printReport() {
-                if (!vars.formData.id) return;
+                if (!vars.formData.id) {
+                    alert('등록된 데이터가 없습니다. 먼저 데이터를 등록해주세요.', '인쇄');
+                    return;
+                }
                 const item = document.querySelector('.report');
      
                 const canvas = await html2canvas(item, { backgroundColor: '#fff', scale: 2 });
@@ -472,6 +475,13 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+
+.buttons {
+    flex-shrink: 0;
+    padding: 10px;
+    display: flex;
+    gap: 10px;
+}
 .report {
     font-family: sans-serif; 
     -webkit-print-color-adjust: exact; 

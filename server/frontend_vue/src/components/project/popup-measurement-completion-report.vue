@@ -39,7 +39,7 @@
         <template #popup-content>
             <dx-scroll-view width="100%" height="100%">
 
-            <div v-if="vars.init" class="completion-report">
+            <div v-if="vars.init" class="measurement-report">
                 <div class="report-container">
             
                     <div class="report">
@@ -330,7 +330,7 @@
                                                 ({{ methods.contractData() }}) 우수조달공동상표 물품으로 계약 체결한 "{{ vars.formData.project_management.project_name }}" 건과 관련하여 아래와 같이 납품완료계 및 관련 서류를 제출합니다.
                                             </span>
                                         </div>
-                                        <div style="width: 100%; padding: 10px; display: flex; flex-direction: column; gap: 3px;">
+                                        <div style="width: 100%; padding: 10px; display: flex; flex-direction: column; gap: 8px;">
                                             <div style="width: 100%; display: flex;">
                                                 <div style="width: 30px;">가.</div>
                                                 <div style="width: 90px;">계약 건명 :&nbsp;</div>
@@ -391,7 +391,7 @@
                                             
                                         </div>
                                         <div style="width: 100%; display: flex;"> 
-                                            <table style="table-layout: fixed; border-collapse: separate; border-spacing: 0 3px;">
+                                            <table style="table-layout: fixed; border-collapse: separate; border-spacing: 0 8px;">
                                                 <colgroup>
                                                     <col style="width: 8%;" />
                                                     <col style="width: 92%;" />
@@ -638,7 +638,7 @@ export default {
                     alert('등록된 데이터가 없습니다. 먼저 데이터를 등록해주세요.', '인쇄');
                     return;
                 }
-                const grid = document.querySelector('.completion-report');
+                const grid = document.querySelector('.measurement-report');
                 const items = grid.querySelectorAll('.report');
                 const imgData = [];
                 for (const item of items) {
