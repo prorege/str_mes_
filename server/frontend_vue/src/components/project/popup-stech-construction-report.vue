@@ -38,7 +38,7 @@
             }"/>
         <template #popup-content>
             <dx-scroll-view width="100%" height="100%">
-
+                <dx-load-panel v-model:visible="vars.loading.value" :show-pane="true" />
                 <div v-if="vars.init" class="stech-construction-report">
                     <div class="report-container">
                 
@@ -346,20 +346,21 @@
     </dx-popup>
 </template>
 <script>
-import html2canvas from 'html2canvas';
 import { reactive, onMounted, ref, watch, onUnmounted } from 'vue';
 import { DxScrollView } from 'devextreme-vue/scroll-view';
 import { DxPopup, DxToolbarItem } from 'devextreme-vue/popup';
 import DxTextBox from 'devextreme-vue/text-box';
-import { projectRegistration, projectReport } from '../../data-source/project';
+import { projectRegistration, projectReport, projectConstruction } from '../../data-source/project';
 import { alert } from 'devextreme/ui/dialog';
-
+import { printReport } from '../../utils/print-report';
+import { DxLoadPanel } from 'devextreme-vue/load-panel';
 export default {
     components: {
         DxTextBox,
         DxScrollView,
         DxPopup,
         DxToolbarItem,
+        DxLoadPanel,
     },
     emits: ['update:visible'],
     props: {
@@ -375,6 +376,7 @@ export default {
     setup(props, { emit }) {
         const vars = {};
         vars.init = ref(false);
+        vars.loading = ref(false);
         vars.formState = reactive({
             readOnly: true,
         });
@@ -432,77 +434,20 @@ export default {
                     alert('등록된 데이터가 없습니다. 먼저 데이터를 등록해주세요.', '인쇄');
                     return;
                 }
-                const grid = document.querySelector('.stech-construction-report');
-                const items = grid.querySelectorAll('.report');
-                const imgData = [];
-                for (const item of items) {
-                    const canvas = await html2canvas(item, { backgroundColor: '#fff', scale: 2 });
-                    const img = canvas.toDataURL('image/png');
-                    imgData.push(img);
-                }
-                
-                // const imgData = canvas.toDataURL('image/png');
-                
-                const html = `
-                <html>
-                    <head>
-                    <title>인쇄</title>
-                    <meta charset="utf-8">
-                    <style>
-                        @page { 
-                            size: A4; 
-                            margin: 0; 
-                        }
-                        * { 
-                            margin: 0; 
-                            padding: 0; 
-                            box-sizing: border-box; 
-                        }
-                        html, body { 
-                            margin: 0; 
-                            padding: 0; 
-                        }
-                        .print-page {
-                            width: 210mm;
-                            height: 297mm;
-                            page-break-after: always;
-                            page-break-inside: avoid;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                        }
-                        .print-page:last-child {
-                            page-break-after: auto;
-                        }
-                        .print-page img {
-                            width: 210mm;
-                            height: auto;
-                            display: block;
-                        }
-                    </style>
-                    </head>
-                    <body>
-                        ${imgData.map((img, index) => {
-                            const isLast = index === imgData.length - 1;
-                            return `<div class="print-page" style="page-break-after: ${isLast ? 'auto' : 'always'};"><img src="${img}" /></div>`;
-                        }).join('\n')}
-                    </body>
-                </html>
-                `;
-                const printWindow = window.open('', '_blank', 'width=900,height=1200');
-
-                printWindow.document.write(html);
-                printWindow.document.close();
-                await (async function waitForAllImages(doc) {
-                const imgs = Array.from(doc?.images || []);
-                if (!imgs.length) return;
-                await Promise.all(imgs.map(img => img.complete ? Promise.resolve() : new Promise(res => {
-                    img.onload = img.onerror = res;
-                })));
-                })(printWindow.document);
-                printWindow.focus();
-                printWindow.print();
-                    
+                const DOCUMNET = [
+                    '계약서',
+                    '계약보증서',
+                    '계약내역서',
+                    '현장대리인계',
+                    '자격증사본',
+                    '재직증명서',
+                    '고용산재가입증명원',
+                    '예정공정표',
+                ]
+                vars.loading.value = true;
+                const { data : completionData} = await projectConstruction.load({ filter: [['fk_project_management_id', '=', props.fk_project_management_id]] });
+                await printReport(DOCUMNET, completionData, document.querySelector('.stech-construction-report'));
+                vars.loading.value = false;
             },
             editReport() {
                 if (vars.formState.readOnly) {

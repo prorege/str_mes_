@@ -890,6 +890,13 @@
                     <dx-grid-button name="edit"/>
                     <dx-grid-button name="delete" />
                   </dx-column>
+                  <dx-column caption="문서명" data-field="document_name">
+                    <dx-lookup 
+                    :data-source="vars.dataSource.completion"
+                    value-expr="code_name"
+                    display-expr="code_name"
+                    />
+                  </dx-column>
                   <dx-column caption="준공일자" data-field="completion_date" data-type="date" format="yyyy-MM-dd" />
                   <dx-column caption="준공도면" data-field="completion_drawing" />
                   <dx-column caption="준공도면경로" data-field="completion_drawing_path"  :visible="false" />
@@ -901,6 +908,20 @@
                   <dx-column caption="유지보수지침서경로" data-field="maintenance_manual_path"  :visible="false" />
                   <dx-column caption="하자이행보증증서" data-field="defect_guarantee" />
                   <dx-column caption="하자이행보증증서경로" data-field="defect_guarantee_path" :visible="false" />
+                  <dx-column caption="첨부파일" data-field="file_name" cell-template="download" edit-cell-template="upload" />
+                  <template #download="{data}">
+                    <a :href="`/api/mes/v1/${data.data['file_path']}`" download>{{data.data[data.column.dataField]}}</a>
+                  </template>
+                  <template #upload="{data}">
+                    <dx-text-box :value="data.data[data.column.dataField]">
+                      <dx-text-box-button location="after" name="upload"
+                        :options="{
+                          hint: '업로드', icon: 'upload',
+                          onClick: methods.addFile(data)
+                        }"
+                      />
+                    </dx-text-box>
+                  </template>
                   <dx-column caption="등록자" data-field="register" :allow-editing="false" />
                   <dx-column caption="등록시간" data-field="register_date" data-type="date" :allow-editing="false" />
                   <dx-editing
@@ -1024,7 +1045,7 @@
                   <dx-column type="buttons" :visible="!vars.formState.readOnly"/>
                   <dx-column caption="문서명" data-field="document_name">
                     <dx-lookup 
-                    :data-source="vars.dataSource.documentName"
+                    :data-source="vars.dataSource.construction"
                     value-expr="code_name"
                     display-expr="code_name"
                     />
@@ -1672,7 +1693,8 @@ export default {
       work_type: null,
       projectOutCostLog: null,
       projectConstruction: null,
-      documentName: null,
+      construction: null,
+      completion: null,
     });
     vars.dataSource.note = getProjectBusinessNote(vars.filter.note);
 
@@ -1823,7 +1845,7 @@ export default {
         stateStore.bind(`project-registration-${key}`, evt.component);
       },
       loadBaseCode(){
-        return baseCodeLoader(['부가세구분', '진행단계', '중요', '업체구분', '하자기간', '업무유형', '착공계(문서명)']).then(response =>{
+        return baseCodeLoader(['부가세구분', '진행단계', '중요', '업체구분', '하자기간', '업무유형', '착공계(문서명)', '준공계(문서명)']).then(response =>{
           // vars.dataSource.vat_type = response['부가세구분'];
           vars.dataSource.vat_type = response['부가세구분'].filter((v)=> v.code_name != "영세");
           vars.dataSource.progress_status = response['진행단계'];
@@ -1831,7 +1853,8 @@ export default {
           vars.dataSource.company_type = response['업체구분'];
           vars.dataSource.defect_period = response['하자기간']
           vars.dataSource.work_type = response['업무유형']
-          vars.dataSource.documentName = response['착공계(문서명)']
+          vars.dataSource.construction = response['착공계(문서명)']
+          vars.dataSource.completion = response['준공계(문서명)']
         })
         .then(() => (vars.init.value = true));
       },

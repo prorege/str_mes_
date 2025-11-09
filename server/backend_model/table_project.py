@@ -515,6 +515,7 @@ class ProjectCompletion(db.Model): # 프로젝트 - 준공관리
     }
     id = db.Column('id', db.Integer, primary_key=True, comment='UID')
     created = db.Column('created', db.DateTime, default=datetime.now, comment='생성시간')
+    document_name = db.Column('document_name', db.String(96), comment='문서명')
     completion_date = db.Column('completion_date', db.DateTime, comment='준공일자')
     completion_drawing = db.Column('completion_drawing', db.String(256), comment='준공도면')
     completion_drawing_path = db.Column('completion_drawing_path', db.String(256), comment='준공도면경로')
@@ -526,6 +527,8 @@ class ProjectCompletion(db.Model): # 프로젝트 - 준공관리
     maintenance_manual_path = db.Column('maintenance_manual_path', db.String(256), comment='유지보수지침서경로')
     defect_guarantee = db.Column('defect_guarantee', db.String(256), comment='하자이행보증증서')
     defect_guarantee_path = db.Column('defect_guarantee_path', db.String(256), comment='하자이행보증증서경로')
+    file_name = db.Column('file_name', db.String(64), comment='첨부파일')
+    file_path = db.Column('file_path', db.String(256), comment='첨부파일경로')
     register = db.Column('register', db.String(48), comment='등록자')
     register_date = db.Column('register_date', db.DateTime, comment='등록일자')
     fk_project_management_id = db.Column('fk_project_management_id', db.Integer, db.ForeignKey(ProjectManagement.id, onupdate="CASCADE", ondelete="CASCADE"), comment='프로젝트관리 FK')
