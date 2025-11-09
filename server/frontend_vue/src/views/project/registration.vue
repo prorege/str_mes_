@@ -13,66 +13,6 @@
               locate-in-menu="auto"
               widget="dxButton"
               :options="{
-                text: '계측제어',
-                type: '',
-                icon: 'link',
-                onClick: () => methods.onReportShow('measurement'),
-                visible: false
-              }"
-            />
-            <dx-item
-              location="after"
-              locate-in-menu="auto"
-              widget="dxButton"
-              :options="{
-                text: '자동제어',
-                type: '',
-                icon: 'link',
-                onClick: () => methods.onReportShow('auto'),
-                visible: false
-              }"
-            />
-            <dx-item
-              location="after"
-              locate-in-menu="auto"
-              widget="dxButton"
-              :options="{
-                text: '에스텍',
-                type: '',
-                icon: 'link',
-                onClick: () => methods.onReportShow('stech'),
-                visible: false
-              }"
-            />
-            <dx-item
-              location="after"
-              locate-in-menu="auto"
-              widget="dxButton"
-              :options="{
-                text: '착수계(계측제어)',
-                type: '',
-                icon: 'link',
-                onClick: () => methods.onReportShow('workStartMeasurement'),
-                visible: false
-              }"
-            />
-            <dx-item
-              location="after"
-              locate-in-menu="auto"
-              widget="dxButton"
-              :options="{
-                text: '착수계(자동제어)',
-                type: '',
-                icon: 'link',
-                onClick: () => methods.onReportShow('workStartAutomatic'),
-                visible: false
-              }"
-            />
-            <dx-item
-              location="after"
-              locate-in-menu="auto"
-              widget="dxButton"
-              :options="{
                 text: '신규',
                 type: 'add',
                 icon: 'add',
@@ -931,6 +871,7 @@
                   <template #completionReportButton>
                     <dx-button text="계측제어조합 납품완료계" icon="link" @click="methods.onReportShow('measurementDCompletion')" />
                     <dx-button text="계측제어조합 완료계" icon="link" @click="methods.onReportShow('measurementCompletion')" />
+                    <dx-button text="씨에스테크 납품완료계" icon="link" @click="methods.onReportShow('csTechCompletion')" />
                   </template>
                   <template #addRowButtonProjectCompletion>
                       <dx-button text="준공 추가" icon="add" @click="methods.addItemRowButton('projectCompletion')" />
@@ -1288,84 +1229,21 @@
             <popup-client-detail :client-name="vars.dataSource.clientDetail"/>
         </template>
     </dx-popup>
-    <!-- <dx-popup
-      v-model:visible="vars.dlg.report.measurementDCompletion.show"
-      content-template="popup-content"
-      title="계측제어조합 납품완료계"
-      :resize-enabled="true"
-      :close-on-outside-click="true"
-      :on-hiding="() => methods.onReportHiding('measurementDCompletion')"
-      width="230mm"
-      height="700px"
-    >
-      <template #popup-content>
-        <dx-scroll-view width="100%" height="100%">
-          <data-measurement-d-completion-report :fk_project_management_id="vars.formData.id"
-          :show="vars.dlg.report.measurementDCompletion.show" />
-        </dx-scroll-view>
-      </template>
-    </dx-popup> -->
-    <data-measurement-d-completion-report
-      :fk_project_management_id="vars.formData.id"
-      v-model:visible="vars.dlg.report.measurementDCompletion.show"
-    />
-    <!-- <dx-popup
-      v-model:visible="vars.dlg.report.measurementCompletion.show"
-      content-template="popup-content"
-      title="계측제어조합 완료계"
-      :resize-enabled="true"
-      :close-on-outside-click="true"
-      :on-hiding="() => methods.onReportHiding('measurementCompletion')"
-      width="230mm"
-      height="700px"
-    >
-      <template #popup-content>
-        <dx-scroll-view width="100%" height="100%">
-          <data-measurement-completion-report :fk_project_management_id="vars.formData.id"
-          :show="vars.dlg.report.measurementCompletion.show" />
-        </dx-scroll-view>
-      </template>
-    </dx-popup> -->
 
-    <data-measurement-completion-report
+    <popup-measurement-d-completion-report
+      :fk_project_management_id="vars.formData.id"
+      v-model:visible="vars.dlg.report.measurementDCompletion.show"
+    />
+
+
+    <popup-measurement-completion-report
       :fk_project_management_id="vars.formData.id"
       v-model:visible="vars.dlg.report.measurementCompletion.show"
     />
-    <dx-popup
-      v-model:visible="vars.dlg.report.measurement.show"
-      content-template="popup-content"
-      title="계측제어 보고서"
-      :resize-enabled="true"
-      :close-on-outside-click="true"
-      :on-hiding="() => methods.onReportHiding('measurement')"
-      width="230mm"
-      height="700px"
-    >
-      <template #popup-content>
-        <dx-scroll-view width="100%" height="100%">
-          <data-measurement-report :fk_project_management_id="vars.formData.id"
-          :show="vars.dlg.report.measurement.show" />
-        </dx-scroll-view>
-      </template>
-    </dx-popup>
-    
-    <dx-popup
-      v-model:visible="vars.dlg.report.auto.show"
-      content-template="popup-content"
-      title="자동제어 보고서"
-      :resize-enabled="true"
-      :close-on-outside-click="true"
-      :on-hiding="() => methods.onReportHiding('auto')"
-      width="230mm"
-      height="700px"
-    >
-      <template #popup-content>
-        <dx-scroll-view width="100%" height="100%">
-          <data-auto-report :fk_project_management_id="vars.formData.id"
-          :show="vars.dlg.report.auto.show" />
-        </dx-scroll-view>
-      </template>
-    </dx-popup>
+    <popup-cs-tech-completion-report
+      :fk_project_management_id="vars.formData.id"
+      v-model:visible="vars.dlg.report.csTechCompletion.show"
+    />
   </div>
 </template>
 
@@ -1455,8 +1333,9 @@ import { DxNumberBox } from 'devextreme-vue/number-box';
 import ArrayStore from 'devextreme/data/array_store';
 import DataMeasurementReport from '@/components/project/data-measurement-report.vue';
 import DataAutoReport from '@/components/project/data-auto-report.vue';
-import DataMeasurementDCompletionReport from '@/components/project/data-measurement-d-completion-report.vue';
-import DataMeasurementCompletionReport from '@/components/project/data-measurement-completion-report.vue';
+import PopupMeasurementDCompletionReport from '@/components/project/popup-measurement-d-completion-report.vue';
+import PopupMeasurementCompletionReport from '@/components/project/popup-measurement-completion-report.vue';
+import PopupCsTechCompletionReport from '@/components/project/popup-cs-tech-completion-report.vue';
 export default {
   components: {
     DxToolbar,
@@ -1504,8 +1383,9 @@ export default {
     DxGridButton,
     DataMeasurementReport,
     DataAutoReport,
-    DataMeasurementCompletionReport,
-    DataMeasurementDCompletionReport
+    PopupMeasurementDCompletionReport,
+    PopupMeasurementCompletionReport,
+    PopupCsTechCompletionReport
   },
   props: {
     id: [String, Number],
@@ -1548,13 +1428,9 @@ export default {
     });
 
     vars.dlg.report = {
-      measurement: reactive({ show: false }),
       measurementCompletion: reactive({ show: false }),
       measurementDCompletion: reactive({ show: false }),
-      auto: reactive({ show: false }),
-      stech: reactive({ show: false }),
-      workStartMeasurement: reactive({ show: false }),
-      workStartAutomatic: reactive({ show: false }),
+      csTechCompletion: reactive({ show: false }),
     }
     vars.formData = reactive({
       business: null,
