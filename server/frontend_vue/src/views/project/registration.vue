@@ -3128,6 +3128,91 @@ export default {
 </script>
 
 <style lang="scss">
+
+.report {
+    font-family: '맑은 고딕', 'Malgun Gothic', sans-serif; 
+    -webkit-print-color-adjust: exact; 
+    width: 210mm; 
+    height: 297mm; 
+    box-sizing: border-box; 
+    padding: 8px;
+    font-size: 15px;
+    border: 1px dotted #9c9c9c;
+    table {width: 100%; border-collapse: collapse; table-layout: fixed;}
+    table.fixed { table-layout: fixed; }
+
+    display: flex;
+    flex-direction: column;
+
+
+
+    .content-header {
+        margin-top: 30px;
+        margin-bottom: 25px;
+    }
+    .content-body {
+        width: 85%;
+        margin: 0 auto;
+        .content-body-container {
+            width: 100%;
+            .body-1 {
+                width: 100%;
+                padding-bottom: 10px;
+                border-bottom: 1px solid #000;
+
+                .underline {
+                    width: 100%;
+                    height: 17px;
+                    background-color: #bbd1f8;
+             
+                }
+            }
+            .body-2 {
+                padding-top: 10px;          
+            }
+        }
+    }    
+    .content-footer {
+        
+        margin-top: auto;
+        margin-bottom: 50px;
+        .underline {
+            width: 85%;
+            height: 17px;
+            background-color: #ebebeb;
+        
+        }
+
+    }
+}
+
+.report-style-A-content-box {
+  display: flex;
+  gap: 10px;
+  .report-style-A-content-box-title {
+    width: 60px;
+    display: flex;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .report-style-A-content-box-content {
+    flex: 1;
+    min-width: 0;
+  }
+  .width-65 {
+    width: 65px;
+  }
+  .width-75 {
+    width: 75px;
+  }
+  .width-78 {
+    width: 78px;
+  }
+  .width-120 {
+    width: 120px;
+  }
+
+}
 .vat-data-box{
   // border: 1px dashed #ddd;
   // border-radius: 15px;

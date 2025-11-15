@@ -59,35 +59,39 @@
                                     <div class="body-1" style="border-bottom: 2px solid #000;">
                                         <div>
                                             <div style="height: 5px;"></div>
-                                            <div style="display: flex;">
-                                                <span style="width: 70px; display: flex; justify-content: space-between;">
+                                            <div class="report-style-A-content-box">
+                                                <span class="report-style-A-content-box-title">
                                                     <span>수</span>
                                                     <span>신</span>
                                                 </span>
-                                                <span>&nbsp;: 한국계측제어공업협동조합 </span>
+                                                <span>:</span>
+                                                <span class="report-style-A-content-box-content">한국계측제어공업협동조합 </span>
                                             </div>
-                                            <div style="display: flex;">
-                                                <span style="width: 70px; display: flex; justify-content: space-between;">
+                                            <div class="report-style-A-content-box">
+                                                <span class="report-style-A-content-box-title">
                                                     <span>참</span>
                                                     <span>조</span>
                                                 </span>
-                                                <span v-if="!vars.formState.readOnly">&nbsp;: <input type="text" v-model="vars.formData.attr01"> </span>
-                                                <span v-else>&nbsp;: {{ vars.formData.attr01 }} </span>
+                                                <span>:</span>
+                                                <span v-if="!vars.formState.readOnly" class="report-style-A-content-box-content"><input type="text" v-model="vars.formData.attr01"> </span>
+                                                <span v-else class="report-style-A-content-box-content">{{ vars.formData.attr01 }} </span>
                                             </div>
-                                            <div style="display: flex;">
-                                                <span style="width: 70px; display: flex; justify-content: space-between;">
+                                            <div class="report-style-A-content-box">
+                                                <span class="report-style-A-content-box-title">
                                                     <span>경</span>
                                                     <span>유</span>
                                                 </span>
-                                                <span>&nbsp;: </span>
+                                                <span>:</span>
+                                                <span class="report-style-A-content-box-content"></span>
                                             
                                             </div>
-                                            <div style="display: flex;">    
-                                                <span style="width: 70px; display: flex; justify-content: space-between;">
+                                            <div class="report-style-A-content-box">    
+                                                <span class="report-style-A-content-box-title">
                                                     <span>제</span>
                                                     <span>목</span>
                                                 </span>
-                                                <span>&nbsp;: {{ vars.formData.project_management.project_name }} 관련 완료계 제출 </span>
+                                                <span>:</span>
+                                                <span class="report-style-A-content-box-content">{{ vars.formData.project_management.project_name }} 관련 완료계 제출 </span>
                                             </div>
                                         </div>
                                     </div>
@@ -119,30 +123,59 @@
                                                 </span>
                                             </div>
                                             <div style="width: 100%; padding: 10px; display: flex; flex-direction: column; gap: 8px;">
-                                                <div style="width: 100%; display: flex;">
-                                                    <div style="width: 30px;">가.</div>
-                                                    <div style="width: 90px;">계 약 명 :&nbsp;</div>
-                                                    <div>{{ vars.formData.project_management.project_name }}</div>
+                                                <div style="width: 100%;" class="report-style-A-content-box">
+                                                    <div>가.</div>
+                                                    <div class="report-style-A-content-box-title">
+                                                        <span>계</span>
+                                                        <span>약</span>
+                                                        <span>명</span>
+                                                    </div>
+                                                    <span>:</span>
+                                                    <div class="report-style-A-content-box-content">{{ vars.formData.project_management.project_name }}</div>
                                                 </div>
-                                                <div style="width: 100%; display: flex;">
-                                                    <div style="width: 30px;">나.</div>
-                                                    <div style="width: 90px;">계약금액 :&nbsp;</div>
-                                                    <div>一金 {{ methods.companyAmountStr() }}정 (₩ {{ methods.companyAmount() }} VAT 포함)</div>
+                                                <div style="width: 100%;" class="report-style-A-content-box">
+                                                    <div>나.</div>
+                                                    <div class="report-style-A-content-box-title">
+                                                        <span>계</span>
+                                                        <span>약</span>
+                                                        <span>금</span>
+                                                        <span>액</span>
+                                                    </div>
+                                                    <span>:</span>
+                                                    <div class="report-style-A-content-box-content">一金 {{ methods.companyAmountStr() }}정 (₩ {{ methods.companyAmount() }} VAT 포함)</div>
                                                 </div>
-                                                <div style="width: 100%; display: flex;">
-                                                    <div style="width: 30px;">다.</div>
-                                                    <div style="width: 90px;">계약일자 :&nbsp;</div>
-                                                    <div>{{ methods.contractData() }}</div>
+                                                <div style="width: 100%;" class="report-style-A-content-box">
+                                                    <div>다.</div>
+                                                    <div class="report-style-A-content-box-title">
+                                                        <span>계</span>
+                                                        <span>약</span>
+                                                        <span>일</span>
+                                                        <span>자</span>
+                                                    </div>
+                                                    <span>:</span>
+                                                    <div class="report-style-A-content-box-content">{{ methods.contractData() }}</div>
                                                 </div>
-                                                <div style="width: 100%; display: flex;">
-                                                    <div style="width: 30px;">라.</div>
-                                                    <div style="width: 90px;">착공일자 :&nbsp;</div>
-                                                    <div>{{ methods.commencementDate() }}</div>
+                                                <div style="width: 100%;" class="report-style-A-content-box">
+                                                    <div>라.</div>
+                                                    <div class="report-style-A-content-box-title">
+                                                        <span>착</span>
+                                                        <span>공</span>
+                                                        <span>일</span>
+                                                        <span>자</span>
+                                                    </div>
+                                                    <span>:</span>
+                                                    <div class="report-style-A-content-box-content">{{ methods.commencementDate() }}</div>
                                                 </div>
-                                                <div style="width: 100%; display: flex;">
-                                                    <div style="width: 30px;">마.</div>
-                                                    <div style="width: 90px;">완수일자 :&nbsp;</div>
-                                                    <div>{{ methods.completionDate() }}</div>
+                                                <div style="width: 100%;" class="report-style-A-content-box">
+                                                    <div>마.</div>
+                                                    <div class="report-style-A-content-box-title">
+                                                        <span>완</span>
+                                                        <span>수</span>
+                                                        <span>일</span>
+                                                        <span>자</span>
+                                                    </div>
+                                                    <span>:</span>
+                                                    <div class="report-style-A-content-box-content">{{ methods.completionDate() }}</div>
                                                 </div>
                                             </div>
                                             <div style="width: 100%; display: flex;"> 
@@ -239,63 +272,62 @@
                                     <div class="body-2">
                                         <div>
                                             <div style="width: 100%; display: flex; flex-direction: column; gap: 10px;">
-                                                <div style="width: 100%; display: flex;">
-                                                    <div style="width: 30px;">◉</div>
-                                                    <div style="width: 150px; display: flex; justify-content: space-between; margin-right: 10px;">
+                                                <div style="width: 100%;" class="report-style-A-content-box">
+                                                    <div>◉</div>
+                                                    <div class="report-style-A-content-box-title width-120">
                                                         <span>계</span>
                                                         <span>약</span>
                                                         <span>명</span>
-                                                        <span>:</span>
-                                                    
                                                     </div>
-                                                    <div>{{ vars.formData.project_management.project_name }}</div>
+                                                    <span>:</span>
+                                                    <div class="report-style-A-content-box-content">{{ vars.formData.project_management.project_name }}</div>
                                                 </div>
-                                                <div style="width: 100%; display: flex;">
-                                                    <div style="width: 30px;">◉</div>
-                                                    <div style="width: 150px; display: flex; justify-content: space-between; margin-right: 10px;">
+                                                <div style="width: 100%;" class="report-style-A-content-box">
+                                                    <div>◉</div>
+                                                    <div class="report-style-A-content-box-title width-120">
                                                         <span>계</span>
                                                         <span>약</span>
                                                         <span>금</span>
                                                         <span>액</span>
-                                                        <span>:</span>
                                                     </div>
-                                                    <div>一金 {{ methods.companyAmountStr() }}정 (₩ {{ methods.companyAmount() }} VAT 포함)</div>
+                                                    <span>:</span>
+                                                    <div class="report-style-A-content-box-content">一金 {{ methods.companyAmountStr() }}정 (₩ {{ methods.companyAmount() }} VAT 포함)</div>
                                                 </div>
-                                                <div style="width: 100%; display: flex;">
-                                                    <div style="width: 30px;">◉</div>
-                                                    <div style="width: 150px; display: flex; justify-content: space-between; margin-right: 10px;">
+                                                <div style="width: 100%;" class="report-style-A-content-box">
+                                                    <div>◉</div>
+                                                    <div class="report-style-A-content-box-title width-120">
                                                         <span>계</span>
                                                         <span>약</span>
                                                         <span>년</span>
                                                         <span>월</span>
                                                         <span>일</span>
-                                                        <span>:</span>
                                                     </div>
-                                                    <div>{{ methods.contractData() }}</div>
+                                                    <span>:</span>
+                                                    <div class="report-style-A-content-box-content">{{ methods.contractData() }}</div>
                                                 </div>
-                                                <div style="width: 100%; display: flex;">
-                                                    <div style="width: 30px;">◉</div>
-                                                    <div style="width: 150px; display: flex; justify-content: space-between; margin-right: 10px;">
+                                                <div style="width: 100%;" class="report-style-A-content-box">
+                                                    <div>◉</div>
+                                                    <div class="report-style-A-content-box-title width-120">
                                                         <span>착</span>
                                                         <span>공</span>
                                                         <span>년</span>
                                                         <span>월</span>
                                                         <span>일</span>
-                                                        <span>:</span>
                                                     </div>
-                                                    <div>{{ methods.commencementDate() }}</div>
+                                                    <span>:</span>
+                                                    <div class="report-style-A-content-box-content">{{ methods.commencementDate() }}</div>
                                                 </div>
-                                                <div style="width: 100%; display: flex;">
-                                                    <div style="width: 30px;">◉</div>
-                                                    <div style="width: 150px; display: flex; justify-content: space-between; margin-right: 10px;">
+                                                <div style="width: 100%;" class="report-style-A-content-box">
+                                                    <div>◉</div>
+                                                    <div class="report-style-A-content-box-title width-120">
                                                         <span>완</span>
                                                         <span>수</span>
                                                         <span>년</span>
                                                         <span>월</span>
                                                         <span>일</span>
-                                                        <span>:</span>
                                                     </div>
-                                                    <div>{{ methods.completionDate() }}</div>
+                                                    <span>:</span>
+                                                    <div class="report-style-A-content-box-content">{{ methods.completionDate() }}</div>
                                                 </div>
                                             </div>
                                             
@@ -586,63 +618,3 @@ export default {
 }
 
 </script>
-
-<style lang="scss" scoped>
-
-.report {
-    font-family: sans-serif; 
-    -webkit-print-color-adjust: exact; 
-    width: 210mm; 
-    height: 297mm; 
-    box-sizing: border-box; 
-    padding: 8px;
-    font-size: 16px;
-    border: 1px dotted #9c9c9c;
-    table {width: 100%; border-collapse: collapse; table-layout: fixed;}
-    table.fixed { table-layout: fixed; }
-
-    display: flex;
-    flex-direction: column;
-
-
-
-    .content-header {
-        margin-top: 30px;
-        margin-bottom: 25px;
-    }
-    .content-body {
-        width: 85%;
-        margin: 0 auto;
-        .content-body-container {
-            width: 100%;
-            .body-1 {
-                width: 100%;
-                padding-bottom: 10px;
-                border-bottom: 1px solid #000;
-
-                .underline {
-                    width: 100%;
-                    height: 17px;
-                    background-color: #bbd1f8;
-             
-                }
-            }
-            .body-2 {
-                padding-top: 10px;          
-            }
-        }
-    }    
-    .content-footer {
-        
-        margin-top: auto;
-        margin-bottom: 50px;
-        .underline {
-            width: 85%;
-            height: 17px;
-            background-color: #ebebeb;
-        
-        }
-
-    }
-}
-</style>
