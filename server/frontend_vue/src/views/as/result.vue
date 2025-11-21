@@ -250,14 +250,23 @@
                 </dx-group-item>
                 <dx-group-item :col-span=3 :col-count=1>
                     <dx-simple-item 
-                        data-field="result_detail" 
+                        data-field="as_receipt.receipt_detail" 
                         :editor-options="{
                         ...vars.formState,
                         }">
-                        <dx-label text="처리내용" :show-colon="false" />
+                        <dx-label text="접수내용" :show-colon="false" />
                     </dx-simple-item>
                 </dx-group-item>
               </dx-group-item>
+              <dx-group-item :col-span=5 :col-count=1>
+                  <dx-simple-item 
+                      data-field="result_detail" 
+                      :editor-options="{
+                      ...vars.formState,
+                      }">
+                      <dx-label text="처리내용" :show-colon="false" />
+                  </dx-simple-item>
+              </dx-group-item>              
             </dx-group-item>
           </dx-form>
         </div>
