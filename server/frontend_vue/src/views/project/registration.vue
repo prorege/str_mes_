@@ -870,16 +870,16 @@
                       <dx-grid-item name="revertButton" location="after" />
                   </dx-grid-toolbar>
                   <template #completionReportButton>
-                    <dx-button text="계측제어조합 납품완료계" @click="methods.onReportShow('measurementDCompletion')" />
-                    <dx-button text="계측제어조합 완료계" @click="methods.onReportShow('measurementCompletion')" />
-                    <dx-button text="씨에스테크 납품완료계" @click="methods.onReportShow('csTechDCompletion')" />
-                    <dx-button text="씨에스테크 완료계" @click="methods.onReportShow('csTechCompletion')" />
-                    <dx-button text="씨에스테크 준공계" @click="methods.onReportShow('csTechCCompletion')" />
-                    <dx-button text="에스텍 납품완료계" @click="methods.onReportShow('stechDCompletion')" />
-                    <dx-button text="에스텍 완료계" @click="methods.onReportShow('stechCompletion')" />
-                    <dx-button text="에스텍 준공계" @click="methods.onReportShow('stechCCompletion')" />
-                    <dx-button text="자동제어조합 납품완료계" @click="methods.onReportShow('autoDCompletion')" />
-                    <dx-button text="자동제어조합 완료계" @click="methods.onReportShow('autoCompletion')" />
+                    <dx-button class="completion-button" text="계측제어조합 납품완료계" @click="methods.onReportShow('measurementDCompletion')" />
+                    <dx-button class="completion-button" text="계측제어조합 완료계" @click="methods.onReportShow('measurementCompletion')" />
+                    <dx-button class="completion-button" text="씨에스테크 납품완료계" @click="methods.onReportShow('csTechDCompletion')" />
+                    <dx-button class="completion-button" text="씨에스테크 완료계" @click="methods.onReportShow('csTechCompletion')" />
+                    <dx-button class="completion-button" text="씨에스테크 준공계" @click="methods.onReportShow('csTechCCompletion')" />
+                    <dx-button class="completion-button" text="에스텍 납품완료계" @click="methods.onReportShow('stechDCompletion')" />
+                    <dx-button class="completion-button" text="에스텍 완료계" @click="methods.onReportShow('stechCompletion')" />
+                    <dx-button class="completion-button" text="에스텍 준공계" @click="methods.onReportShow('stechCCompletion')" />
+                    <dx-button class="completion-button" text="자동제어조합 납품완료계" @click="methods.onReportShow('autoDCompletion')" />
+                    <dx-button class="completion-button" text="자동제어조합 완료계" @click="methods.onReportShow('autoCompletion')" />
                   </template>
                   <template #addRowButtonProjectCompletion>
                       <dx-button text="준공 추가" icon="add" @click="methods.addItemRowButton('projectCompletion')" />
@@ -3144,8 +3144,6 @@ export default {
     display: flex;
     flex-direction: column;
 
-
-
     .content-header {
         margin-top: 30px;
         margin-bottom: 25px;
@@ -3237,5 +3235,9 @@ export default {
   text-decoration: underline;
   cursor: pointer;
 }
-
+.completion-button {
+  .dx-button-content {
+    padding: 7px;
+  }
+}
 </style>

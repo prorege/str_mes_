@@ -181,4 +181,6 @@ const printReport = async (documentName, data, _grid) => {
         printWindow.close();
     }
 };
+
+
 export { printReport };
