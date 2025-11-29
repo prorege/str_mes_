@@ -236,7 +236,7 @@
                                     </div>
                                     <div style="display: flex; width: 100%;">
                                         <div style="width: 70px">시 행</div>
-                                        <div style="width: 130px;">ST+{{ methods.getCurrentDateYYMMDD() }}+01</div>
+                                        <div style="width: 130px;">ST{{ methods.getCurrentDateYYMMDD() }}01</div>
                                         <div style="width: 170px;">(씨에스테크)</div>
                                         <div style="width: 170px;">접 수</div>
                                         <div style="width: 90px;">(</div>
