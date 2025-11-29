@@ -26,6 +26,16 @@
               locate-in-menu="auto"
               widget="dxButton"
               :options="{
+                text: '사업완료보고서',
+                onClick: methods.completionReport,
+                visible: true,
+              }"
+            />
+            <dx-item
+              location="after"
+              locate-in-menu="auto"
+              widget="dxButton"
+              :options="{
                 text: '신규',
                 type: 'add',
                 icon: 'add',
@@ -936,7 +946,11 @@
 
     <popup-excution-report
       v-model:visible="vars.dlg.report.excutionReport.show"
-      :data="vars.dlg.report.excutionReport.data || null"
+      :excution-plan-id="vars.formData.id || 0"
+    />
+    <popup-completion-report
+      v-model:visible="vars.dlg.report.completionReport.show"
+      :excution-plan-id="vars.formData.id || 0"
     />
   </div>
 </template>
@@ -1020,6 +1034,7 @@ import { beforeExitConfirm, generateItemButtonOption, currentDateTime, calcPrice
 import { loadEmployee, loadWarehouse, loadDepartment, loadClientManager } from '../../utils/data-loader';
 import { getStock, setupBasicStock } from '../../data-source/setup';
 import PopupExcutionReport from '../../components/approval/popup-excution-report.vue';
+import PopupCompletionReport from '../../components/approval/popup-completion-report.vue';
 
 export default {
   components: {
@@ -1060,6 +1075,7 @@ export default {
     DxTotalItem,
     PopupItem,
     PopupExcutionReport,
+    PopupCompletionReport,
   },
   props: {
     id: [String, Number],
@@ -1094,6 +1110,7 @@ export default {
     vars.dlg.report = reactive({
       excutionReport: reactive({ show: false, data: null }),
     });
+    vars.dlg.report.completionReport = reactive({ show: false, data: null });
     vars.formData = reactive({
       project_management: null,
       id: null,
@@ -1955,68 +1972,14 @@ export default {
           alert('실행계획을 선택해 주세요.', '실행계획 미선택');
           return;
         }
-        const formData = vars.formData;
-        const totalItms = [];
-        const planItems = (await vars.dataSource.projectExcutionPlanItem.load())?.data || [];
-        const planSubcontract = (await vars.dataSource.projectExcutionPlanSubcontract.load())?.data || [];
-        const planExpense = (await vars.dataSource.projectExcutionPlanExpense.load())?.data || [];
-        const planItemsSummary = planItems.length > 0 ? {
-          type : 'material_summary',
-          supply_price : '₩' + numeral(vars.summary.planItem.supply_price).format('0,0'),
-          vat : '₩' + numeral(vars.summary.planItem.vat).format('0,0'),
-          total_price : '₩' + numeral(vars.summary.planItem.total_price).format('0,0'),
-          completion_price : '₩' + numeral(vars.summary.planItem.completion_price).format('0,0'),
-        } : null;
-        const planSubcontractSummary = planSubcontract.length > 0 ? {
-          type : 'subcontract_summary',
-          supply_price : '₩' + numeral(vars.summary.planSubcontract.supply_price).format('0,0'),
-          vat : '₩' + numeral(vars.summary.planSubcontract.vat).format('0,0'),
-          total_price : '₩' + numeral(vars.summary.planSubcontract.total_price).format('0,0'),
-          completion_price : '₩' + numeral(vars.summary.planSubcontract.completion_price).format('0,0'),
-        } : null;
-        const planExpenseSummary = planExpense.length > 0 ? {
-          type : 'expense_summary',
-          supply_price : '₩' + numeral(vars.summary.planExpense.supply_price).format('0,0'),
-          vat : '₩' + numeral(vars.summary.planExpense.vat).format('0,0'),
-          total_price : '₩' + numeral(vars.summary.planExpense.total_price).format('0,0'),
-          completion_price : '₩' + numeral(vars.summary.planExpense.completion_price).format('0,0'),
-        } : null;
-        if (planItems.length > 0) {
-          totalItms.push( { type: 'material_title', title: '주요자재' })
-          totalItms.push(
-           ...planItems.map(item => {
-            const clonedItem = JSON.parse(JSON.stringify(item));
-            clonedItem['type'] = 'material_data';
-            return clonedItem;
-           }) 
-          )
-          totalItms.push(planItemsSummary);
-        }
-        if (planSubcontract.length > 0) {
-          totalItms.push( { type: 'subcontract_title', title: '외주공사' })
-          totalItms.push(
-            ...planSubcontract.map(item => {
-              const clonedItem = JSON.parse(JSON.stringify(item));
-              clonedItem['type'] = 'subcontract_data';
-              return clonedItem;
-            })
-          )
-          totalItms.push(planSubcontractSummary);
-        }
-        if (planExpense.length > 0) {
-          totalItms.push( { type: 'expense_title', title: '경비' })
-          totalItms.push(
-            ...planExpense.map(item => {
-              const clonedItem = JSON.parse(JSON.stringify(item));
-              clonedItem['type'] = 'expense_data';
-              return clonedItem;
-            })
-          )
-          totalItms.push(planExpenseSummary);
-        }
-    
         vars.dlg.report.excutionReport.show = true;
-        vars.dlg.report.excutionReport.data = { totalItms: totalItms, formData: formData };
+      },
+      async completionReport() {
+        if (!vars.formData.id) {
+          alert('실행계획을 선택해 주세요.', '실행계획 미선택');
+          return;
+        }
+        vars.dlg.report.completionReport.show = true;
       },
       async updateUploadFile(element){
         for (const key in element.data){

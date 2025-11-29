@@ -68,7 +68,7 @@
                     <div class="report">
                         <div class="content-header">
                             <div class="content-header-title">
-                                <span>사업실행보고서</span>
+                                <span>사업완료보고서</span>
                             </div>
                         </div>
                         <div class="content-header-approval-line">
@@ -480,8 +480,7 @@ export default {
             },
             async getApprovalStatus() {
                 if (props.excutionPlanId > 0) {
-                    getApproval([{ name: 'fk_excution_plan_id', op: 'eq', val: props.excutionPlanId || 0}, { name: 'fk_document_id', op: 'eq', val: 2}]).load().then((response) => {
-                        console.log("response : ", response);
+                    getApproval([{ name: 'fk_excution_plan_id', op: 'eq', val: props.excutionPlanId || 0}, { name: 'fk_document_id', op: 'eq', val: 3}]).load().then((response) => {
                         if(response.totalCount > 0){
                         vars.dataSource.approvalStatus = response.data[0]['approval_status'] || '상신요청';
                         } else {
@@ -497,7 +496,7 @@ export default {
                     const { data : approvalData } = await approval.load({
                         filter: [
                             ['fk_excution_plan_id', '=', props.excutionPlanId],
-                            ['fk_document_id', '=', 2]
+                            ['fk_document_id', '=', 3]
                         ]
                     })
                     if (approvalData.length > 0) {
@@ -507,7 +506,7 @@ export default {
                             filter: [
                                 ['fk_request_emp_id', '=', authService.user?.emp_id || 0],
                                 'and',
-                                ['fk_document_id', '=', 2]
+                                ['fk_document_id', '=', 3]
                             ],
                             sort: [
                                 {
@@ -559,13 +558,13 @@ export default {
 
                 try {
                     const approvalFormData = {
-                        document_name : '사업실행계획보고서',
+                        document_name : '사업완료보고서',
                         fk_excution_plan_id: props.excutionPlanId,
                         fk_company_id: authService.getCompanyId(),
-                        fk_document_id: 2,
+                        fk_document_id: 3,
                         approval_date: currentDateTime(),
                         approval_status: '상신완료',
-                        approval_document: {id: 2},
+                        approval_document: {id: 3},
                         fk_request_emp_id: authService.user?.emp_id,
                     }
                     const { data : approvalData } = await approval.insert(approvalFormData);
@@ -692,7 +691,7 @@ export default {
                 const result = await confirm('삭제하시겠습니까?', '삭제');
                 if (!result) return;
                 try {
-                    approval.load({ filter: [['fk_excution_plan_id', '=', props.excutionPlanId], ['fk_document_id', '=', 2]] }).then(async (response) => {
+                    approval.load({ filter: [['fk_excution_plan_id', '=', props.excutionPlanId], ['fk_document_id', '=', 3]] }).then(async (response) => {
                         if (response.totalCount > 0) {
                             const _find = response.data[0].approval_line_result.find(item => item.approval_result !== "대기중");
                             if (_find) {

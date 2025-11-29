@@ -57,12 +57,12 @@
           <dx-column caption="상신일자" data-field="approval_date" data-type="date" format="yyyy-MM-dd" :allow-editing="false" />
           <dx-column caption="문서명" data-field="approval_document.document_name" :allow-editing="false" />
           <dx-column caption="상신번호" data-field="approval_number" :allow-editing="false" />
-          <dx-column caption="문서명" data-field="approval_attachment" cell-template="attachment-template" :allow-editing="false"  :allow-sorting="false" alignment="center" width="110" />
+          <dx-column caption="결재문서" data-field="" cell-template="approval-document-template" :allow-editing="false"  :allow-sorting="false" alignment="center" width="110" />
           <dx-column caption="상신상황" data-field="approval_status" :allow-editing="false" alignment="center" cell-template="approval-status-template" />
           <dx-column caption="결재처리" alignment="center" data-field="approval_line_result" cell-template="approval-result-template" :allow-editing="false" :allow-sorting="false" />
           <dx-column caption="반려사유" data-field="approval_reason" :allow-editing="false" />
           <dx-column caption="결재처리일자" data-field="approval_result_date" data-type="date" format="yyyy-MM-dd" :allow-editing="false" />
-          <template #attachment-template="{ data }">
+          <template #approval-document-template="{ data }">
             <span class="attachment-template-button" @click="methods.documentPopupShow(data)">문서보기</span>
           </template>
           <template #approval-result-template="{ data }">
@@ -128,6 +128,16 @@
         </dx-scroll-view>
       </template>
     </dx-popup>
+    <popup-excution-report
+      v-model:visible="vars.dlg.excutionReport.show"
+      :excution-plan-id="vars.dlg.excutionReport.excutionPlanId"
+      @update:visible="methods.onPopupHidden('excution-report')"
+    />
+    <popup-completion-report
+      v-model:visible="vars.dlg.completionReport.show"
+      :excution-plan-id="vars.dlg.completionReport.excutionPlanId"
+      @update:visible="methods.onPopupHidden('completion-report')"
+    />
   </div>
 </template>
 
@@ -150,7 +160,8 @@ import { approval, getApproval, approvalDocumentStatus } from '../../data-source
 import authService from '@/auth';
 import stateStore from '@/utils/state-store';
 import DataOrderReport from '@/components/approval/data-order-report.vue';
-
+import PopupExcutionReport from '../../components/approval/popup-excution-report.vue';
+import PopupCompletionReport from '../../components/approval/popup-completion-report.vue';
 export default {
   components: {
     DxButton,
@@ -164,6 +175,8 @@ export default {
     DxLoadPanel,
     DataOrderReport,
     DxScrollView,
+    PopupExcutionReport,
+    PopupCompletionReport
   },
   setup() {
     const vars = { dlg: {} };
@@ -178,7 +191,8 @@ export default {
     });
     vars.dlg.attachment = reactive({ show: false });
     vars.dlg.orderReport = reactive({ show: false, fk_business_id: 0, fk_request_emp_id: 0 });
-
+    vars.dlg.excutionReport = reactive({ show: false, excutionPlanId: 0, data: null });
+    vars.dlg.completionReport = reactive({ show: false, excutionPlanId: 0, data: null });
     vars.dataSource = reactive({
       employee: [],
       approval_status: [],
@@ -244,20 +258,29 @@ export default {
             vars.dataSource.approval_status = response['상신상황'];
           })
       },
-      async documentPopupShow(data) {
+      async documentPopupShow({data}) {
+        console.log("data : ", data);
         try {
-          const formData = data.data;
-          if (formData.fk_business_id) {
-            vars.dlg.orderReport.fk_business_id = formData.fk_business_id;
+          if (data.fk_document_id == 1) {
+            const formData = data;
+            vars.dlg.orderReport.data = formData;
+            if (formData.fk_business_id) {
+              vars.dlg.orderReport.fk_business_id = formData.fk_business_id;
+            }
+            vars.dlg.orderReport.show = true;
+            vars.dlg.orderReport.fk_request_emp_id = formData.fk_request_emp_id;
+          } else if (data.fk_document_id == 2) {
+            vars.dlg.excutionReport.excutionPlanId = data.fk_excution_plan_id;
+            vars.dlg.excutionReport.show = true;
+          } else if (data.fk_document_id == 3) {
+            vars.dlg.completionReport.excutionPlanId = data.fk_excution_plan_id;
+            vars.dlg.completionReport.show = true;
           }
-          vars.dlg.orderReport.show = true;
-          vars.dlg.orderReport.fk_request_emp_id = formData.fk_request_emp_id;
 
         } catch (error) {
           alert("오류 발생<br/>관리자에게 문의하세요", "오류")
           console.log("error : ", error);
         }
-      
       },
       openAttachment(data){
         const file_path = data.row.data.file_path;
@@ -283,6 +306,24 @@ export default {
         vars.dlg.approval.data = null;
         vars.dlg.approval.formData = null;
         vars.grid['status'].refresh();
+      },
+      onPopupHidden(document) {
+        if (document == 'order-report') {
+          vars.dlg.orderReport.data = null;
+          vars.dlg.orderReport.fk_business_id = 0;
+          vars.dlg.orderReport.fk_request_emp_id = 0;
+          vars.dlg.orderReport.show = false;
+        } else if (document == 'excution-report') {
+          vars.dlg.excutionReport.excutionPlanId = 0;
+          vars.dlg.excutionReport.data = null;
+          vars.dlg.excutionReport.show = false;
+          vars.grid['status'].refresh();
+        } else if (document == 'completion-report') {
+          vars.dlg.completionReport.excutionPlanId = 0;
+          vars.dlg.completionReport.data = null;
+          vars.dlg.completionReport.show = false;
+          vars.grid['status'].refresh();
+        }
       },
     };
 

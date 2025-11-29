@@ -8,7 +8,7 @@ from backend_model.database import DBManager
 from backend_model.table_common import Companies
 from sqlalchemy.dialects.mysql import MEDIUMTEXT
 from backend_model.table_base import BaseEmployee
-from backend_model.table_project import ProjectBusiness
+from backend_model.table_project import ProjectBusiness, ProjectExcutionPlan
 
 db = DBManager.db
 
@@ -63,12 +63,14 @@ class Approval(db.Model):
     etc = db.Column('etc', db.Text, comment='비고')
     fk_business_id = db.Column('fk_business_id', db.Integer, db.ForeignKey(ProjectBusiness.id), comment='영업 FK')
     fk_document_id = db.Column('fk_document_id', db.Integer, db.ForeignKey(ApprovalDocument.id), comment='문서 FK')
+    fk_excution_plan_id = db.Column('fk_excution_plan_id', db.Integer, db.ForeignKey(ProjectExcutionPlan.id), comment='사업실행계획 FK')
     fk_company_id = db.Column('fk_company_id', db.Integer, db.ForeignKey(Companies.id), comment='회사 FK')
     fk_request_emp_id = db.Column('fk_request_emp_id', db.Integer, db.ForeignKey(BaseEmployee.id, ondelete='CASCADE', onupdate='CASCADE'), comment='요청자 FK')
     request_employee = db.relationship('BaseEmployee', foreign_keys=[fk_request_emp_id])
     approval_document = db.relationship('ApprovalDocument', foreign_keys=[fk_document_id])
     approval_attachment = db.relationship('ApprovalAttachment', lazy='dynamic')
     approval_line_result = db.relationship('ApprovalLineResult', lazy='dynamic')
+    excution_plan = db.relationship('ProjectExcutionPlan', foreign_keys=[fk_excution_plan_id])
 
 class ApprovalAttachment(db.Model):
     __tablename__ = 'approval_attachment'
@@ -111,7 +113,7 @@ class ApprovalLineResult(db.Model):
     fk_approval_line_id = db.Column('fk_approval_line_id', db.Integer, db.ForeignKey(ApprovalLine.id), comment='결재선 FK')
     fk_approval_emp_id = db.Column('fk_approval_emp_id', db.Integer, db.ForeignKey(BaseEmployee.id, ondelete='CASCADE', onupdate='CASCADE'), comment='결재자 FK')
     fk_request_emp_id = db.Column('fk_request_emp_id', db.Integer, db.ForeignKey(BaseEmployee.id, ondelete='CASCADE', onupdate='CASCADE'), comment='상신자 FK')
-    fk_approval_id = db.Column('fk_approval_id', db.Integer, db.ForeignKey(Approval.id), comment='결재 FK')
+    fk_approval_id = db.Column('fk_approval_id', db.Integer, db.ForeignKey(Approval.id, ondelete='CASCADE', onupdate='CASCADE'), comment='결재 FK')
     approval_line = db.relationship('ApprovalLine', foreign_keys=[fk_approval_line_id])
     approval = db.relationship('Approval', foreign_keys=[fk_approval_id])
     request_employee = db.relationship('BaseEmployee', foreign_keys=[fk_request_emp_id])
