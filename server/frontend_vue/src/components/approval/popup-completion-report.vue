@@ -75,18 +75,18 @@
                             <table class="approval-line-table">
                                 <tr>
                                     <td rowspan="3" style="writing-mode: vertical-rl; text-orientation: upright; letter-spacing: 0px;">결 재</td>
-                                    <th v-for="line in vars.dataSource.approvalLine" :key="line.id">{{ line.line_header }}</th>
+                                    <th style="width: 50px;" v-for="line in vars.dataSource.approvalLine" :key="line.id">{{ line.line_header }}</th>
                                 </tr>
                                 <tr style="height: 35px;">
-                                    <td v-for="line in vars.dataSource.approvalLine" :key="line.id">
+                                    <td style="width: 50px;" v-for="line in vars.dataSource.approvalLine" :key="line.id">
                                         <div class="approval-sign-box">
                                         <img v-if="signImages[line.approval_employee?.id]?.hasImage" :src="signImages[line.approval_employee?.id]?.src" alt="" style="" class="approval-sign-image">
                                         <span>{{ line.approval_employee?.emp_name || '' }}</span>
                                         </div>
                                     </td>
                                 </tr>
-                                <tr style="height: 20px;">
-                                    <td v-for="line in vars.dataSource.approvalLine" :key="line.id">
+                                <tr style="height: 15px;">
+                                    <td style="width: 50px;" v-for="line in vars.dataSource.approvalLine" :key="line.id">
                                         <div class="approval-sign-box">
                                             <span>{{ line.approval_date ? moment(line.approval_date).format('YYMMDD') : '' }}</span>
                                         </div>
@@ -804,7 +804,7 @@ export default {
 
         }
         .content-header-approval-line {
-            width: 98%;
+            width: 100%;
             display: flex;
             justify-content: right;
             
@@ -819,8 +819,8 @@ export default {
                         top: 50%;
                         left: 50%;
                         transform: translate(-50%, -50%);
-                        width: 45px;
-                        height: 45px;
+                        width: 35px;
+                        height: 35px;
                         opacity: 0.7;   
                     }
                 }
@@ -858,7 +858,7 @@ export default {
         }
         .content-body {
             margin-top: 20px;
-            width: 98%;
+            width: 100%;
             .content-area-1 {
                 width: 100%;
                 background-color: #F7F7F7;
