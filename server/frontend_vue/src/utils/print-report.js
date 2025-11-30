@@ -35,7 +35,8 @@ const pdfToImages = async (pdfUrl) => {
     return images; 
 };
 
-const printReport = async (documentName, data, _grid) => {
+const printReport = async (documentName, data, _grid, options = {}) => {
+    const { landscape = false } = options; 
 
     let attachmentHtml = '';
  
@@ -76,7 +77,7 @@ const printReport = async (documentName, data, _grid) => {
         <meta charset="utf-8">
         <style>
             @page { 
-                size: A4; 
+                size: A4 ${landscape ? 'landscape' : 'portrait'};
                 margin: 0; 
             }
             * { 
@@ -89,8 +90,8 @@ const printReport = async (documentName, data, _grid) => {
                 padding: 0; 
             }
             .print-page {
-                width: 210mm;
-                height: 297mm;
+                width: ${landscape ? '297mm' : '210mm'};
+                height: ${landscape ? '210mm' : '297mm'};
                 page-break-after: always;
                 page-break-inside: avoid;
                 display: flex;
@@ -101,7 +102,7 @@ const printReport = async (documentName, data, _grid) => {
                 page-break-after: auto;
             }
             .print-page img {
-                width: 210mm;
+                width: ${landscape ? '292mm' : '205mm'};
                 height: auto;
                 display: block;
             }

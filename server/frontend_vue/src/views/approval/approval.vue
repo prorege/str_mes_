@@ -140,6 +140,13 @@
       :approval-data="vars.dlg.completionReport.data"
       @update:visible="methods.onPopupHidden('completion-report')"
     />
+    <popup-progress-payment-report
+      v-model:visible="vars.dlg.progressPaymentReport.show"
+      :project-id="vars.dlg.progressPaymentReport.projectId"
+      :mode="true"
+      :approval-data="vars.dlg.progressPaymentReport.data"
+      @update:visible="methods.onPopupHidden('progress-payment-report')"
+    />
   </div>
 </template>
 
@@ -170,6 +177,7 @@ import { baseEmployee } from '../../data-source/base';
 import DataOrderReport from '@/components/approval/data-order-report.vue';
 import PopupExcutionReport from '../../components/approval/popup-excution-report.vue';
 import PopupCompletionReport from '../../components/approval/popup-completion-report.vue';
+import PopupProgressPaymentReport from '../../components/approval/popup-progress-payment-report.vue';
 export default {
   components: {
     DxButton,
@@ -183,7 +191,8 @@ export default {
     DxScrollView,
     DataOrderReport,
     PopupExcutionReport,
-    PopupCompletionReport
+    PopupCompletionReport,
+    PopupProgressPaymentReport
   },
   setup() {
     const router = useRouter();
@@ -196,6 +205,7 @@ export default {
     vars.dlg.orderReport = reactive({ show: false, fk_business_id: 0, fk_request_emp_id: 0, data: null });
     vars.dlg.excutionReport = reactive({ show: false, excutionPlanId: 0, data: null });
     vars.dlg.completionReport = reactive({ show: false, excutionPlanId: 0, data: null });
+    vars.dlg.progressPaymentReport = reactive({ show: false, projectId: 0, data: null });
     vars.formData = reactive({
       manager: '',
       approval_result: '',
@@ -307,6 +317,10 @@ export default {
             vars.dlg.completionReport.excutionPlanId = data.approval.fk_excution_plan_id;
             vars.dlg.completionReport.show = true;
             vars.dlg.completionReport.data = data;
+          } else if (data.approval.fk_document_id == 4) {
+            vars.dlg.progressPaymentReport.projectId = data.approval.fk_project_id;
+            vars.dlg.progressPaymentReport.show = true;
+            vars.dlg.progressPaymentReport.data = data;
           }
       
 
@@ -459,6 +473,11 @@ export default {
           vars.dlg.completionReport.excutionPlanId = 0;
           vars.dlg.completionReport.data = null;
           vars.dlg.completionReport.show = false;
+          vars.grid['status'].refresh();
+        } else if (document == 'progress-payment-report') {
+          vars.dlg.progressPaymentReport.projectId = 0;
+          vars.dlg.progressPaymentReport.data = null;
+          vars.dlg.progressPaymentReport.show = false;
           vars.grid['status'].refresh();
         }
       },

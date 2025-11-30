@@ -13,6 +13,17 @@
               locate-in-menu="auto"
               widget="dxButton"
               :options="{
+                text: '기성고검토보고서',
+                icon: '',
+                onClick: methods.progressPaymentReport,
+                visible: true
+              }"
+            />
+            <dx-item
+              location="after"
+              locate-in-menu="auto"
+              widget="dxButton"
+              :options="{
                 text: '신규',
                 type: 'add',
                 icon: 'add',
@@ -758,7 +769,9 @@
                     <dx-grid-button name="edit" @click="methods.onEditRowButtonCostLog" />
                     <dx-grid-button name="delete" @click="methods.onDeleteRowButtonCostLog" />
                   </dx-column>
-                  <dx-column caption="일자" data-field="cost_date" data-type="date" format="yyyy-MM-dd" :set-cell-value="methods.setCostDate" />
+                  <dx-column caption="일자" data-field="cost_date" data-type="date" format="yyyy-MM-dd" :set-cell-value="methods.setCostDate">
+                    <dx-grid-required-rule message="일자는 필수 입력 항목입니다." />
+                  </dx-column>
                   <dx-column caption="전월기성" data-field="prev_cost" data-type="number" format="currency" :allow-editing="false" />
                   <dx-column caption="당월기성" data-field="curr_cost" data-type="number" format="currency" :set-cell-value="methods.setCurrCost" />
                   <dx-column caption="누적기성" data-field="cumulative_cost" data-type="number" format="currency" :allow-editing="false" />
@@ -818,9 +831,11 @@
                     <dx-grid-button name="edit" @click="methods.onEditRowButtonOutCostLog" />
                     <dx-grid-button name="delete" @click="methods.onDeleteRowButtonOutCostLog" />
                   </dx-column>
-                  <dx-column caption="일자" data-field="cost_date" data-type="date" format="yyyy-MM-dd" :set-cell-value="methods.setOutCostDate" />
+                  <dx-column caption="일자" data-field="cost_date" data-type="date" format="yyyy-MM-dd" :set-cell-value="methods.setOutCostDate">
+                    <dx-grid-required-rule message="일자는 필수 입력 항목입니다." />
+                  </dx-column>
                   <dx-column caption="전월기성" data-field="prev_cost" data-type="number" format="currency" :allow-editing="false" />
-                  <dx-column caption="당월기성" data-field="curr_cost" data-type="number" format="currency" :set-cell-value="methods.setCurrCost" />
+                  <dx-column caption="당월기성" data-field="curr_cost" data-type="number" format="currency" :set-cell-value="methods.setOutCurrCost" />
                   <dx-column caption="누적기성" data-field="cumulative_cost" data-type="number" format="currency" :allow-editing="false" />
                   <dx-column caption="잔여기성" data-field="remaining_cost" data-type="number" format="currency" :allow-editing="false" />
                   <dx-column caption="총기성률" data-field="total_cost_rate" data-type="number" format="percent" :allow-editing="false" />
@@ -1319,6 +1334,10 @@
       :fk_project_management_id="vars.formData.id"
       v-model:visible="vars.dlg.report.autoCommencement.show"
     />
+    <popup-progress-payment-report
+      v-model:visible="vars.dlg.report.progressPayment.show"
+      :project-id="vars.formData.id || 0"
+    />
   </div>
 </template>
 
@@ -1341,6 +1360,7 @@ import {
   DxDataGrid,
   DxColumn,
   DxEditing,
+  DxRequiredRule as DxGridRequiredRule,
   DxSelection,
   DxFilterRow,
   DxPaging,
@@ -1378,7 +1398,8 @@ import {
   getProjectBusinessNote,
   getProjectConstruction,
   projectExcutionPlan,
-  projectBusiness
+  projectBusiness,
+  projectExcutionPlanSubcontract
 } from '../../data-source/project';
 import {
   baseCodeLoader,
@@ -1424,6 +1445,7 @@ import PopupCsTechCommencementReport from '@/components/project/popup-cs-tech-co
 import PopupStechConstructionReport from '@/components/project/popup-stech-construction-report.vue';
 import PopupStechCommencementReport from '@/components/project/popup-stech-commencement-report.vue';
 import PopupAutoCommencementReport from '@/components/project/popup-auto-commencement-report.vue';
+import PopupProgressPaymentReport from '@/components/approval/popup-progress-payment-report.vue';
 export default {
   components: {
     DxToolbar,
@@ -1457,6 +1479,7 @@ export default {
     DataGridProject,
     DataGridItem,
     DxRequiredRule,
+    DxGridRequiredRule,
     DxGridToolbar,
     DxGridItem,
     PopupClientDetail,
@@ -1487,6 +1510,7 @@ export default {
     PopupStechConstructionReport,
     PopupStechCommencementReport,
     PopupAutoCommencementReport,
+    PopupProgressPaymentReport,
   },
   props: {
     id: [String, Number],
@@ -1546,6 +1570,7 @@ export default {
       stechCommencement: reactive({ show: false }),
       autoCommencement: reactive({ show: false }),
     }
+    vars.dlg.report.progressPayment = reactive({ show: false });
     vars.formData = reactive({
       business: null,
       id: null,
@@ -1740,6 +1765,7 @@ export default {
         methods.gridProjectDocumentRefresh(id);
         methods.gridProjectDailyLogRefresh(id);
         methods.gridProjectCostLogRefresh(id);
+        methods.gridProjectOutCostLogRefresh(id);
         methods.gridProjectCompletionRefresh(id);
         methods.gridMaterialApprovalRefresh(id);
         methods.gridProjectConstructionRefresh(id);
@@ -1853,6 +1879,7 @@ export default {
         methods.gridProjectDocumentRefresh();
         methods.gridProjectDailyLogRefresh();
         methods.gridProjectCostLogRefresh();
+        methods.gridProjectOutCostLogRefresh();
         methods.gridProjectCompletionRefresh();
         methods.gridQuoteItemsRefresh();
         methods.gridBusinessCostRefresh();
@@ -1991,6 +2018,15 @@ export default {
         if (vars.grid.projectCostLog) {
           vars.grid.projectCostLog.cancelEditData();  
           vars.grid.projectCostLog.refresh();
+        }
+      },
+      async gridProjectOutCostLogRefresh(id) {
+        if (!id) id = 0;
+        vars.filter.projectOutCostLog[0].val = id;
+        vars.dataSource.projectOutCostLog.defaultFilters = vars.filter.projectOutCostLog;
+        if (vars.grid.projectOutCostLog) {
+          vars.grid.projectOutCostLog.cancelEditData();
+          vars.grid.projectOutCostLog.refresh();
         }
       },
       async gridProjectCompletionRefresh(id) {
@@ -2149,6 +2185,7 @@ export default {
           const projectDocument = vars.grid.projectDocument;
           const projectDailyLog = vars.grid.projectDailyLog;
           const projectCostLog = vars.grid.projectCostLog;
+          const projectOutCostLog = vars.grid.projectOutCostLog;
           const projectCompletion = vars.grid.projectCompletion;
           const materialApproval = vars.grid.materialApproval;
           const projectConstruction = vars.grid.projectConstruction;
@@ -2200,6 +2237,10 @@ export default {
 
             if (projectCostLog) {
               await projectCostLog.saveEditData();
+            }
+
+            if (projectOutCostLog) {
+              await projectOutCostLog.saveEditData();
             }
 
             if (projectCompletion) {
@@ -2260,6 +2301,10 @@ export default {
               await projectCostLog.saveEditData();
             }
 
+            if (projectOutCostLog && projectOutCostLog.hasEditData()) {
+              await projectOutCostLog.saveEditData();
+            }
+
             if (projectCompletion && projectCompletion.hasEditData()) {
               await projectCompletion.saveEditData();
             }
@@ -2317,6 +2362,7 @@ export default {
           newData.cost_date = moment(value).format('YYYY-MM-DD');
           return;
         }
+        
         const maxKeyRow = filteredRows.reduce((max, row) => {
           return (row.data.id > max.data.id) ? row : max;
         }, filteredRows[0]);
@@ -2345,7 +2391,6 @@ export default {
 
         const newCostDate = moment(value).format('YYYY-MM-DD');
         
-    
         if (moment(maxKeyRow.data.cost_date).isBefore(newCostDate)) {
           newData.cost_date = newCostDate;
         } else {
@@ -2360,6 +2405,16 @@ export default {
         newData.remaining_cost = remaining_cost - value;
         newData.cumulative_cost = cumulative_cost + value;
         newData.total_cost_rate = (newData.cumulative_cost / vars.formData.company_amount);
+      },
+      setOutCurrCost(newData, value, currentRowData){
+        const remaining_cost = currentRowData.remaining_cost + currentRowData.curr_cost;
+        const cumulative_cost = currentRowData.cumulative_cost - currentRowData.curr_cost;
+   
+        newData.curr_cost = value;
+        newData.remaining_cost = remaining_cost - value;
+        newData.cumulative_cost = cumulative_cost + value;
+        newData.total_cost_rate = (newData.cumulative_cost / (remaining_cost + cumulative_cost));
+
       },
       onEditRowButtonCostLog(e){
         const grid = vars.grid.projectCostLog.getVisibleRows()
@@ -2434,6 +2489,7 @@ export default {
             methods.gridProjectDocumentRefresh();
             methods.gridProjectDailyLogRefresh();
             methods.gridProjectCostLogRefresh();
+            methods.gridProjectOutCostLogRefresh();
             methods.gridProjectCompletionRefresh();
             methods.gridMaterialApprovalRefresh();
             methods.gridProjectConstructionRefresh();
@@ -2817,9 +2873,51 @@ export default {
       },
       async addItemRowButton(item){
         const grid = vars.grid[item];
-        if(grid){
-          await grid.addRow();
+        if (!grid) return;
+
+        if (item === 'projectOutCostLog') {
+          if (!vars.formData.fk_excution_plan_id) {
+            alert('실행계획이 존재하지 않습니다', '외주기성 추가');
+            return;
+          }
+
+          const subcontract = await projectExcutionPlanSubcontract.load({
+            filter: [['fk_project_excution_plan_id', '=', vars.formData.fk_excution_plan_id]]
+          });
+
+          if (subcontract?.totalCount <= 0) {
+            alert('실행계획에 외주공사가 존재하지 않습니다', '외주기성 추가');
+            return;
+          }
+
+          const visibleRows = grid.getVisibleRows();
+          
+          // 첫 행 추가 시 초기값 설정
+          if (visibleRows.length === 0) {
+            const amount = subcontract?.data?.reduce((acc, curr) => acc + curr.expect_amount, 0) || 0;
+            if (amount <= 0) {
+              alert('외주공사 예정금액이 0원입니다', '외주기성 추가');
+              return;
+            }
+
+            grid.on("initNewRow", (e) => {
+              e.data.prev_cost = 0;
+              e.data.curr_cost = 0;
+              e.data.cumulative_cost = 0;
+              e.data.remaining_cost = amount;
+              e.data.total_cost_rate = 0;
+              e.data.register = authService.getUserName();
+              e.data.register_date = currentDateTime();
+            });
+            await grid.addRow();
+            grid.off("initNewRow");
+          } else {
+            await grid.addRow();
+          }
+          return;
         }
+
+        await grid.addRow();
       },
       async itemSaveButton(item){
         if(!vars.formData.id) return;
@@ -2828,7 +2926,7 @@ export default {
           await grid.saveEditData();
         }
       },
-      initNewRow(e, item){
+      async initNewRow(e, item){
         const userName = authService.getUserName();
         if(item == 'projectParticipant'){
           // e.data.project_manager = userName;
@@ -2855,11 +2953,7 @@ export default {
         }else if(item == 'projectOutCostLog') {
           const getVisibleRows = vars.grid.projectOutCostLog.getVisibleRows();
           if(getVisibleRows.length <= 0){
-            e.data.prev_cost = 0;
-            e.data.curr_cost = 0;
-            e.data.cumulative_cost = 0;
-            e.data.remaining_cost = vars.formData.company_amount;
-            e.data.total_cost_rate = 0;
+            return;
           }else{
             e.data.prev_cost = getVisibleRows[getVisibleRows.length - 1].data.cumulative_cost;
             e.data.curr_cost = 0;
@@ -3109,7 +3203,14 @@ export default {
       },
       onReportHiding(reportType){
         vars.dlg.report[reportType].show = false;
-      }
+      },
+      progressPaymentReport() {
+        if (!vars.formData.id) {
+          alert('프로젝트를 선택해 주세요.', '프로젝트 미선택');
+          return;
+        }
+        vars.dlg.report.progressPayment.show = true;
+      },
     };
 
     watch(

@@ -134,17 +134,30 @@ class LibApprovalLineResult(object):
               
                 if closing_yn:
                     current_line_order = result['approval_line']['line_order']
+                    current_line_type = result.get('line_type') or result.get('approval_line', {}).get('line_type')
                     current_approval = result['approval']
                     
                     if current_approval and current_approval['fk_document_id']:
                         document_id = current_approval['fk_document_id']
-                        next_approval_line = db.session.query(ApprovalLine).filter(
-                            ApprovalLine.fk_document_id == document_id,
-                            ApprovalLine.fk_request_emp_id == current_approval['fk_request_emp_id'],
-                            ApprovalLine.fk_approval_emp_id != None,
-                            ApprovalLine.fk_approval_emp_id != '',
-                            ApprovalLine.line_order > current_line_order
-                        ).order_by(ApprovalLine.line_order.asc()).first()
+                        
+                        if current_line_type is not None:
+                            next_approval_line = db.session.query(ApprovalLine).filter(
+                                ApprovalLine.fk_document_id == document_id,
+                                ApprovalLine.fk_request_emp_id == current_approval['fk_request_emp_id'],
+                                ApprovalLine.fk_approval_emp_id != None,
+                                ApprovalLine.fk_approval_emp_id != '',
+                                ApprovalLine.line_type == current_line_type,
+                                ApprovalLine.line_order > current_line_order
+                            ).order_by(ApprovalLine.line_order.asc()).first()
+                        else:
+                            next_approval_line = db.session.query(ApprovalLine).filter(
+                                ApprovalLine.fk_document_id == document_id,
+                                ApprovalLine.fk_request_emp_id == current_approval['fk_request_emp_id'],
+                                ApprovalLine.fk_approval_emp_id != None,
+                                ApprovalLine.fk_approval_emp_id != '',
+                                ApprovalLine.line_type == None,
+                                ApprovalLine.line_order > current_line_order
+                            ).order_by(ApprovalLine.line_order.asc()).first()
 
                         if next_approval_line:
                             next_line_result = db.session.query(ApprovalLineResult).filter(

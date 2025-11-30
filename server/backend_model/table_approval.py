@@ -8,7 +8,7 @@ from backend_model.database import DBManager
 from backend_model.table_common import Companies
 from sqlalchemy.dialects.mysql import MEDIUMTEXT
 from backend_model.table_base import BaseEmployee
-from backend_model.table_project import ProjectBusiness, ProjectExcutionPlan
+from backend_model.table_project import ProjectBusiness, ProjectExcutionPlan, ProjectManagement
 
 db = DBManager.db
 
@@ -66,6 +66,7 @@ class Approval(db.Model):
     fk_excution_plan_id = db.Column('fk_excution_plan_id', db.Integer, db.ForeignKey(ProjectExcutionPlan.id), comment='사업실행계획 FK')
     fk_company_id = db.Column('fk_company_id', db.Integer, db.ForeignKey(Companies.id), comment='회사 FK')
     fk_request_emp_id = db.Column('fk_request_emp_id', db.Integer, db.ForeignKey(BaseEmployee.id, ondelete='CASCADE', onupdate='CASCADE'), comment='요청자 FK')
+    fk_project_id = db.Column('fk_project_id', db.Integer, db.ForeignKey(ProjectManagement.id, ondelete='CASCADE', onupdate='CASCADE'), comment='프로젝트 FK')
     request_employee = db.relationship('BaseEmployee', foreign_keys=[fk_request_emp_id])
     approval_document = db.relationship('ApprovalDocument', foreign_keys=[fk_document_id])
     approval_attachment = db.relationship('ApprovalAttachment', lazy='dynamic')
@@ -91,6 +92,7 @@ class ApprovalLine(db.Model):
     created = db.Column('created', db.DateTime, default=datetime.now, comment='생성시간')
     line_order = db.Column('line_order', db.Integer, comment='결재순서')
     line_header = db.Column('line_header', db.String(48), comment='직급, 직책, 부서')
+    line_type = db.Column('line_type', db.Integer, comment='결재선 유형')
     fk_approval_emp_id = db.Column('fk_approval_emp_id', db.Integer, db.ForeignKey(BaseEmployee.id, ondelete='CASCADE', onupdate='CASCADE'), comment='결재자 FK')
     fk_request_emp_id = db.Column('fk_request_emp_id', db.Integer, db.ForeignKey(BaseEmployee.id, ondelete='CASCADE', onupdate='CASCADE'), comment='상신자 FK')
     fk_document_id = db.Column('fk_document_id', db.Integer, db.ForeignKey(ApprovalDocument.id), comment='문서 FK')
@@ -110,6 +112,7 @@ class ApprovalLineResult(db.Model):
     approval_date = db.Column('approval_date', db.DateTime, comment='결재일자')
     closing_yn = db.Column('closing_yn', db.Boolean, server_default='0', comment='종결여부')
     active_yn = db.Column('active_yn', db.Boolean, server_default='0', comment='활성여부')
+    line_type = db.Column('line_type', db.Integer, comment='결재선 유형')
     fk_approval_line_id = db.Column('fk_approval_line_id', db.Integer, db.ForeignKey(ApprovalLine.id), comment='결재선 FK')
     fk_approval_emp_id = db.Column('fk_approval_emp_id', db.Integer, db.ForeignKey(BaseEmployee.id, ondelete='CASCADE', onupdate='CASCADE'), comment='결재자 FK')
     fk_request_emp_id = db.Column('fk_request_emp_id', db.Integer, db.ForeignKey(BaseEmployee.id, ondelete='CASCADE', onupdate='CASCADE'), comment='상신자 FK')

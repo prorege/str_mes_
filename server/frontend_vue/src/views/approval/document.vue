@@ -76,6 +76,21 @@
             </dx-scroll-view>
           </template>
         </dx-popup>
+        <dx-popup
+        v-model:visible="vars.dlg.approvalLine2.show"
+        content-template="popup-content"
+        :title="`${vars.dlg.approvalLine2.formData.document_name} 결재선 지정`"
+        :close-on-outside-click="true"
+        width="80%"
+        height="auto"
+        :resize-enabled="true"
+        >
+          <template #popup-content>
+            <dx-scroll-view width="100%" height="100%">
+              <data-approval-line2 :form-data="vars.dlg.approvalLine2.formData" />
+            </dx-scroll-view>
+          </template>
+        </dx-popup>
     </div>
 </template>
 
@@ -102,6 +117,7 @@ import { baseEmployee } from '../../data-source/base';
 import authService from '../../auth';
 import { confirm, alert } from 'devextreme/ui/dialog';
 import DataApprovalLine from '@/components/approval/data-approval-line.vue';
+import DataApprovalLine2 from '@/components/approval/data-approval-line2.vue';
 
 export default {
 components: {
@@ -117,6 +133,7 @@ components: {
     DxLoadPanel,
     DataApprovalLine,
     DxScrollView,
+    DataApprovalLine2,
 },
 setup() {
     const vars = {};
@@ -124,6 +141,7 @@ setup() {
     vars.grid = {};
     vars.dlg = {};
     vars.dlg.approvalLine = reactive({ show: false, formData: {} });
+    vars.dlg.approvalLine2 = reactive({ show: false, formData: {} });
     vars.loading = ref(false);
     vars.disabled = reactive({ 
     edit: true,
@@ -156,11 +174,20 @@ setup() {
     approvalLineEdit(data) {
       if (!data.data.id) return;
       try {
-        vars.dlg.approvalLine.show = true;
-        vars.dlg.approvalLine.formData = {
-          document_id: data.data.id,
-          emp_id: authService.user?.emp_id,
-          document_name: data.data.document_name,
+        if (data.data.id === 4) {
+          vars.dlg.approvalLine2.show = true;
+          vars.dlg.approvalLine2.formData = {
+            document_id: data.data.id,
+            emp_id: authService.user?.emp_id,
+            document_name: data.data.document_name,
+          }
+        } else {
+          vars.dlg.approvalLine.show = true;
+          vars.dlg.approvalLine.formData = {
+            document_id: data.data.id,
+            emp_id: authService.user?.emp_id,
+            document_name: data.data.document_name,
+          }
         }
       }catch(ex){
         console.error(ex);
