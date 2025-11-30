@@ -2894,7 +2894,8 @@ export default {
           
           // 첫 행 추가 시 초기값 설정
           if (visibleRows.length === 0) {
-            const amount = subcontract?.data?.reduce((acc, curr) => acc + curr.expect_amount, 0) || 0;
+            // const amount = subcontract?.data?.reduce((acc, curr) => acc + curr.expect_amount, 0) || 0;
+            const amount = subcontract.data[0].expect_amount;
             if (amount <= 0) {
               alert('외주공사 예정금액이 0원입니다', '외주기성 추가');
               return;
@@ -3207,6 +3208,16 @@ export default {
       progressPaymentReport() {
         if (!vars.formData.id) {
           alert('프로젝트를 선택해 주세요.', '프로젝트 미선택');
+          return;
+        }
+        let isVisibleRows = vars.grid['projectCostLog'].getVisibleRows().length > 0 ? true : false;
+        if(!isVisibleRows){
+          alert('기성관리 내역이 없습니다', '프로젝트 미선택');
+          return;
+        }
+        isVisibleRows = vars.grid['projectOutCostLog'].getVisibleRows().length > 0 ? true : false;
+        if(!isVisibleRows){
+          alert('외주기성관리 내역이 없습니다', '프로젝트 미선택');
           return;
         }
         vars.dlg.report.progressPayment.show = true;

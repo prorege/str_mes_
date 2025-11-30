@@ -72,7 +72,7 @@
                             </div>
                         </div>
                         <div class="content-header-approval-line">
-                            <table class="approval-line-table">
+                            <table class="approval-line-table" v-if="vars.dataSource.approvalLine.length > 0">
                                 <tr>
                                     <td rowspan="3" style="writing-mode: vertical-rl; text-orientation: upright; letter-spacing: 0px;">결 재</td>
                                     <th style="width: 50px;" v-for="line in vars.dataSource.approvalLine" :key="line.id">{{ line.line_header }}</th>
@@ -521,6 +521,9 @@ export default {
                         else {
                             vars.dataSource.approvalLine = [];
                         }
+                    }
+                    if (vars.dataSource.approvalLine.length == 0) {
+                        notifyError('결재선이 존재하지 않습니다. 결재선을 지정해주세요.');
                     }
                 }
                 catch (error) { 

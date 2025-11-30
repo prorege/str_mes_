@@ -1,7 +1,7 @@
 <template>
   <div style="display: flex; flex-direction: row; gap: 10px;">
     <div>
-        <span>경영지원팀 결재선 지정</span>
+        <span style="font-weight: bold; font-size: 16px;">경영지원팀 결재선 지정</span>
         <dx-data-grid
             column-resizing-mode="widget"
             height="300px"
@@ -44,7 +44,7 @@
         </dx-data-grid>
     </div>
     <div>
-        <span>담당 부서 결재선 지정</span>
+        <span style="font-weight: bold; font-size: 16px;">담당 부서 결재선 지정</span>
         <dx-data-grid
             column-resizing-mode="widget"
             height="300px"

@@ -73,7 +73,7 @@
                         </div>
                         <div style="display: flex; justify-content: space-between; width: 100%;">
                             <div class="content-header-approval-line">
-                                <table class="approval-line-table">
+                                <table class="approval-line-table" v-if="vars.dataSource.approvalLine.length > 0">
                                     <tr>
                                         <th class="bg-gray" :colspan="vars.dataSource.approvalLine.length + 1">경영지원팀</th>
                                     </tr>
@@ -99,7 +99,7 @@
                                 </table>
                             </div>
                             <div class="content-header-approval-line">
-                                <table class="approval-line-table">
+                                <table class="approval-line-table" v-if="vars.dataSource.approvalLine2.length > 0">
                                     <tr>
                                         <th class="bg-gray" :colspan="vars.dataSource.approvalLine2.length + 1">담당 부서</th>
                                     </tr>
@@ -464,7 +464,11 @@ export default {
                             vars.dataSource.approvalLine2 = [];
                         }
                     }
+                    if (vars.dataSource.approvalLine.length == 0 && vars.dataSource.approvalLine2.length == 0) {
+                        notifyError('결재선이 존재하지 않습니다. 결재선을 지정해주세요.');
+                    }
                 }
+               
                 catch (error) { 
                     console.error('getApprovalLine error:', error);
                 }
