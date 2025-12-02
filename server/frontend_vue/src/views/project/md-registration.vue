@@ -63,7 +63,7 @@
                                 >
                             </dx-column>                            
                             
-                            <dx-column data-field="position_type" caption="구분">
+                            <dx-column data-field="position_type" caption="업무형태">
                                 <dx-lookup
                                 :data-source="vars.dataSource.position_type"
                                 value-expr="code_name"
@@ -313,8 +313,8 @@ export default {
             },
 
             async loadBaseCode(){
-                return baseCodeLoader(['직책구분', '운행차량']).then(response =>{
-                vars.dataSource.position_type = response['직책구분']
+                return baseCodeLoader(['업무형태', '운행차량']).then(response =>{
+                vars.dataSource.position_type = response['업무형태']
                 vars.dataSource.vehicle = response['운행차량']
                 });
             },
