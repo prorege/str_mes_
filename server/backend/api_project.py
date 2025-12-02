@@ -1173,6 +1173,21 @@ manager.create_api(ProjectBusinessTripLog,
                        'DELETE_SINGLE': [check_token]
                    })
 
+manager.create_api(ProjectManday,
+                   url_prefix='/api/mes/v1/project',
+                   collection_name='md-registration',
+                   methods=['GET', 'DELETE', 'PATCH', 'POST'],
+                   allow_patch_many=True,
+                   results_per_page=0,
+                   max_results_per_page=100000000,
+                   preprocessors={
+                       'POST': [check_token],
+                       'PATCH_SINGLE': [check_token],
+                       'GET_SINGLE': [check_token],
+                       'GET_MANY': [check_token],
+                       'DELETE_SINGLE': [check_token]
+                   })
+
 manager.create_api(ProjectHappyCall,
                    url_prefix='/api/mes/v1/project',
                    collection_name='happy_call',

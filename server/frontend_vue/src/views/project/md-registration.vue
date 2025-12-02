@@ -13,7 +13,7 @@
                         <dx-data-grid
                             column-resizing-mode="widget"
                             height="calc(100vh - 150px)"
-                            :data-source="vars.dataSource.projectMandayRegistration"
+                            :data-source="vars.dataSource.projectMdRegistration"
                             :show-borders="true"
                             :show-row-lines="true"
                             :remote-operations="true"
@@ -25,7 +25,8 @@
                             @init-new-row="methods.onRowAdded"
                             @row-updated="methods.onRowUpdated"
                             @focused-cell-changed="methods.onFocusedCellChanged"
-                            @initialized="(evt) => methods.onGridInitialized(evt, 'project-business-trip-log')"
+                            @initialized="(evt) => methods.onGridInitialized(evt, 'project-md-registration')"
+
                         >
                             <dx-grid-toolbar>
                                 <dx-grid-item template="addRowButton" location="before" :visible="true" />
@@ -54,54 +55,69 @@
                             caption="담당자">
                             <dx-required-rule message="담당자 입력하세요"/>
                             </dx-column>
-                            <dx-column data-field="companion" caption="동행자"
-                            :editor-options="{
-                                ...generateItemButtonOption('search', methods.createFindPopupFn('companion', '동행자 조회'))
-                            }" />
-                            <dx-column data-field="trip_type" caption="구분">
-                                <dx-lookup
-                                :data-source="vars.dataSource.trip_type"
-                                value-expr="code_name"
-                                display-expr="code_name"
-                            />
-                            </dx-column>
-                            <dx-column 
-                                data-field="trip_start_date"
-                                data-type="datetime"
-                                format="yyyy-MM-dd HH:mm"
-                                caption="시작날짜"
-                                :allow-sorting="false">
-                            </dx-column>
-                            <dx-column 
-                                data-field="trip_end_date"
-                                data-type="datetime" 
-                                format="yyyy-MM-dd HH:mm"
-                                caption="종료날짜"
-                                :allow-sorting="false">
-                            </dx-column>
                             <dx-column
                                 data-field="project_name"
                                 caption="프로젝트명"
                                 :allow-editing="true"
                                 :editor-options="{ ...generateItemButtonOption('search', methods.createFindPopupFn('project', '프로젝트 조회')) }"
                                 >
+                            </dx-column>                            
+                            
+                            <dx-column data-field="position_type" caption="구분">
+                                <dx-lookup
+                                :data-source="vars.dataSource.position_type"
+                                value-expr="code_name"
+                                display-expr="code_name"
+                            />
                             </dx-column>
+                            <!-- 총 M/D 일 -->
+                            <dx-column 
+                                data-field="total_md_day"
+                                caption="총 M/D(일)"
+                                data-type="number"
+                                :allow-editing="false"
+                            />
+
+                            <!-- 총 M/D 시간 -->
+                            <dx-column 
+                                data-field="total_md_hour"
+                                caption="총 M/D(시간)"
+                                data-type="number"
+                                :allow-editing="false"
+                            />
+
+                            <!-- 누적사용 M/D 일 -->
+                            <dx-column 
+                                data-field="used_md_day"
+                                caption="누적사용 M/D(일)"
+                                data-type="number"
+                                :allow-editing="false"
+                            />
+
+                            <!-- 누적사용 M/D 시간 -->
+                            <dx-column 
+                                data-field="used_md_hour"
+                                caption="누적사용 M/D(시간)"
+                                data-type="number"
+                                :allow-editing="false"
+                            />
+
+                            <!-- 사용 M/D(시간) 입력 필드 -->
+                            <dx-column 
+                                data-field="used_md_hour_input"
+                                caption="사용 M/D(시간)"
+                                data-type="number"
+                                :allow-sorting="false"
+                            />
+
+
                             <dx-column 
                                 data-field="note" 
                                 caption="업무 내용" 
                                 :allow-sorting="false"
                                 :editor-options="{ ...generateItemButtonOption('rename', methods.createFindPopupFn('note', '업무 내용')),
                              }" />
-                            <dx-column
-                                data-field="stopover"
-                                caption="경유지" />
-                            <dx-column data-field="vehicle" caption="운행차량">
-                                <dx-lookup
-                                    :data-source="vars.dataSource.vehicle"
-                                    value-expr="code_name"
-                                    display-expr="code_name"
-                                />
-                            </dx-column>
+                            
                             
                         </dx-data-grid>
                     </div>
@@ -179,7 +195,7 @@ import moment from 'moment';
 import DataGridProject from '../../components/project/data-project.vue';
 import DataGridEmployeeSelect from '../../components/base/data-employee-select.vue';
 import { reactive, onMounted, ref, nextTick } from 'vue';
-import { projectBusinessTripLog, getProjectBusinessTripLog, } from '../../data-source/project';
+import { projectMdRegistration, getProjectMdRegistration, getProjectExcutionPlan, getProjectExcutionPlanExpense } from '../../data-source/project';
 import { generateItemButtonOption, beforeExitConfirm} from '../../utils/util';
 import { confirm, alert } from 'devextreme/ui/dialog';
 import authService from '../../auth'
@@ -223,11 +239,11 @@ export default {
         });
         vars.focus = ref();
         vars.dataSource = reactive({
-            projectBusinessTripLog : [],
-            trip_type: [],
+            project_manday : [],
+            position_type: [],
             vehicle: [],
         });
-        vars.dataSource.projectBusinessTripLog = getProjectBusinessTripLog(
+        vars.dataSource.projectMdRegistration = getProjectMdRegistration(
             [{name:'trip_end_date', op: '>=', val: moment().format('YYYY-MM-DD')}]
         );
 
@@ -272,7 +288,7 @@ export default {
                     vars.focus.value = e;
                     return;
                 }
-                const grid = vars.grid['project-business-trip-log'];
+                const grid = vars.grid['project-md-registration'];
                 if(!grid) return;
 
                 const isDifferentRow = e.rowIndex !== vars.focus.value.rowIndex;
@@ -297,34 +313,123 @@ export default {
             },
 
             async loadBaseCode(){
-                return baseCodeLoader(['외근출장구분', '운행차량']).then(response =>{
-                vars.dataSource.trip_type = response['외근출장구분']
+                return baseCodeLoader(['직책구분', '운행차량']).then(response =>{
+                vars.dataSource.position_type = response['직책구분']
                 vars.dataSource.vehicle = response['운행차량']
                 });
             },
 
-            finderReturnHandler(data) {
-                const grid = vars.grid['project-business-trip-log'];
+            async finderReturnHandler(data) {
+                const grid = vars.grid['project-md-registration'];
                 const rowIndex = vars.focus.value ? vars.focus.value.rowIndex : 0;
+
                 switch (vars.dlg.finder.key) {
                     case 'project': {
-                        grid.cellValue(rowIndex, 'project_name', data.project_name)
+                        console.log("=== [1] 프로젝트 선택 시작 ===");
+                        console.log("선택된 프로젝트:", data);
+
+                        // 기본 정보 바인딩
+                        grid.cellValue(rowIndex, 'project_name', data.project_name);
+                        grid.cellValue(rowIndex, 'fk_project_management_id', data.id); 
+                        // if(data.project_manager) grid.cellValue(rowIndex, 'manager', data.project_manager);
+
+                        try {
+                            const projectId = data.id;
+                            let totalMdDay = 0;
+                            let totalMdHour = 0;
+                            let usedMdDay = 0;
+                            let usedMdHour = 0;
+
+                            // ---------------------------------------------------------
+                            // A. 실행계획 조회
+                            // ---------------------------------------------------------
+                            const planStore = getProjectExcutionPlan();
+                            const plans = await planStore.load({ 
+                                filter: ['fk_project_management_id', '=', projectId] 
+                            });
+
+                            console.log("=== [2] 실행계획 조회 결과 ===", plans);
+
+                            // API 응답이 배열인지, 객체인지 확인을 위한 방어 코드
+                            // (만약 plans.data 로 들어오는 구조라면 여기서 캐치됨)
+                            const planList = Array.isArray(plans) ? plans : (plans.data || []);
+
+                            if (planList.length > 0) {
+                                const planId = planList[0].id;
+                                console.log("찾은 실행계획 ID:", planId);
+
+                                const expenseStore = getProjectExcutionPlanExpense();
+                                const expenses = await expenseStore.load({ 
+                                    filter: ['fk_project_excution_plan_id', '=', planId] 
+                                });
+
+                                console.log("=== [3] 경비 내역 조회 결과 ===", expenses);
+                                const expenseList = Array.isArray(expenses) ? expenses : (expenses.data || []);
+
+                                expenseList.forEach((ex, index) => {
+                                    // 공백 확인을 위해 대괄호로 감싸서 로그 출력
+                                    console.log(`[${index}] 항목명: [${ex.expense_description}], Day: ${ex.day_amount}, Time: ${ex.time_amount}`);
+                                    
+                                    // "PM, PE M/D" 비교 (공백 제거 후 비교 등 유연성 추가 가능)
+                                    // 혹시 모를 공백 제거를 위해 trim() 사용 추천
+                                    const desc = ex.expense_description ? ex.expense_description.trim() : '';
+                                    
+                                    if (desc === 'PM, PE M/D') {
+                                        console.log("👉 조건 일치! 합산합니다.");
+                                        totalMdDay += (ex.day_amount || 0);
+                                        totalMdHour += (ex.time_amount || 0);
+                                    }
+                                });
+                            } else {
+                                console.warn("⚠️ 이 프로젝트에 연결된 실행계획이 없습니다.");
+                            }
+
+                            // ---------------------------------------------------------
+                            // B. 누적 사용 M/D 조회
+                            // ---------------------------------------------------------
+                            const mdStore = getProjectMdRegistration();
+                            const prevMds = await mdStore.load({ 
+                                filter: ['fk_project_management_id', '=', projectId] 
+                            });
+                            
+                            console.log("=== [4] 기존 M/D 등록 내역 ===", prevMds);
+                            const prevMdList = Array.isArray(prevMds) ? prevMds : (prevMds.data || []);
+
+                            if (prevMdList.length > 0) {
+                                const totalUsedHours = prevMdList.reduce((acc, curr) => acc + (curr.used_md_hour_input || 0), 0);
+                                usedMdHour = totalUsedHours;
+                                usedMdDay = parseFloat((totalUsedHours / 8).toFixed(1)); 
+                            }
+
+                            console.log(`=== [5] 최종 결과 === TotalDay: ${totalMdDay}, UsedDay: ${usedMdDay}`);
+
+                            // 그리드 적용
+                            grid.cellValue(rowIndex, 'total_md_day', totalMdDay);
+                            grid.cellValue(rowIndex, 'total_md_hour', totalMdHour);
+                            grid.cellValue(rowIndex, 'used_md_day', usedMdDay);
+                            grid.cellValue(rowIndex, 'used_md_hour', usedMdHour);
+
+                        } catch (error) {
+                            console.error("❌ 에러 발생:", error);
+                        }
+                        
                         break;
                     }
+                    // ... (companion, note 케이스는 기존과 동일)
                     case 'companion': {
-                        grid.cellValue(rowIndex, 'companion', data.map(item=> item.emp_name).join(', '));
-                        break
+                        if (Array.isArray(data)) {
+                             grid.cellValue(rowIndex, 'companion', data.map(item=> item.emp_name).join(', '));
+                        } else {
+                             grid.cellValue(rowIndex, 'companion', data.emp_name);
+                        }
+                        break;
                     }
                     case 'note': {
                         grid.cellValue(rowIndex, 'note', vars.dlg.finder.data);
-                        break
+                        break;
                     }
                 }
-
                 vars.dlg.finder.show = false;
-                vars.dlg.finder.title = '';
-                vars.dlg.finder.key = null;
-                vars.dlg.finder.data = null;
             },
 
             onGridInitialized(evt, key) {
@@ -332,7 +437,7 @@ export default {
                 stateStore.bind(key, evt.component);
             },
             async addRowButton(){
-                const grid = vars.grid['project-business-trip-log'];
+                const grid = vars.grid['project-md-registration'];
                 if(!grid) return;
                 if(grid.hasEditData()){
                     await grid.saveEditData();
@@ -343,7 +448,7 @@ export default {
             },
 
             async saveRowButton(){
-                const grid = vars.grid['project-business-trip-log'];
+                const grid = vars.grid['project-md-registration'];
                 if(!grid) return;
                 await grid.saveEditData();
             },
@@ -354,12 +459,13 @@ export default {
         }
         return {
             vars,
+            
             methods,
             generateItemButtonOption,
         };
     },
 };
 </script>
-<style scoped>
+<style scoped> 
 
 </style>

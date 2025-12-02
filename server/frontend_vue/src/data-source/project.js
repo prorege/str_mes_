@@ -90,8 +90,8 @@ const projectBusinessBasic = new RestlessStore(
   '/api/mes/v1/project/business_basic'
 );
 
-const projectMandayResigration = new RestlessStore(
-  '/api/mes/v1/project/manday_resigration'
+const projectMdRegistration = new RestlessStore(
+  '/api/mes/v1/project/md-registration'
 );
 
 const projectMaterialApproval = new RestlessStore(
@@ -188,6 +188,12 @@ const getProjectBusinessTripLog = defaultFilters => {
   return instance;
 };
 
+const getProjectMdRegistration = defaultFilters => {
+  const instance = new RestlessStore('/api/mes/v1/project/md-registration');
+  instance.defaultFilters = defaultFilters;
+  return instance;
+};
+
 const getProjectHappyCall = defaultFilters => {
   const instance = new RestlessStore('/api/mes/v1/project/happy_call');
   instance.defaultFilters = defaultFilters;
@@ -248,8 +254,8 @@ const getProjectBusinessBasic = defaultFilters => {
   return instance;
 };
 
-const getProjectMandayResigration = defaultFilters => {
-  const instance = new RestlessStore('/api/mes/v1/project/manday_resigration');
+const getProjectMandayRegistration = defaultFilters => {
+  const instance = new RestlessStore('/api/mes/v1/project/manday_registration');
   instance.defaultFilters = defaultFilters;
   return instance;
 };
@@ -289,6 +295,7 @@ export {
   projectExcutionPlanSubcontract,
   projectExcutionPlanExpense,
   projectBusinessTripLog,
+  projectMdRegistration,
   projectHappyCall,
   projectDailyLog,
   projectCostLog,
@@ -316,6 +323,7 @@ export {
   getProjectExcutionPlanSubcontract,
   getProjectExcutionPlanExpense,
   getProjectBusinessTripLog,
+  getProjectMdRegistration,
   getProjectHappyCall,
   getProjectDailyLog,
   getProjectCostLog,

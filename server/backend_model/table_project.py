@@ -433,6 +433,31 @@ class ProjectBusinessTripLog(db.Model): # 프로젝트 - 출장 / 외근 관리
     vehicle = db.Column('vehicle', db.String(48), comment='운행차량')
     project_name = db.Column('project_name', db.String(96), comment='프로젝트명')
 
+
+class ProjectManday(db.Model): # 프로젝트 - 출장 / 외근 관리 
+    __tablename__ = 'project_md_registration'
+    __table_args__ = {
+        'comment': 'M/D 관리'
+    }
+    id = db.Column('id', db.Integer, primary_key=True, comment='UID')
+    created = db.Column('created', db.DateTime, default=datetime.now, comment='생성시간')
+    manager = db.Column('manager', db.String(48), comment='담당자')
+    total_md_day = db.Column('total_md_day', db.Integer, comment='총 M/D(일)')
+    position_type = db.Column('position_type', db.String(48), comment='직책구분')
+    trip_start_date = db.Column('trip_start_date', db.DateTime, comment='시작날짜')
+    trip_end_date = db.Column('trip_end_date', db.DateTime, comment='종료날짜')
+    note = db.Column('note', db.String(256), comment='내용')
+    total_md_hour = db.Column('total_md_hour', db.Integer, comment='총 M/D(시간)')
+    used_md_day = db.Column('used_md_day', db.Integer, comment='누적사용 M/D(일)')
+    used_md_hour = db.Column('used_md_hour', db.Integer, comment='누적사용 M/D(시간)')
+    used_md_hour_input = db.Column('used_md_hour_input', db.Integer, comment='사용 M/D(시간)')
+    project_name = db.Column('project_name', db.String(96), comment='프로젝트명')    
+    fk_project_management_id = db.Column(
+        db.Integer,
+        db.ForeignKey(ProjectManagement.id, ondelete="CASCADE"),
+        comment='프로젝트관리 FK'
+    )
+    project_management = db.relationship("ProjectManagement", foreign_keys=[fk_project_management_id])
 class ProjectHappyCall(db.Model):  # 프로젝트 - 해피콜관리
     __tablename__ = 'project_happy_call'
     __table_args__ = {
