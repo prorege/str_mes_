@@ -64,7 +64,7 @@
         <template #popup-content>
             <dx-scroll-view width="100%" height="100%">
                 <dx-load-panel :visible="vars.loading.value" :show-pane="true" />
-                <div v-if="vars.init" class="excution-report">
+                <div v-if="vars.init" class="completion-report">
                     <div class="report">
                         <div class="content-header">
                             <div class="content-header-title">
@@ -536,7 +536,7 @@ export default {
             },
             async printReport() {
                 vars.loading.value = true;
-                await printReport('', [], document.querySelector('.excution-report'));
+                await printReport('', [], document.querySelector('.completion-report'));
                 vars.loading.value = false;
             },
             async sendRequest() {
@@ -780,7 +780,7 @@ export default {
 </script>
 
 <style lang="scss">
-.excution-report {
+.completion-report {
     .report {
         font-family: '맑은 고딕', 'Malgun Gothic', sans-serif; 
         -webkit-print-color-adjust: exact; 
