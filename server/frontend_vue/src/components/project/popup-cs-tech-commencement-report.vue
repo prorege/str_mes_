@@ -45,7 +45,7 @@
                         <div class="report">
                             
                             <div class="content-header">
-                                <!-- <img src="../../assets/stech.png" alt="logo" style="width: 150px;"> -->
+                                <!-- <img src="../../assets/str.png" alt="logo" style="width: 150px;"> -->
                                 <div class="content-header-container">
                                     <div class="content-header-title" style="text-align: center; display: flex; flex-direction: column; gap: 10px;">
                             

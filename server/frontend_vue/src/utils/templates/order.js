@@ -37,7 +37,7 @@ export default `
       <th colspan="2">
         <div class="title">발 주 서</div>
         <div style="display:flex;justify-content:center;margin-top:-15px;"><div style="font-size: 18px;" class="">( <%= order_type %> )</div></div>
-        <img src="<%= _host %>/img/stech.png" style="position:absolute;top:0;right:20px;height:65px;width:140px;object-fit:contain;"/>
+        <img src="<%= _host %>/img/str.png" style="position:absolute;top:0;right:20px;height:65px;width:140px;object-fit:contain;"/>
       </th>
     </tr>
   </thead>

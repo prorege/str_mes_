@@ -65,7 +65,7 @@ body { margin: 0; padding: 0;  }
           <th colspan="2">
             <div class="" style="border: 1px solid black; text-align: center; text-align-last: center; font-size: 35px; max-width: 420px; margin: 15px auto;">인수증 명세서</div>
             <div class="release-subtitle">( 공급자 보관용 )</div>
-            <img src="<%= _host %>/img/stech.png" style="position:absolute;top:0;right:20px;height:65px;width:140px;object-fit:contain;"/>
+            <img src="<%= _host %>/img/str.png" style="position:absolute;top:0;right:20px;height:65px;width:140px;object-fit:contain;"/>
           </th>
         </tr>
       </thead>
@@ -261,7 +261,7 @@ body { margin: 0; padding: 0;  }
               <th colspan="2">
                 <div class="" style="border: 1px solid black; text-align: center; text-align-last: center; font-size: 35px; max-width: 420px; margin: 15px auto;">인수증 명세서</div>
                 <div class="release-subtitle">( 공급자받는자 보관용 )</div>
-                <img src="<%= _host %>/img/stech.png" style="position:absolute;top:0;right:20px;height:65px;width:140px;object-fit:contain;"/>
+                <img src="<%= _host %>/img/str.png" style="position:absolute;top:0;right:20px;height:65px;width:140px;object-fit:contain;"/>
               </th>
             </tr>
           </thead>

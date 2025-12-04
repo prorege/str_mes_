@@ -2,7 +2,7 @@
   <dx-scroll-view height="100%" width="100%" class="with-footer single-card">
      <div class="dx-card content">
       <div class="logo">
-        <img src="@/assets/stech.png"/>
+        <img src="@/assets/str.png"/>
       </div>
       <div class="divider"></div>
       <div class="header">

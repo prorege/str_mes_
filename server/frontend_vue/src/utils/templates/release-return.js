@@ -48,7 +48,7 @@ body { margin: 0; padding: 0;  }
       <th colspan="2">
         <div class="title"><%= title %></div>
         <div class="release-subtitle">( 공급자 보관용 )</div>
-        <img src="<%= _host %>/img/stech.png" style="position:absolute;top:0;right:20px;height:65px;width:140px;object-fit:contain;"/>
+        <img src="<%= _host %>/img/str.png" style="position:absolute;top:0;right:20px;height:65px;width:140px;object-fit:contain;"/>
       </th>
     </tr>
   </thead>
@@ -254,7 +254,7 @@ body { margin: 0; padding: 0;  }
         <th colspan="2">
           <div class="title"><%= title %></div>
           <div class="release-subtitle">( 공급받는자 보관용 )</div>
-          <img src="<%= _host %>/img/stech.png" style="position:absolute;top:0;right:20px;height:65px;width:140px;object-fit:contain;"/>
+          <img src="<%= _host %>/img/str.png" style="position:absolute;top:0;right:20px;height:65px;width:140px;object-fit:contain;"/>
         </th>
       </tr>
     </thead>
@@ -462,7 +462,7 @@ body { margin: 0; padding: 0;  }
       <th colspan="2">
         <div class="title"><%= title %></div>
         <div class="release-subtitle">( 공급자 보관용 )</div>
-        <img src="<%= _host %>/img/stech.png" style="position:absolute;top:0;right:20px;height:60px;"/>
+        <img src="<%= _host %>/img/str.png" style="position:absolute;top:0;right:20px;height:60px;"/>
       </th>
     </tr>
   </thead>

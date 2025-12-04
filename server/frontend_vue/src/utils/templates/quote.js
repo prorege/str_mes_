@@ -12,7 +12,7 @@ tr.lined-outer { border: 1px solid #000; }
     <tr>
       <th colspan="2">
         <div class="title">견 적 서</div>
-        <img src="<%= _host %>/img/stech.png" style="position:absolute;top:0;right:20px;height:60px;"/>
+        <img src="<%= _host %>/img/str.png" style="position:absolute;top:0;right:20px;height:60px;"/>
       </th>
     </tr>
   </thead>
