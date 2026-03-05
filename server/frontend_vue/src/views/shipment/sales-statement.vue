@@ -529,7 +529,7 @@
 import moment from 'moment';
 import numeral from 'numeral';
 
-import { useRouter } from 'vue-router';
+import { useRouter,useRoute} from 'vue-router';
 import { ref, reactive, computed, watch, nextTick, onMounted } from 'vue';
 
 import { DxButton } from 'devextreme-vue/button';
@@ -546,7 +546,7 @@ import { DxDataGrid, DxColumn, DxLookup, DxPaging, DxEditing, DxSorting, DxSumma
 import { getStock } from '../../data-source/setup';
 import { baseItem, baseClient, baseCodeLoader, getBaseItem } from '../../data-source/base';
 import { getShipmentReleaseItem, getShipmentReleaseReturnItem, getShipmentSalesStatementItem, shipmentSalesStatement } from '../../data-source/shipment';
-import { getProjectRegistration } from '../../data-source/project';
+import { getProjectRegistration,projectRegistration  } from '../../data-source/project';
 
 import DataGridClient from '../../components/base/data-client.vue';
 import DataGridSales from '../../components/shipment/data-sales.vue';
@@ -666,7 +666,16 @@ export default {
     vars.summary.total_price = computed(() => '₩' + numeral(vars.formData.total_price).format('0,0'));
     
     vars.itemDetail = reactive({ visible: false, id: 0 });
-
+    vars.fromProjectCost = reactive({
+      isFromProject: false,
+      projectId: null,
+      costLogId: null,
+      projectNumber: '',
+      projectName: '',
+      clientCompany: '',
+      amount: 0,
+      costDate: ''
+    });
     vars.isAllowEdit = computed(() => {
       return !vars.formState.readOnly && !!vars.formData.client_company
     })
@@ -675,7 +684,13 @@ export default {
       await loadDepartment(vars.dataSource);
       await methods.loadBaseCode();
       methods.loadBaseItem();
-      methods.initById(props.id);
+      
+      const currentRoute = router.currentRoute.value;
+      if (currentRoute && currentRoute.query && currentRoute.query.from === 'project-cost') {
+        await methods.initFromProjectCost(currentRoute.query);
+      } else {
+        methods.initById(props.id);
+      }
 
       const date = new Date();
       const y = date.getFullYear();
@@ -717,6 +732,67 @@ export default {
         
         vars.dlg.invoice.state = BAROBILL_STATE[state.data.BarobillState]
         console.log(`세금계산서 상태: ${state.data.BarobillState} [${BAROBILL_STATE[state.data.BarobillState]}]`)
+      },
+      async initFromProjectCost(query) {
+        vars.fromProjectCost.isFromProject = true;
+        vars.fromProjectCost.projectId = parseInt(query.projectId) || null;
+        vars.fromProjectCost.costLogId = parseInt(query.costLogId) || null;
+        vars.fromProjectCost.projectNumber = query.projectNumber || '';
+        vars.fromProjectCost.projectName = query.projectName || '';
+        vars.fromProjectCost.clientCompany = query.clientCompany || '';
+        vars.fromProjectCost.amount = parseInt(query.amount) || 0;
+        vars.fromProjectCost.costDate = query.costDate || '';
+        
+        methods.clearFormData();
+        methods.gridItem1Refresh();
+        
+        vars.formData.sales_date = new Date();
+        vars.formData.sales_department = authService.getDepartmentName();
+        vars.formData.sales_manager = authService.getUserName();
+        vars.formData.vat_type = methods.getFirstVatType();
+        vars.formData.sales_type = methods.getFirstSalesType();
+        vars.formData.approval_type = methods.getFirstApprovalType();
+        vars.formData.publish_type = methods.getFirstPublishType();
+        vars.formData.office_type = methods.getFirstOfficeType();
+        vars.formData.fk_company_id = authService.getCompanyId();
+        vars.formData.client_company = vars.fromProjectCost.clientCompany;
+        vars.formData.etc = `프로젝트: ${vars.fromProjectCost.projectNumber} / 기성일자: ${vars.fromProjectCost.costDate}`;
+        
+        vars.formState.readOnly = false;
+        
+        if (vars.formData.client_company) {
+          await methods.onClientChanged();
+        }
+        
+        await nextTick();
+        setTimeout(async () => {
+          await methods.addProjectCostItem();
+        }, 500);
+      },
+
+      async addProjectCostItem() {
+        if (!vars.fromProjectCost.isFromProject) return;
+        const grid = vars.grid.item1;
+        if (!grid) return;
+        
+        await grid.addRow();
+        const response = calcPriceSummary(vars.formData.vat_type, vars.fromProjectCost.amount);
+        
+        grid.cellValue(0, 'statement_item', vars.fromProjectCost.projectName);
+        grid.cellValue(0, 'quantity', 1);
+        grid.cellValue(0, 'unit_price', vars.fromProjectCost.amount);
+        grid.cellValue(0, 'vat', response.vat);
+        grid.cellValue(0, 'supply_price', response.supply_price);
+        grid.cellValue(0, 'total_price', response.total_price);
+        grid.cellValue(0, 'not_deposit', response.total_price);
+        grid.cellValue(0, 'note', `기성일자: ${vars.fromProjectCost.costDate}`);
+        grid.cellValue(0, 'fk_project_management_id', vars.fromProjectCost.projectId);
+        grid.cellValue(0, 'project_management.project_number', vars.fromProjectCost.projectNumber);
+        grid.cellValue(0, 'fk_sales_id', null);
+        grid.cellValue(0, 'fk_release_item_id', null);
+        grid.cellValue(0, 'fk_release_return_item_id', null);
+        
+        grid.refresh();
       },
       clearFormData() {
         vars.dlg.invoice.state = ''
@@ -1033,6 +1109,20 @@ export default {
               await gridItem1.saveEditData();
             }
             beforeExitConfirm.clear()
+            // 🆕 프로젝트 기성에서 온 경우, 기성 발행상태 업데이트
+            if (vars.fromProjectCost.isFromProject && vars.fromProjectCost.costLogId) {
+              try {
+                const costLogService = new ApiService('/api/mes/v1/project/cost_log');
+                await costLogService.patch(`${vars.fromProjectCost.costLogId}`, {
+                  invoice_status: '발행완료',
+                  fk_sales_id: data.id
+                });
+              } catch (err) {
+                console.error('기성 발행상태 업데이트 실패:', err);
+              }
+              vars.fromProjectCost.isFromProject = false;
+              vars.fromProjectCost.costLogId = null;
+            }
             methods.redirect(data.id);
             vars.formState.readOnly = true;
             notifyInfo('저장되었습니다');

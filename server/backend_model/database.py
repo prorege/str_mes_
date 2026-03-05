@@ -122,14 +122,14 @@ class DBManager:
         comp.phone_en = "+82-031-338-1285"
         comp.fax_en = "+82-031-338-0118"
         comp.address_en = ""
-        comp.register_id = "stechadmin"
+        comp.register_id = "stradmin"
         comp.modify_id = ""
         comp.last_updated_date = DBManager.get_random_date()
         DBManager.db.session.add(comp)
         DBManager.db.session.commit()
 
         user = Users()
-        user.user_id = "stechadmin"
+        user.user_id = "stradmin"
         user.user_pw = DBManager.password_encoder_512('1234')
         user.user_name = "관리자"
         user.user_type = 1
@@ -659,8 +659,8 @@ class DBManager:
             item.after_item_code = "ITEM-" + idx_str
             item.end_of_use = int(random.randrange(10, 100)) % 2
             item.end_date = DBManager.get_random_date()
-            item.register_id = "stechadmin"
-            item.modify_id = "stechadmin"
+            item.register_id = "stradmin"
+            item.modify_id = "stradmin"
             item.modify_date = DBManager.get_random_date()
 
             DBManager.db.session.add(item)
@@ -753,8 +753,8 @@ class DBManager:
             cli.phone_en = "+82-2-291-23123"
             cli.fax_en = "+82-2-123-1234"
             cli.address_en = "Seoul"
-            cli.register_id = "stechadmin"
-            cli.modify_id = "stechadmin"
+            cli.register_id = "stradmin"
+            cli.modify_id = "stradmin"
             cli.last_updated_date = DBManager.get_random_date()
 
             DBManager.db.session.add(cli)
@@ -1258,7 +1258,7 @@ class DBManager:
             pn.end_date = start_date + timedelta(days=30)
             pn.important = int(random.randrange(1, 10)) % 2
             pn.content_html = "<html><body><h3>공지사항테스트</h3></body></html>"
-            pn.register_id = "stechadmin"
+            pn.register_id = "stradmin"
             pn.fk_company_id = 1
             DBManager.db.session.add(pn)
 

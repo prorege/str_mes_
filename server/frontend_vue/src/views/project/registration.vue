@@ -773,6 +773,14 @@
                     <dx-grid-required-rule message="일자는 필수 입력 항목입니다." />
                   </dx-column>
                   <dx-column caption="전월기성" data-field="prev_cost" data-type="number" format="currency" :allow-editing="false" />
+                  <!-- 계산서발행 컬럼 추가 -->
+                  <dx-column 
+                    caption="계산서발행" 
+                    data-field="invoice_status"
+                    :width="120"
+                    :allow-editing="false"
+                    cell-template="invoiceStatusCell"
+                  />
                   <dx-column caption="당월기성" data-field="curr_cost" data-type="number" format="currency" :set-cell-value="methods.setCurrCost" />
                   <dx-column caption="누적기성" data-field="cumulative_cost" data-type="number" format="currency" :allow-editing="false" />
                   <dx-column caption="잔여기성" data-field="remaining_cost" data-type="number" format="currency" :allow-editing="false" />
@@ -788,6 +796,21 @@
                     mode="row"
                   />
                   <dx-scrolling mode="standard" />
+                  <!-- 템플릿 추가 -->
+                  <template #invoiceStatusCell="{data}">
+                    <div v-if="data.data.invoice_status === '발행완료'" class="invoice-complete">
+                      발행완료
+                    </div>
+                    <dx-button 
+                      v-else-if="data.data.id && vars.formState.readOnly"
+                      text="계산서발행"
+                      type="default"
+                      styling-mode="outlined"
+                      :width="100"
+                      @click="() => methods.onInvoiceCostLog(data)"
+                    />
+                    <span v-else>-</span>
+                  </template>
                 </dx-data-grid>
               </div>
             </template>
@@ -1740,6 +1763,10 @@ export default {
       clientDetail: false,
       exportToShipmentOrder: false,
       exportToWorkOrder: false,
+    });
+    vars.costLogInvoice = reactive({
+      rowData: null,
+      rowIndex: null
     });
 
     
@@ -3222,6 +3249,47 @@ export default {
         }
         vars.dlg.report.progressPayment.show = true;
       },
+      async onInvoiceCostLog(cellData) {
+        const rowData = cellData.data;
+        
+        if (!rowData.id) {
+          alert('저장 후 세금계산서를 발행할 수 있습니다.', '세금계산서 발행');
+          return;
+        }
+        
+        if (rowData.invoice_status === '발행완료') {
+          alert('이미 발행된 세금계산서입니다.', '세금계산서 발행');
+          return;
+        }
+        
+        if (!rowData.curr_cost || rowData.curr_cost <= 0) {
+          alert('당월기성 금액이 없습니다.', '세금계산서 발행');
+          return;
+        }
+        
+        const isConfirm = await confirm(
+          `당월기성 ${numeral(rowData.curr_cost).format('0,0')}원에 대한 세금계산서를 발행하시겠습니까?`,
+          '세금계산서 발행'
+        );
+        
+        if (!isConfirm) return;
+        
+        const queryParams = new URLSearchParams({
+          from: 'project-cost',
+          projectId: vars.formData.id,
+          projectNumber: vars.formData.project_number || '',
+          projectName: vars.formData.project_name || '',
+          clientCompany: vars.formData.order_company || '',
+          amount: rowData.curr_cost,
+          costLogId: rowData.id,
+          costDate: rowData.cost_date ? moment(rowData.cost_date).format('YYYY-MM-DD') : ''
+        });
+        
+        router.push({
+          path: '/shipment/sales-statement',
+          query: Object.fromEntries(queryParams)
+        });
+      },
     };
 
     watch(
@@ -3351,5 +3419,13 @@ export default {
   .dx-button-content {
     padding: 7px;
   }
+}
+.invoice-complete {
+  color: #4caf50;
+  font-weight: bold;
+  text-align: center;
+  padding: 4px 8px;
+  background-color: #e8f5e9;
+  border-radius: 4px;
 }
 </style>

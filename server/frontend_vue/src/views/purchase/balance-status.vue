@@ -563,7 +563,7 @@ async function savePurchaseBalanceItem(){
   
 
     const workbook = new Workbook();
-    workbook.creator = 'STECH'
+    workbook.creator = 'STR'
     workbook.created = new Date()
     const sheet = workbook.addWorksheet('매입원장')
     let index = 1
