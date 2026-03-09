@@ -212,7 +212,7 @@
             <template #addFromReleaseReturn>
               <dx-button text="출고반품에서 가져오기" icon="add" @click="methods.showAddReleaseReturnPopup" />
             </template>
-            <dx-column caption="프로젝트번호" data-field="project_management.project_number" :allow-editing="false" />
+            <dx-column caption="프로젝트번호" data-field="project_management.project_number" :allow-editing="false" cell-template="projectNumberCell" />
             <dx-column caption="계산서품목" data-field="statement_item" width="180" :allow-editing="true" />
             <dx-column caption="품목코드" data-field="item_code" width="180" :allow-editing="false" />
             <dx-column caption="품명" data-field="item.item_name" :allow-editing="false" />
@@ -241,6 +241,20 @@
               :allow-updating="!vars.formState.readOnly"
               :allow-deleting="!vars.formState.readOnly"
             />
+              <template #projectNumberCell="{data}">
+                <div>
+                  <div
+                    v-if="data.data.fk_project_management_id"
+                    style="color: #1a73e8; text-decoration: underline; cursor: pointer;"
+                    @click="methods.onNavigateToProject(data.data.fk_project_management_id)"
+                  >
+                    {{ data.data.project_management ? data.data.project_management.project_number : '' }}
+                  </div>
+                  <div v-else>
+                    {{ data.data.project_management ? data.data.project_management.project_number : '' }}
+                  </div>
+                </div>
+              </template>
           </dx-data-grid>
         </div>
 
@@ -1065,19 +1079,43 @@ export default {
         await nextTick();
         Object.assign(vars.formData, saveFormData);
       },
+      // ✅ 수정 후
       async deleteItem() {
         const result = await confirm('이 항목을 삭제하시겠습니까?', '삭제 확인');
-        if (result) {
+        if (!result) return;
+
+        try {
+          // ──────────────────────────────────────────
+          // Step 1. 이 매출계산서와 연결된 기성(cost_log)의
+          //         invoice_status를 초기화한다
+          //         (기성관리에서 재발행 가능하도록)
+          // ──────────────────────────────────────────
           try {
-            await shipmentSalesStatement.remove(vars.formData.id);
-            beforeExitConfirm.clear()
-            await alert('삭제되었습니다', '삭제 확인');
-            methods.redirect();
-            vars.formState.readOnly = true;
-          } catch (ex) {
-            if (ex.response.status != 403) {
-              await alert('연결된 데이터가 있어서 삭제가 안됩니다', '삭제 확인');
-            }
+            const costLogApi = new ApiService('/api/mes/v1/project/cost_log');
+
+            // fk_sales_id 기준으로 연결된 cost_log를 서버에서 찾아 초기화
+            // (백엔드 DELETE preprocessor에서도 처리하지만 프론트에서도 명시적으로 처리)
+            await costLogApi.patch(`reset-invoice/${vars.formData.id}`, {});
+
+          } catch (costLogErr) {
+            // cost_log 초기화 실패해도 계산서 삭제는 계속 진행
+            console.warn('기성 invoice_status 초기화 실패 (무시하고 진행):', costLogErr);
+          }
+
+          // ──────────────────────────────────────────
+          // Step 2. 매출계산서 삭제
+          // ──────────────────────────────────────────
+          await shipmentSalesStatement.remove(vars.formData.id);
+          beforeExitConfirm.clear();
+
+          await alert('삭제되었습니다', '삭제 확인');
+          methods.redirect();
+          vars.formState.readOnly = true;
+
+        } catch (ex) {
+          console.error(ex);
+          if (ex.response?.status !== 403) {
+            await alert('연결된 데이터가 있어서 삭제가 안됩니다', '삭제 확인');
           }
         }
       },
@@ -1120,8 +1158,14 @@ export default {
               } catch (err) {
                 console.error('기성 발행상태 업데이트 실패:', err);
               }
+              const projectId = vars.fromProjectCost.projectId;
               vars.fromProjectCost.isFromProject = false;
               vars.fromProjectCost.costLogId = null;
+              notifyInfo('계산서가 발행되었습니다.');
+              setTimeout(() => {
+                router.replace({ path: `/project/registration/${projectId}`, query: { refresh: Date.now() } });
+              }, 800);
+              return;
             }
             methods.redirect(data.id);
             vars.formState.readOnly = true;
@@ -1500,7 +1544,11 @@ export default {
         const price = selectedRowsData.reduce((t, i) => t += i.return_quantity * i.unit_price, 0)
         if (!price) vars.dlg.addReleaseReturnItem.selection_price = '0'
         vars.dlg.addReleaseReturnItem.selection_price = numeral(price).format('0,0')
-      }
+      },
+      onNavigateToProject(projectId) {
+        if (!projectId) return;
+        router.push({ path: `/project/registration/${projectId}` });
+      },
     };
 
     watch(

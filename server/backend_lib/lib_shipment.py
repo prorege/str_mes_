@@ -755,7 +755,26 @@ class LibShipmentSalesStatement(object):
     def post_preprocessor(data=None, **kw):
         LibCommon.get_item_number(data, 'sales_number', ShipmentSalesStatement, ShipmentSalesStatement.sales_number,
                                   '/shipment/sales-statement')
+    @staticmethod
+    def delete_single_preprocessor(instance_id=None, **kw):
+        """
+        매출계산서 삭제 전처리:
+        연결된 기성(ProjectCostLog)의 invoice_status와 fk_sales_id를 초기화한다.
+        이렇게 해야 프로젝트등록 화면에서 계산서를 재발행할 수 있다.
+        """
+        from backend_model.table_project import ProjectCostLog
 
+        db.session.query(ProjectCostLog).filter(
+            ProjectCostLog.fk_sales_id == instance_id
+        ).update(
+            {
+                'invoice_status': None,
+                'fk_sales_id': None,
+            },
+            synchronize_session=False
+        )
+        db.session.commit()
+        
     @staticmethod
     def update_not_deposit(sales_id):
         """

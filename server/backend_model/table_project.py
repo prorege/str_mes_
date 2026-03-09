@@ -512,7 +512,11 @@ class ProjectCostLog(db.Model): # 프로젝트 - 비용관리
     register_date = db.Column('register_date', db.DateTime, comment='등록일자')
     fk_project_management_id = db.Column('fk_project_management_id', db.Integer, db.ForeignKey(ProjectManagement.id, onupdate="CASCADE", ondelete="CASCADE"), comment='프로젝트관리 FK')
     project_management = db.relationship("ProjectManagement", foreign_keys=[fk_project_management_id])
-
+# ✅ 추가: 계산서 발행 상태 관리
+    invoice_status = db.Column('invoice_status', db.String(48), comment='계산서발행상태')
+    fk_sales_id = db.Column('fk_sales_id', db.Integer, comment='매출계산서 FK')
+    fk_project_management_id = db.Column('fk_project_management_id', db.Integer, db.ForeignKey(ProjectManagement.id, onupdate="CASCADE", ondelete="CASCADE"), comment='프로젝트관리 FK')
+    project_management = db.relationship("ProjectManagement", foreign_keys=[fk_project_management_id])
 class ProjectOutCostLog(db.Model): # 프로젝트 - 외주기성관리
     __tablename__ = 'project_out_cost_log'
     __table_args__ = {

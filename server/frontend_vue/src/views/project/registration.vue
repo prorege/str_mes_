@@ -781,6 +781,11 @@
                     :allow-editing="false"
                     cell-template="invoiceStatusCell"
                   />
+                  <dx-column 
+                    data-field="fk_sales_id"
+                    :visible="false"
+                    :allow-editing="false"
+                  />
                   <dx-column caption="당월기성" data-field="curr_cost" data-type="number" format="currency" :set-cell-value="methods.setCurrCost" />
                   <dx-column caption="누적기성" data-field="cumulative_cost" data-type="number" format="currency" :allow-editing="false" />
                   <dx-column caption="잔여기성" data-field="remaining_cost" data-type="number" format="currency" :allow-editing="false" />
@@ -798,9 +803,17 @@
                   <dx-scrolling mode="standard" />
                   <!-- 템플릿 추가 -->
                   <template #invoiceStatusCell="{data}">
-                    <div v-if="data.data.invoice_status === '발행완료'" class="invoice-complete">
-                      발행완료
+                    <!-- 발행완료 상태: 클릭하면 해당 매출계산서 페이지로 이동 -->
+                    <div 
+                      v-if="data.data.invoice_status === '발행완료'" 
+                      class="invoice-complete invoice-complete--link"
+                      @click="() => methods.onNavigateToSalesStatement(data)"
+                      title="클릭하면 매출계산서로 이동합니다"
+                    >
+                      발행완료 🔗
                     </div>
+
+                    <!-- 미발행 상태 + 저장된 행 + 읽기모드: 계산서발행 버튼 표시 -->
                     <dx-button 
                       v-else-if="data.data.id && vars.formState.readOnly"
                       text="계산서발행"
@@ -809,7 +822,10 @@
                       :width="100"
                       @click="() => methods.onInvoiceCostLog(data)"
                     />
+
+                    <!-- 편집중이거나 저장 전: 비활성 -->
                     <span v-else>-</span>
+
                   </template>
                 </dx-data-grid>
               </div>
@@ -1402,7 +1418,7 @@ import { DxFileUploader } from 'devextreme-vue/file-uploader';
 import { DxLoadPanel } from 'devextreme-vue/load-panel';
 import { confirm, alert } from 'devextreme/ui/dialog';
 import { onMounted, ref, reactive, computed, watch, nextTick } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import stateStore from '@/utils/state-store';
 import {
   projectRegistration,
@@ -1543,6 +1559,7 @@ export default {
     // variable 설정
     const uploadService = new ApiService('/api/mes/v1/project-attachment');
     const router = useRouter();
+    const route = useRoute();
     const vars = { dlg: {} };
     vars.init = ref(false);
     vars.loading = ref(false);
@@ -3251,27 +3268,23 @@ export default {
       },
       async onInvoiceCostLog(cellData) {
         const rowData = cellData.data;
-        
+
         if (!rowData.id) {
           alert('저장 후 세금계산서를 발행할 수 있습니다.', '세금계산서 발행');
           return;
-        }
-        
+        }        
         if (rowData.invoice_status === '발행완료') {
           alert('이미 발행된 세금계산서입니다.', '세금계산서 발행');
           return;
         }
-        
         if (!rowData.curr_cost || rowData.curr_cost <= 0) {
           alert('당월기성 금액이 없습니다.', '세금계산서 발행');
           return;
         }
-        
         const isConfirm = await confirm(
           `당월기성 ${numeral(rowData.curr_cost).format('0,0')}원에 대한 세금계산서를 발행하시겠습니까?`,
           '세금계산서 발행'
         );
-        
         if (!isConfirm) return;
         
         const queryParams = new URLSearchParams({
@@ -3290,11 +3303,33 @@ export default {
           query: Object.fromEntries(queryParams)
         });
       },
+      /* 발행완료 클릭 시 → 해당 매출계산서 페이지로 이동*/
+      onNavigateToSalesStatement(cellData) {
+        const rowData = cellData.data;
+        if (!rowData.fk_sales_id) {
+          alert('연결된 매출계산서 정보를 찾을 수 없습니다.', '매출계산서 이동');
+          return;
+        }
+
+        router.push({
+          path: `/shipment/sales-statement/${rowData.fk_sales_id}`
+        });
+      },
     };
 
     watch(
       () => props.id,
       () => methods.initById(props.id)
+    );
+
+    // 아래 watch 추가 ↓
+    watch(
+      () => route.query.refresh,
+      (newVal) => {
+        if (newVal && vars.formData.id) {
+          methods.gridProjectCostLogRefresh(vars.formData.id);
+        }
+      }
     );
 
     return {
@@ -3427,5 +3462,16 @@ export default {
   padding: 4px 8px;
   background-color: #e8f5e9;
   border-radius: 4px;
+}
+
+.invoice-complete--link {
+  cursor: pointer;
+  text-decoration: underline;
+  transition: opacity 0.2s;
+
+  &:hover {
+    opacity: 0.75;
+    background-color: #c8e6c9;
+  }
 }
 </style>

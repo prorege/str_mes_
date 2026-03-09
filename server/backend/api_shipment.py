@@ -237,7 +237,7 @@ manager.create_api(ShipmentSalesStatement,
                        'PATCH_SINGLE': [check_token],
                        'GET_SINGLE': [check_token],
                        'GET_MANY': [check_token],
-                       'DELETE_SINGLE': [check_token]
+                       'DELETE_SINGLE': [check_token, LibShipmentSalesStatement.delete_single_preprocessor],  # ✅ 추가
                    },
                    postprocessors={
                        'GET_MANY' : [LibShipmentSalesStatement.get_many_postprocessor]
