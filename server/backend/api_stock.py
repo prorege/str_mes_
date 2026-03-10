@@ -733,7 +733,7 @@ def stock_search():
                 }
             })
 
-            total_price = total_price + (parent_item.total_current_stock * round(parent_item.BaseItem.purchase_price))
+            total_price = total_price + (parent_item.total_current_stock * round(parent_item.BaseItem.purchase_price or 0))
             parent_index = index
             index += 1
             child_items = db.session.query(

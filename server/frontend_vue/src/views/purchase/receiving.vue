@@ -1020,6 +1020,8 @@ export default {
             delete element.data.warehouse;
             delete element.data.prereceiving;
             delete element.data.prereceiving_item;
+            delete element.data.project_management
+            
           }
         });
         methods.saveSummary();

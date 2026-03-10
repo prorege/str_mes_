@@ -16,7 +16,7 @@
                 text: '기성고검토보고서',
                 icon: '',
                 onClick: methods.progressPaymentReport,
-                visible: true
+                visible: false
               }"
             />
             <dx-item
@@ -893,7 +893,7 @@
               </div>
             </template>
           </dx-item>
-          <dx-item title="준공계">
+          <dx-item title="준공계" :visible="false">
             <template #default>
               <div class="pa-2">
                 <dx-data-grid
@@ -1041,7 +1041,7 @@
               </div>
             </template>
           </dx-item>
-          <dx-item title="착공계">
+          <dx-item title="착공계" :visible="false">
             <template #default>
               <div class="pa-2">
                 <dx-data-grid

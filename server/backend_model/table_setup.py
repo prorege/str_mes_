@@ -22,6 +22,7 @@ class SetupBasicStock(db.Model):  # 셋업관리 - 기초재고관리
     basic_stock = db.Column("basic_stock", db.Integer, comment="기초재고")
     current_stock = db.Column("current_stock", db.Integer, comment="현재고")
     available_stock = db.Column("available_stock", db.Integer, comment="가용재고")
+    assign_stock = db.Column("assign_stock", db.Integer, server_default="0", comment="할당재고")
     item_unit_price = db.Column("item_unit_price", db.Float, server_default="0", comment="단가")
     item_price = db.Column("item_price", db.Numeric(12, 2), server_default="0", comment="금액")
     etc = db.Column("etc", db.Text, comment="비고")

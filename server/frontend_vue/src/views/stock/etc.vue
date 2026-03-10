@@ -465,7 +465,14 @@ export default {
         stateStore.bind(`stock-etc-${key}`, evt.component);
       },
       initNewRow(evt) {
-        evt.data.type = '입고';
+        evt.data.type = '출고';
+        if (vars.dataSource.type2 && vars.dataSource.type2.length > 0) {
+            evt.data.inout_type = vars.dataSource.type2[0].code_name;
+        }
+        if (vars.dataSource.warehouse && vars.dataSource.warehouse.length > 0) {
+            evt.data.warehouse = { ...vars.dataSource.warehouse[0] };
+            evt.data.warehouse_code = vars.dataSource.warehouse[0].wh_code;
+        }
       },
       async newItem() {
         if (vars.grid.item1) {
@@ -637,16 +644,19 @@ export default {
       },
       onSavingItem(e) {
         e.changes.forEach(element => {
-          if (element.type != 'remove') {
-            element.data.fk_stock_etc_id = vars.formData.id;
-            delete element.data.item;
-            delete element.data.current_stock;
-            delete element.data.available_stock;
-            delete element.data.warehouse;
-            delete element.data.inout_warehouse;
-          }
+            if (element.type != 'remove') {
+                element.data.fk_stock_etc_id = vars.formData.id;
+                delete element.data.item;
+                delete element.data.current_stock;
+                delete element.data.available_stock;
+                delete element.data.warehouse;
+                delete element.data.inout_warehouse;
+                delete element.data.basic_stock;
+                delete element.data.stock_etc;
+                delete element.data.project_management;
+            }
         });
-      },
+    },
       onDataError(e) {
         if (e.error.response.status == 403) {
           e.error.message = '권한이 없습니다';
