@@ -807,7 +807,7 @@ def stock_search():
                     'purchase_price': basic_stock.BaseItem.purchase_price
                 }
             })
-            total_price = total_price + (basic_stock.SetupBasicStock.current_stock * round(basic_stock.BaseItem.purchase_price))
+            total_price = total_price + (basic_stock.SetupBasicStock.current_stock * round(basic_stock.BaseItem.purchase_price or 0))
             index += 1
     response = {
         'data': response_items,
@@ -873,7 +873,7 @@ def stock_price():
                 }
             })
 
-            total_price = total_price + (parent_item.total_current_stock * round(parent_item.BaseItem.purchase_price))
+            total_price = total_price + (parent_item.total_current_stock * round(parent_item.BaseItem.purchase_price or 0))
             parent_index = index
             index += 1
             child_items = db.session.query(
@@ -949,7 +949,7 @@ def stock_price():
                     'purchase_price': basic_stock.BaseItem.purchase_price
                 }
             })
-            total_price = total_price + (basic_stock.SetupBasicStock.current_stock * round(basic_stock.BaseItem.purchase_price))
+            total_price = total_price + (basic_stock.SetupBasicStock.current_stock * round(basic_stock.BaseItem.purchase_price or 0))
             index = index + 1
     response = {
         'data': response_items,
