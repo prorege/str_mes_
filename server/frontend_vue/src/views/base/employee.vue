@@ -117,6 +117,7 @@
                   </dx-column>
                   <dx-column caption="이메일" data-field="emp_email" :visible="true" :allow-editing="true" />
                   <dx-column caption="입사일" data-field="emp_joindate" data-type="date" format="yyyy-MM-dd" :allow-editing="true" />
+                  <dx-column caption="퇴사일" data-field="resignation_date" data-type="date" format="yyyy-MM-dd" :allow-editing="true" />
                   <dx-column caption="메모" data-field="memo" :visible="false" :allow-editing="true" />
                   <dx-column caption="영문이름" data-field="emp_name_en" :visible="false" :allow-editing="true" />
                   <dx-column caption="성별" data-field="emp_gender" :visible="false" :allow-editing="true">

@@ -760,7 +760,7 @@ export default {
         methods.clearFormData();
         methods.gridItem1Refresh();
         
-        vars.formData.sales_date = new Date();
+        vars.formData.sales_date = vars.fromProjectCost.costDate ? new Date(vars.fromProjectCost.costDate) : new Date();
         vars.formData.sales_department = authService.getDepartmentName();
         vars.formData.sales_manager = authService.getUserName();
         vars.formData.vat_type = methods.getFirstVatType();
@@ -1167,6 +1167,9 @@ export default {
               }, 800);
               return;
             }
+            // 🆕 매출계산서 화면에서 직접 생성 시, 프로젝트 연결된 품목이 있으면 기성 자동 생성
+            await methods.autoCreateCostLogFromSales(data.id);
+
             methods.redirect(data.id);
             vars.formState.readOnly = true;
             notifyInfo('저장되었습니다');
@@ -1548,6 +1551,49 @@ export default {
       onNavigateToProject(projectId) {
         if (!projectId) return;
         router.push({ path: `/project/registration/${projectId}` });
+      },
+      async autoCreateCostLogFromSales(salesId) {
+        try {
+          // 저장된 품목 목록 다시 로드
+          vars.filter.item1[0].val = salesId;
+          vars.dataSource.item1.defaultFilters = vars.filter.item1;
+          const { data: items } = await vars.dataSource.item1.load();
+          if (!items || items.length === 0) return;
+
+          // fk_project_management_id가 있는 항목을 프로젝트별로 그룹핑하여 합계금액 합산
+          const projectMap = {};
+          for (const item of items) {
+            const projectId = item.fk_project_management_id;
+            if (!projectId) continue;
+            if (!projectMap[projectId]) {
+              projectMap[projectId] = 0;
+            }
+            projectMap[projectId] += (item.total_price || 0);
+          }
+
+          // 프로젝트 연결 품목이 없으면 종료
+          if (Object.keys(projectMap).length === 0) return;
+
+          const costLogApi = new ApiService('/api/mes/v1/project/cost_log');
+
+          for (const [projectId, amount] of Object.entries(projectMap)) {
+            try {
+              await costLogApi.post('/auto-create-from-sales', {
+                project_management_id: parseInt(projectId),
+                sales_id: salesId,
+                amount: amount,
+                cost_date: vars.formData.sales_date
+                  ? moment(vars.formData.sales_date).format('YYYY-MM-DD')
+                  : moment().format('YYYY-MM-DD'),
+                register: authService.getUserName(),
+              });
+            } catch (err) {
+              console.warn(`프로젝트(${projectId}) 기성 자동 생성 실패:`, err);
+            }
+          }
+        } catch (err) {
+          console.error('기성 자동 생성 처리 실패:', err);
+        }
       },
     };
 

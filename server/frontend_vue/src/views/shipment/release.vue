@@ -232,13 +232,17 @@
           >
             <dx-grid-toolbar>
               <dx-item template="exportToSales" location="before" :visible="vars.formData.confirmed" />
-              <dx-grid-item name="addRowButton" :options="{ onClick: methods.showAddPopup }" />
+              <dx-item template="importFromOrder" location="before" :visible="!vars.formState.readOnly" />
+              <dx-grid-item name="addRowButton" :options="{ onClick: methods.showAddItemPopup }" />
               <dx-grid-item name="saveButton" :visible="!!vars.formData.id" />
               <dx-grid-item name="revertButton" />
               <dx-grid-item name="columnChooserButton" />
             </dx-grid-toolbar>
             <template #exportToSales>
               <dx-button text="계산서로 보내기" icon="export" @click="methods.exportToSales" />
+            </template>
+            <template #importFromOrder>
+              <dx-button text="수주품목찾기" icon="download" @click="methods.showAddPopup" />
             </template>
 
             <dx-column caption="품목코드" data-field="item_code" width="180" :allow-editing="false" />
@@ -294,6 +298,47 @@
         </div>
       </div>
     </div>
+
+    <dx-popup
+      title="품목찾기"  
+      content-template="popup-item-content"
+      v-model:visible="vars.dlg.addBaseItem.show"
+      width="70%"
+      :height="500"
+      :resize-enabled="true"
+      :close-on-outside-click="true"
+      @initialized="(evt) => methods.onGridInitialized(evt, 'find-item-popup')"
+    >
+      <dx-toolbar-item widget="dxButton" toolbar="top" location="after"
+        :options="{ text: '선택된 항목 추가', icon: 'add', onClick: methods.addSelectedBaseItemRows }"
+      />
+
+      <template #popup-item-content>
+        <dx-data-grid
+          column-resizing-mode="widget"
+          :show-borders="true"
+          :column-auto-width="true"
+          :remote-operations="true"
+          :allow-column-resizing="true"
+          :allow-column-reordering="true"
+          :data-source="vars.dataSource.baseItem"
+          :on-initialized="(evt) => methods.onGridInitialized(evt, 'baseItem')"
+        >
+          <dx-column caption="품목코드" data-field="item_code" />
+          <dx-column caption="품명" data-field="item_name" />
+          <dx-column caption="규격" data-field="item_standard" />
+          <dx-column caption="단위" data-field="unit" />
+          <dx-column caption="자산구분" data-field="asset_type" />
+          <dx-column caption="대분류" data-field="main_category" />
+          <dx-column caption="중분류" data-field="middle_category" />
+          <dx-column caption="소분류" data-field="sub_category" />
+
+          <dx-paging :page-size="20" />
+          <dx-filter-row :visible="true" />
+          <dx-selection mode="multiple" select-all-mode="page" show-check-boxes-mode="onClick" />
+        </dx-data-grid>
+      </template>
+    </dx-popup>
 
     <dx-popup
       title="수주품목찾기"  
@@ -390,7 +435,7 @@ import { DxDataGrid, DxColumn, DxLookup, DxPaging, DxEditing, DxSorting, DxSumma
   DxItem as DxGridItem, DxToolbar as DxGridToolbar, DxButton as DxGridButton } from 'devextreme-vue/data-grid';
 
 import { getStock } from '../../data-source/setup';
-import { baseItem, baseClient, baseCodeLoader } from '../../data-source/base';
+import { baseItem, baseClient, baseCodeLoader, getBaseItem } from '../../data-source/base';
 import { shipmentRelease, shipmentOrderItem, getShipmentOrderItem, getShipmentReleaseItem, shipmentSalesStatement } from '../../data-source/shipment';
 
 import PopupItemDetail from '@/components/base/popup-item-detail';
@@ -434,9 +479,12 @@ export default {
     vars.grid = {};
     vars.grid.orderItem = null;
     vars.grid.item1 = null;
+    vars.grid.baseItem = null;
     vars.dlg = {};
     vars.dlg.addItem = reactive({ show: false });
+    vars.dlg.addBaseItem = reactive({ show: false });
     vars.dlg.finder = reactive({ show: false, title: '', key: null, data: null });
+    
     vars.filter = {};
     vars.filter.orderItem = { clientCompany: null };
     vars.filter.item1 = [{ name: 'fk_release_id', op: 'eq', val: props.id || 0 }];
@@ -460,8 +508,10 @@ export default {
       department: [],
       employee: [],
       orderItem: null,
+      baseItem: getBaseItem(null, null, null),
       item1: getShipmentReleaseItem(vars.filter.item1),
     });
+
     vars.formData = reactive({});
     vars.summary = {};
     vars.summary.supply_price = computed(() => '₩' + numeral(vars.formData.supply_price).format('0,0'));
@@ -568,6 +618,29 @@ export default {
         grid.refresh();
         vars.dlg.addItem.show = false;
       },
+      async addSelectedBaseItemRows() {
+        const grid = vars.grid.item1;
+        await grid.pageIndex(0);
+        const firstRowKey = grid.getKeyByRowIndex(0);
+        if (firstRowKey) await grid.navigateToRow(firstRowKey);
+
+        const rows = await vars.grid.baseItem.getSelectedRowsData();
+        for (let row of rows) {
+          await grid.addRow();
+          const data = await grid.byKey(grid.getKeyByRowIndex(0));
+          data.item_code = row.item_code;
+          data.item = { item_name: row.item_name, item_standard: row.item_standard, unit: row.unit, item_detail: row.item_detail };
+          data.order_item = { order_quantity: 0, not_shipped: 0 };
+          data.release_quantity = 0;
+          data.unit_price = row.purchase_price || 0;
+          data.non_invoice = 0;
+          data.closing_yn = false;
+          data.fk_release_id = vars.formData.id;
+          data.fk_order_item_id = null;
+        }
+        grid.refresh();
+        vars.dlg.addBaseItem.show = false;
+      },
       createFindPopupFn(key, title, data = null) {
         const _key = key,
           _title = title,
@@ -594,6 +667,14 @@ export default {
           vars.grid.orderItem.refresh();
         }
         vars.dlg.addItem.show = true;
+      },
+      showAddItemPopup() {
+        if (vars.grid.baseItem) {
+          vars.grid.baseItem.clearSelection();
+          vars.grid.baseItem.clearFilter();
+          vars.grid.baseItem.refresh();
+        }
+        vars.dlg.addBaseItem.show = true;
       },
       async gridItem1Refresh(id) {
         if (!id) {

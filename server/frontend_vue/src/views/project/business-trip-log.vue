@@ -92,6 +92,12 @@
                                 :allow-sorting="false"
                                 :editor-options="{ ...generateItemButtonOption('rename', methods.createFindPopupFn('note', '업무 내용')),
                              }" />
+                             <dx-column
+                                data-field="manpower_note" 
+                                caption="인력 관리" 
+                                :allow-sorting="false"
+                                :editor-options="{ ...generateItemButtonOption('rename', methods.createFindPopupFn('manpower_note', '인력 관리')),
+                            }" />
                             <dx-column
                                 data-field="stopover"
                                 caption="장소(시,군/업체명)" />
@@ -118,36 +124,37 @@
             :resize-enabled="true"
             @initialized="evt => methods.onGridInitialized(evt, 'find-popup')"
             >
-            <template #popup-content>
-                <data-grid-project
-                v-if="vars.dlg.finder.key === 'project'"
-                :filters="vars.dlg.finder.data"
-                @change="methods.finderReturnHandler"
-                />
-                <data-grid-employee-select v-else-if="vars.dlg.finder.key === 'companion'" :filters="vars.dlg.finder.data" @change="methods.finderReturnHandler" />
-                <div v-else-if="vars.dlg.finder.key === 'note'">
-                    <div class="mb-2">
-                        <dx-text-area
-                        :height="430"
-                        :value="vars.dlg.finder.data"
-                        @update:value="methods.updateNoteValue"
-                        />
+                <template #popup-content>
+                    <data-grid-project
+                    v-if="vars.dlg.finder.key === 'project'"
+                    :filters="vars.dlg.finder.data"
+                    @change="methods.finderReturnHandler"
+                    />
+                    <data-grid-employee-select v-else-if="vars.dlg.finder.key === 'companion'" :filters="vars.dlg.finder.data" @change="methods.finderReturnHandler" />
+                    <div v-else-if="vars.dlg.finder.key === 'note' || vars.dlg.finder.key === 'manpower_note'">
+                        <div class="mb-2">
+                            <dx-text-area
+                            :height="430"
+                            :value="vars.dlg.finder.data"
+                            @update:value="methods.updateNoteValue"
+                            />
+                        </div>
+                        <dx-toolbar>
+                            <dx-item
+                            widget="dxButton"
+                            toolbar="top"
+                            location="after"
+                            :options="{
+                                icon: 'save',
+                                text: '저장',
+                                onClick: methods.finderReturnHandler,
+                            }"
+                            />
+                        </dx-toolbar>
                     </div>
-                    <dx-toolbar>
-                        <dx-item
-                        widget="dxButton"
-                        toolbar="top"
-                        location="after"
-                        :options="{
-                            icon: 'save',
-                            text: '저장',
-                            onClick: methods.finderReturnHandler,
-                        }"
-                        />
-                    </dx-toolbar>
-                </div>
-            </template>
+                </template>
             </dx-popup>
+            
         </div>
 </template>
 
@@ -318,6 +325,10 @@ export default {
                     case 'note': {
                         grid.cellValue(rowIndex, 'note', vars.dlg.finder.data);
                         break
+                    }
+                    case 'manpower_note': {
+                        grid.cellValue(rowIndex, 'manpower_note', vars.dlg.finder.data);
+                        break;
                     }
                 }
 

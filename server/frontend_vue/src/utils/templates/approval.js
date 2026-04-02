@@ -6,7 +6,7 @@ export default `
     .page { border: 0; }
   }
   .page { width: 210mm; height: 297mm; box-sizing: border-box; position:relative; }
-  .approval_title { font-size: 36px; width: 100%; margin: 20px auto; display:flex; flex-wrap: nowrap; justify-content: space-between;}
+  .approval_title { font-size: 36px; width: 100%; margin: 20px auto; display:flex; flex-wrap: nowrap; justify-content: center;}
   .font-size-12 td { font-size: 12px; font-weight: bold; !important }
   .font-size-17 { font-size: 20px; font-weight: bold; !important }
   .page th,
@@ -29,9 +29,7 @@ export default `
       <tr>
         <th colspan="2">
           <div class="approval_title">
-            <div style="width: 33.33%;">&nbsp;</div>
-            <div style="width: 33.33%;">품 의 서</div>
-            <div style="width: 33.33%; font-size: 28px; display: flex; justify-content: flex-end; align-items: flex-end;">(<%= order_type %>)</div>
+            <div>발 주 서</div>
           </div>
         </th>
       </tr>
@@ -41,7 +39,7 @@ export default `
         <td>
           <table>
             <tr style="padding-bottom: 10px;">
-              <td class="font-size-17" style="width:80px;">품의번호</td>
+              <td class="font-size-17" style="width:80px;">발주번호</td>
               <td style="width:0px; padding:0">:</td>
               <td colspan="3" class="font-size-17"><%= order_number %></td>
             </tr>
@@ -83,19 +81,16 @@ export default `
             </colgroup>
             <tr>
               <td rowspan="3" style="" class="align-center">결재</td>
-              <th>사 장</th>
-              <th>전 무</th>
-              <th>팀 장</th>
-              <th>부 장</th>
-              <th>계 장</th>
               <th>담 당</th>
+              <th>계 장</th>
+              <th>부 장</th>
+              <th>팀 장</th>
+              <th>전 무</th>
+              <th>사 장</th>
             </tr>
             <tr style="height: 46px;" class="align-center">
-              <td class="">
-                <% if (approve_manager) { %>
-                <%= approve_manager %>
-                <% } %>
-              </td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
               <td>&nbsp;</td>
               <td class="">
                 <% if (confirmed_manager) { %>
@@ -103,15 +98,15 @@ export default `
                 <% } %>
               </td>
               <td>&nbsp;</td>
-              <td>&nbsp;</td>
-              <td class=""><%= order_manager.emp_name %></td>
+              <td class="">
+                <% if (approve_manager) { %>
+                <%= approve_manager %>
+                <% } %>
+              </td>
             </tr>
             <tr style="" class="align-center font-size-12">
-              <td class="">
-                  <% if (approve_date) { %>
-                  <%= moment(approve_date).format('YYMMDD') %>
-                  <% } %>
-              </td>
+              <td class=""><%= order_date_short %></td>
+              <td>&nbsp;</td>
               <td>&nbsp;</td>
               <td class="">
                   <% if (confirmed_date) { %>
@@ -119,8 +114,11 @@ export default `
                   <% } %>
               </td>
               <td>&nbsp;</td>
-              <td>&nbsp;</td>
-              <td class=""><%= order_date_short %></td>
+              <td class="">
+                  <% if (approve_date) { %>
+                  <%= moment(approve_date).format('YYMMDD') %>
+                  <% } %>
+              </td>
             </tr>
           </table>
         </td>
@@ -128,7 +126,7 @@ export default `
       <tr><td colspan="2">&nbsp;</td></tr>
       <tr>
         <td colspan="2" class="align-left" style="padding-bottom: 10px;">
-          1. 하기 품목을 (외주, 구입)코저 하오니 재가하여 주시기 바랍니다.
+          1. 하기 품목을 구입하고자 하오니 재가하여 주시기 바랍니다.
         </td>
       </tr>
       <tr>
@@ -209,6 +207,6 @@ export default `
       </tr>
     </tbody>
   </table>
-  <div style="border-top: 2px solid #000000; padding-top:3px; padding-bottom: 3px; font-weight: bold; position: absolute; bottom: 0; width: 210mm; box-sizing: border-box;">품의번호: <%= order_number %></div>
+  <div style="border-top: 2px solid #000000; padding-top:3px; padding-bottom: 3px; font-weight: bold; position: absolute; bottom: 0; width: 210mm; box-sizing: border-box;">발주번호: <%= order_number %></div>
 </div>
 `

@@ -8,7 +8,7 @@ from backend_model.database import DBManager
 from backend_model.table_common import Companies
 from sqlalchemy.dialects.mysql import MEDIUMTEXT
 from backend_model.table_project import ProjectManagement
-from backend_model.table_base import BaseItem
+from backend_model.table_base import BaseItem, BaseWarehouse
 
 db = DBManager.db   
 
@@ -85,6 +85,8 @@ class AsResultItem(db.Model):
     unit_price = db.Column('unit_price', db.Numeric(12, 2), comment='단가')
     supply_price = db.Column('supply_price', db.Numeric(14, 2), comment='공급가')
     etc = db.Column('etc', db.String(512), comment='비고')
+    warehouse_code = db.Column('warehouse_code', db.String(48), db.ForeignKey(BaseWarehouse.wh_code, onupdate='CASCADE', ondelete='SET NULL'), comment='창고코드')
+    warehouse = db.relationship('BaseWarehouse', foreign_keys=[warehouse_code])
     fk_as_result_id = db.Column('fk_as_result_id', db.Integer, db.ForeignKey(AsResult.id, onupdate='CASCADE', ondelete='CASCADE'), comment='A/S처리 FK')
     as_result = db.relationship('AsResult', foreign_keys=[fk_as_result_id])
     item = db.relationship("BaseItem", foreign_keys=[item_code])

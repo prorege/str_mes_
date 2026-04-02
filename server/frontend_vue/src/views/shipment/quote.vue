@@ -188,6 +188,7 @@
             <dx-group-item>
               <dx-simple-item data-field="business.business_number"
                 :editor-options="methods.businessNumberOptions()"
+                :visible="false"
               >
                 <dx-label text="영업건번호" :show-colon="false" />
               </dx-simple-item>
@@ -203,8 +204,14 @@
               >
                 <dx-label text="원청업체" :show-colon="false" />
               </dx-simple-item>
-              <dx-simple-item data-field="business_name" :editor-options="{ ...vars.formState }">
-                <dx-label text="영업건명" :show-colon="false" />
+              <dx-simple-item data-field="business_name" :editor-options="{
+                ...generateItemButtonOption(
+                  'search',
+                  methods.createFindPopupFn('project', '프로젝트조회')
+                ),
+                ...vars.formState,
+              }">
+                <dx-label text="프로젝트명" :show-colon="false" />
                 <dx-required-rule message="영업건명을 입력하세요." />
               </dx-simple-item>
               <dx-simple-item data-field="delivery_terms" editor-type="dxSelectBox"
@@ -557,6 +564,10 @@
             />
           </dx-toolbar>
         </div>
+        <data-grid-project
+          v-else-if="vars.dlg.finder.key === 'project'"
+          @change="methods.finderReturnHandler"
+        />
       </template>
     </dx-popup>
 
@@ -592,6 +603,9 @@ import {purchaseOrder, purchaseOrderItem} from '../../data-source/purchase';
 import DataGridClient from '../../components/base/data-client.vue';
 import DataGridQuote from '../../components/shipment/data-quote.vue';
 import DataGridBusiness from '../../components/project/data-business.vue';
+import DataGridProject from '../../components/project/data-project.vue';
+
+
 import DataGridClientManager from '@/components/base/data-client-manager.vue';
 import authService from '../../auth';
 import ApiService from '../../utils/api-service';
@@ -617,7 +631,7 @@ export default {
     DxForm, DxLabel, DxGroupItem, DxSimpleItem, DxCustomRule, DxRequiredRule,
     DxDataGrid, DxColumn, DxPaging, DxLookup, DxEditing, DxSummary, DxTotalItem, DxSelection, DxFilterRow, DxScrolling, DxColumnChooser, 
     DxGridToolbar, DxGridItem, DxGridButton, DxGridRequiredRule,
-    DataGridClient, DataGridQuote, DataGridBusiness, PopupItemDetail, PopupItemDetail2, DataGridClientManager,
+    DataGridClient, DataGridQuote, DataGridBusiness, DataGridProject, PopupItemDetail, PopupItemDetail2, DataGridClientManager,
     DxTreeList, DxTreeColumn, DxTreePaging, DxTreeLookup, DxTreeEditing, DxTreeSummary, DxTreeSelection, DxTreeTotalItem, DxTreeFilterRow, DxTreeScrolling, DxTreeColumnChooser, DxTreeToolbar, DxTreeItem, DxTreeButton, DxTreeRequiredRule, DxTreeRowDragging,
   },
   props: {
@@ -1260,6 +1274,10 @@ export default {
                   vars.formData.client_manager = data.client_manager;
                 });
             }
+            break;
+          }
+          case 'project': {
+            vars.formData.business_name = data.project_name;
             break;
           }
           case 'etc': {

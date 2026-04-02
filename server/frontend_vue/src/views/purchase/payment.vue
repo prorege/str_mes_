@@ -7,7 +7,7 @@
         <div class="content-header">
           <dx-toolbar class="back-colored">
             <dx-item location="before">
-              <div class="content-title">결재</div>
+              <div class="content-title">결재(매입계산서)</div>
             </dx-item>
             <dx-item location="after" locate-in-menu="auto" widget="dxButton"
               :options="{ text: '신규', type: 'add', icon: 'add', disabled: vars.disabled.new, onClick: methods.newItem }"

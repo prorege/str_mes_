@@ -191,6 +191,9 @@
                 data-field="commencement_date"
                 editor-type="dxDateBox"
                 :editor-options="{
+                  dateSerializationFormat: 'yyyy-MM-ddTHH:mm:ss',
+                  showClearButton: true,
+                  useMaskBehavior: true,
                   onValueChanged: methods.onContractAmountChanged,
                   ...vars.formState,
                 }"
@@ -271,9 +274,13 @@
                 </dx-simple-item>
                 <dx-simple-item
                   data-field="subcontracting_rate"
-                  editor-type="dxTextBox"
+                  editor-type="dxNumberBox"
                   :editor-options="{
-                    readOnly: true
+                    format: '#0.##\'%\'',
+                    min: 0,
+                    max: 100,
+                    step: 0.01,
+                    ...vars.formState,
                   }"
                 >
                 <dx-label text="하도급률" :show-colon="false" />
@@ -582,6 +589,10 @@
                     
                   <dx-column caption="연락처" data-field="company_manager_phone" />
                   <dx-column caption="참고사항" data-field="note" />
+                  <dx-column caption="계약금액" data-field="contract_amount" data-type="number" format="currency" />
+                  <dx-column caption="계약시작일" data-field="contract_start_date" data-type="date" format="yyyy-MM-dd" />
+                  <dx-column caption="계약종료일" data-field="contract_end_date" data-type="date" format="yyyy-MM-dd" />
+                  <dx-column caption="계약파일" data-field="contract_file_name" cell-template="companyFileDownload" edit-cell-template="companyFileUpload" />
                   <dx-editing mode="batch"
                     :allow-adding="!vars.formState.readOnly"
                     :allow-updating="!vars.formState.readOnly"
@@ -590,6 +601,21 @@
                   <dx-scrolling mode="standard" />
                   <template #company_name="{data}">
                       <div class="company_name">{{ data.data[data.column.dataField] }}</div>
+                  </template>
+                  <template #companyFileDownload="{data}">
+                    <a :href="`/api/mes/v1/${data.data['contract_file_path']}`" download>
+                      {{data.data[data.column.dataField]}}
+                    </a>
+                  </template>
+                  <template #companyFileUpload="{data}">
+                    <dx-text-box :value="data.data[data.column.dataField]">
+                      <dx-text-box-button location="after" name="upload"
+                        :options="{
+                          hint: '업로드', icon: 'upload',
+                          onClick: methods.addFile(data)
+                        }"
+                      />
+                    </dx-text-box>
                   </template>
                 </dx-data-grid>
               </div>
@@ -790,6 +816,7 @@
                   <dx-column caption="누적기성" data-field="cumulative_cost" data-type="number" format="currency" :allow-editing="false" />
                   <dx-column caption="잔여기성" data-field="remaining_cost" data-type="number" format="currency" :allow-editing="false" />
                   <dx-column caption="총기성률" data-field="total_cost_rate" data-type="number" format="percent" :allow-editing="false" />
+                  <dx-column caption="입금금액" data-field="deposit_amount" data-type="number" format="currency" />
                   <dx-column caption="비고" data-field="etc" />
                   <dx-column caption="등록자" data-field="register" :allow-editing="false" />
                   <dx-column caption="등록시간" data-field="register_date" data-type="date" :allow-editing="false" />
@@ -1713,12 +1740,12 @@ export default {
       ],
       customer_information: [
         { 
-          name: 'fk_business_id', op: 'eq', val: 0 
+          name: 'fk_business_id', op: 'is_null' 
         }
       ],
-      note : [
+      note: [
         { 
-          name: 'fk_business_id', op: 'eq', val: 0 
+          name: 'fk_business_id', op: 'is_null' 
         }
       ],
       businessCost: { fk_business_id : 0 },
@@ -1826,13 +1853,24 @@ export default {
 
         let { data } = await projectRegistration.byKey(id);
         // 필터를 넣어줌
-        vars.filter.customer_information[0].val = data.fk_business_id ? data.fk_business_id : 0;
-        vars.filter.note[0].val = data.fk_business_id ? data.fk_business_id : 0;
+        // ✅ 수정
+        if (data.fk_business_id) {
+          vars.filter.customer_information = [{ name: 'fk_business_id', op: 'eq', val: data.fk_business_id }];
+        } else {
+          vars.filter.customer_information = [{ name: 'fk_business_id', op: 'is_null' }];
+        }
+        if (data.fk_business_id) {
+          vars.filter.note = [{ name: 'fk_business_id', op: 'eq', val: data.fk_business_id }];
+        } else {
+          vars.filter.note = [{ name: 'fk_business_id', op: 'is_null' }];
+        }
         // 이 시점에서 값을 조회되도록 해줌
         vars.dataSource.customer_information = getProjectCustomerInformation(vars.filter.customer_information);
         vars.dataSource.note = getProjectBusinessNote(vars.filter.note);
 
         Object.assign(vars.formData, data);
+        // 하도급률 숫자 변환
+        vars.formData.subcontracting_rate = Number(vars.formData.subcontracting_rate) || 0;
         methods.gridQuoteItemsRefresh();
         methods.gridBusinessCostRefresh();
         vars.disabled.edit = false;
@@ -2560,76 +2598,16 @@ export default {
           }
         }
       },
-      // ❌ 삭제: 더 이상 사용되지 않음
-      // onContractVatTypeChanged(e) { ... }
-
       // ✅ 유지
       onCompanyVatTypeChanged(e) {
         if (!e.event) return;
-        methods.calculateContractRatio();
       },
-
-      // ❌ 삭제: contract_amount와 연결되었으므로 제거
-      // onContractAmountChanged(e) { ... }
-
       // ✅ 유지
       onCompanyAmountChanged(e) {
         if (!e.event) return;
         vars.formData.non_invoice = e.value;
-        methods.calculateContractRatio();
       },
 
-      // 🔄 수정된 계산 로직: company_amount만 사용
-      calculateContractRatio() {
-        if (vars.formData.company_amount === 0) {
-          vars.formData.subcontracting_rate = '0.00%';
-          return;
-        }
-
-        const company_response = calcPriceSummary(
-          vars.formData.company_vat_type,
-          vars.formData.company_amount
-        );
-
-        // 하도급률이 의미 있다면 하도급 금액 기준으로 계산 (예: company_amount 중 하도급 비율)
-        // 지금은 기준이 하나뿐이라 비율은 항상 100% (또는 0%로 설정할 수도 있음)
-        const ratio = 100;
-
-        vars.formData.subcontracting_rate = ratio.toFixed(2) + '%';
-      },
-
-      // onContractVatTypeChanged(e){
-      //   if(!e.event) return;
-      //   methods.calculateContractRatio();
-      // },
-      // onCompanyVatTypeChanged(e) {
-      //   if(!e.event) return;
-      //   methods.calculateContractRatio();
-      // },
-      // onContractAmountChanged(e){
-      //   if(!e.event) return;
-      //   methods.calculateContractRatio();
-      // },
-      // onCompanyAmountChanged(e){
-      //   if(!e.event) return;
-      //   vars.formData.non_invoice = e.value;
-      //   methods.calculateContractRatio();
-      // },
-      // calculateContractRatio() {
-      //     if (vars.formData.contract_amount === 0) {
-      //       vars.formData.subcontracting_rate = 0 + "%";
-      //       return;
-      //     }
-      //     const contract_response = calcPriceSummary(vars.formData.contract_vat_type, vars.formData.contract_amount);
-      //     const company_response = calcPriceSummary(vars.formData.company_vat_type, vars.formData.company_amount);
-
-      //     const ratio = (company_response.supply_price / contract_response.supply_price) * 100;
-
-      //     const roundedRatio = Math.ceil(ratio * 1000) / 1000;
-   
-      //     vars.formData.subcontracting_rate = roundedRatio.toFixed(2) + "%";
-      //     return;
-      // },
       defectPeriodChanged(e){
         if(!vars.formData.completion_date) return;
         methods.calDefectPeriod(e.value);
@@ -2862,6 +2840,9 @@ export default {
             }else if (key == 'attachment'){
               const {data: filename} = await uploadService.post('daily-log', fd)
               element.data['attachment_path'] = `project-daily-log/${filename}`
+            }else if (key == 'contract_file_name'){
+              const {data: filename} = await uploadService.post('company', fd)
+              element.data['contract_file_path'] = `project-company/${filename}`
             }
             delete vars.attchFiles[element.data[key]]
           }

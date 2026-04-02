@@ -1385,3 +1385,101 @@ manager.create_api(ProjectReport,
                        'GET_MANY': [check_token],
                        'DELETE_SINGLE': [check_token]
                    })   
+                   
+
+@app.route("/api/mes/v1/project/cost_log/auto-create-from-sales", methods=["POST"])
+def auto_create_cost_log_from_sales():
+    """
+    매출계산서 화면에서 직접 생성 시,
+    프로젝트 기성관리에 자동으로 기성 행을 생성한다.
+    """
+    data = request.get_json()
+    project_management_id = data.get('project_management_id')
+    sales_id = data.get('sales_id')
+    amount = data.get('amount')       # 합계금액 (total_price)
+    cost_date = data.get('cost_date')
+    register = data.get('register', '')
+
+    if not all([project_management_id, sales_id, amount, cost_date]):
+        return make_response(jsonify({'error': 'Missing required parameters'}), 400)
+
+    # 이미 연결된 기성이 있으면 중복 생성 방지
+    existing = db.session.query(ProjectCostLog).filter(
+        ProjectCostLog.fk_sales_id == sales_id,
+        ProjectCostLog.fk_project_management_id == project_management_id
+    ).first()
+    if existing:
+        return make_response(jsonify({'message': 'Already linked', 'id': existing.id}), 200)
+
+    # 프로젝트 조회 (계약금액 가져오기)
+    project = db.session.query(ProjectManagement).filter(
+        ProjectManagement.id == project_management_id
+    ).first()
+    if not project:
+        return make_response(jsonify({'error': 'Project not found'}), 404)
+
+    company_amount = project.company_amount or 0
+
+    # 해당 프로젝트의 마지막 기성 행 조회 → 전월기성 계산
+    last_cost_log = db.session.query(ProjectCostLog).filter(
+        ProjectCostLog.fk_project_management_id == project_management_id
+    ).order_by(ProjectCostLog.id.desc()).first()
+
+    prev_cost = last_cost_log.cumulative_cost if last_cost_log and last_cost_log.cumulative_cost else 0
+
+    cumulative_cost = prev_cost + amount
+    remaining_cost = company_amount - cumulative_cost if company_amount else 0
+    total_cost_rate = cumulative_cost / company_amount if company_amount else 0
+
+    # cost_date 파싱
+    if isinstance(cost_date, str):
+        try:
+            parsed_date = datetime.strptime(cost_date[:10], '%Y-%m-%d')
+        except ValueError:
+            parsed_date = datetime.now()
+    else:
+        parsed_date = datetime.now()
+
+    new_cost_log = ProjectCostLog()
+    new_cost_log.cost_date = parsed_date
+    new_cost_log.prev_cost = prev_cost
+    new_cost_log.curr_cost = amount
+    new_cost_log.cumulative_cost = cumulative_cost
+    new_cost_log.remaining_cost = remaining_cost
+    new_cost_log.total_cost_rate = total_cost_rate
+    new_cost_log.invoice_status = '발행완료'
+    new_cost_log.fk_sales_id = sales_id
+    new_cost_log.fk_project_management_id = project_management_id
+    new_cost_log.register = register
+    new_cost_log.register_date = datetime.now()
+
+    db.session.add(new_cost_log)
+    db.session.commit()
+
+    return make_response(jsonify({'id': new_cost_log.id, 'message': 'Created'}), 201)
+
+@app.route('/api/mes/v1/project-attachment/company', methods=['POST'])
+def upload_company_file():
+    f = request.files['file']
+    if f is None:
+        return make_response('require parameter is missing', 400)
+    filename = str(uuid4())[:8] + '__' + f.filename
+    base_path = os.path.join(app.config['UPLOAD_BASE_DIR'], "project-company")
+    abs_path = os.path.join(base_path, filename)
+
+    if not os.path.exists(base_path):
+        os.makedirs(base_path)
+
+    f.save(abs_path)
+    return make_response(filename, 200)
+
+@app.route('/api/mes/v1/project-company/<filename>', methods=['GET'])
+def download_company_file(filename):
+    base_path = os.path.join(app.config['UPLOAD_BASE_DIR'], 'project-company')
+    try:
+        encoded_filename = quote(filename.encode('utf-8'))
+        r = send_from_directory(base_path, filename=filename, as_attachment=True)
+        r.headers.set('Content-Disposition', f'attachment; filename={encoded_filename}')
+        return r
+    except FileNotFoundError:
+        return make_response('file not found', 404)

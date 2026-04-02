@@ -70,11 +70,11 @@ manager.create_api(AsResultItem,
                    results_per_page=0,
                    max_results_per_page=100000000,
                    preprocessors={
-                       'POST': [check_token],
-                       'PATCH_SINGLE': [check_token],
+                       'POST': [check_token, LibAsResultItem.post_preprocessor],
+                       'PATCH_SINGLE': [check_token, LibAsResultItem.patch_single_preprocessor],
                        'GET_SINGLE': [check_token],
                        'GET_MANY': [check_token],
-                       'DELETE_SINGLE': [check_token]
+                       'DELETE_SINGLE': [check_token, LibAsResultItem.delete_single_preprocessor]
                    })
 
 manager.create_api(AsResultAttachment,

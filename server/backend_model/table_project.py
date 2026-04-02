@@ -223,6 +223,11 @@ class ProjectCompany(db.Model): # 프로젝트 - 관련업체
     company_manager = db.Column('company_manager', db.String(48), comment='담당자')
     company_manager_phone = db.Column('company_manager_phone', db.String(48), comment='연락처')
     note = db.Column('note', db.String(256), comment='참고사항')
+    contract_amount = db.Column('contract_amount', db.BigInteger, default=0, comment='계약금액')
+    contract_start_date = db.Column('contract_start_date', db.DateTime, comment='계약기간(시작일)')
+    contract_end_date = db.Column('contract_end_date', db.DateTime, comment='계약기간(종료일)')
+    contract_file_name = db.Column('contract_file_name', db.String(256), comment='계약파일명')
+    contract_file_path = db.Column('contract_file_path', db.String(512), comment='계약파일경로')
     fk_project_management_id = db.Column('fk_project_management_id', db.Integer, db.ForeignKey(ProjectManagement.id, onupdate="CASCADE", ondelete="CASCADE"), comment='프로젝트관리 FK')
     project_management = db.relationship('ProjectManagement', foreign_keys=[fk_project_management_id])
 
@@ -429,10 +434,10 @@ class ProjectBusinessTripLog(db.Model): # 프로젝트 - 출장 / 외근 관리
     trip_start_date = db.Column('trip_start_date', db.DateTime, comment='시작날짜')
     trip_end_date = db.Column('trip_end_date', db.DateTime, comment='종료날짜')
     note = db.Column('note', db.String(256), comment='내용')
+    manpower_note = db.Column('manpower_note', db.String(256), comment='인력관리')
     stopover = db.Column('stopover', db.String(96), comment='경유지')
     vehicle = db.Column('vehicle', db.String(48), comment='운행차량')
     project_name = db.Column('project_name', db.String(96), comment='프로젝트명')
-
 
 class ProjectManday(db.Model): # 프로젝트 - 출장 / 외근 관리 
     __tablename__ = 'project_md_registration'
@@ -510,6 +515,7 @@ class ProjectCostLog(db.Model): # 프로젝트 - 비용관리
     etc = db.Column('etc', db.String(256), comment='비고')
     register = db.Column('register', db.String(48), comment='등록자')
     register_date = db.Column('register_date', db.DateTime, comment='등록일자')
+    deposit_amount = db.Column('deposit_amount', db.BigInteger, default=0, comment='입금금액')
     fk_project_management_id = db.Column('fk_project_management_id', db.Integer, db.ForeignKey(ProjectManagement.id, onupdate="CASCADE", ondelete="CASCADE"), comment='프로젝트관리 FK')
     project_management = db.relationship("ProjectManagement", foreign_keys=[fk_project_management_id])
 # ✅ 추가: 계산서 발행 상태 관리

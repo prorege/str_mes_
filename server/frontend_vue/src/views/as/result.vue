@@ -8,10 +8,10 @@
               <dx-item location="before"
                 ><div class="content-title">A/S처리</div></dx-item
               >
-              <dx-item location="after">
+              <dx-item location="after" :visible="false">
                 <div class="barobill-state" v-if="vars.dlg.invoice.state">{{ vars.dlg.invoice.state }}</div>
               </dx-item>
-              <dx-item location="after" locate-in-menu="auto" widget="dxButton" :visible="true"
+              <dx-item location="after" locate-in-menu="auto" widget="dxButton" :visible="false"
                 :options="{ text: '전자세금계산서발행', type: 'copy', icon: 'paste', onClick: methods.exportInvoice }"
                 />
               <dx-item
@@ -310,6 +310,16 @@
                     </template>
                     <dx-column type="buttons" :visible="!vars.formState.readOnly"/>
                     <dx-column caption="품목코드" data-field="item_code" />
+                    <dx-column 
+                      data-field="warehouse_code" 
+                      caption="창고"
+                    >
+                      <dx-lookup
+                        :data-source="vars.dataSource.warehouse"
+                        value-expr="wh_code"
+                        display-expr="wh_name"
+                      />
+                    </dx-column>
                     <dx-column caption="품명" data-field="item.item_name" />
                     <dx-column caption="규격" data-field="item.item_standard" />
                     <dx-column caption="수량" data-field="item_quantity" data-type="number" format="fixedPoint" :set-cell-value="methods.setQuantity" />
@@ -551,7 +561,7 @@ import DataGridAsReceipt from '../../components/as/data-as-receipt.vue';
 import authService from '../../auth';
 import { notifyInfo, notifyError } from '../../utils/notify';
 import { currentDateTime } from '../../utils/util';
-import { loadDepartment } from '../../utils/data-loader';
+import { loadDepartment, loadWarehouse } from '../../utils/data-loader';
 import { DxNumberBox } from 'devextreme-vue/number-box';
 import { asResult, getAsResultItem, getAsResultAttachment, getAsResultExpense } from '../../data-source/as';
 import DataGridProject from '../../components/project/data-project.vue';
@@ -680,6 +690,7 @@ setup(props) {
     
     onMounted(async () => {
         await loadDepartment(vars.dataSource);
+        loadWarehouse(vars.dataSource);
         await methods.loadBaseCode();
         methods.initById(props.id);
     

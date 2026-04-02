@@ -21,7 +21,7 @@
               :options="{ text: '저장', type: 'save', icon: 'save', disabled: vars.disabled.save, onClick: methods.saveItem }"
             />
             <dx-item widget="dxButton" location="after" locate-in-menu="auto"
-              :options="{ text: '품의서', type: 'print', icon: 'print', onClick: methods.printDocumentApproval }"
+              :options="{ text: '발주서', type: 'print', icon: 'print', onClick: methods.printDocumentApproval }"
             />
             <dx-item widget="dxButton" location="after" locate-in-menu="auto"
               :options="{ text: '출력', type: 'print', icon: 'print', onClick: methods.printDocument }"
@@ -291,14 +291,14 @@
             @focused-cell-changed="methods.onFocusedCellChanged"
           >
             <dx-grid-toolbar>
-              <dx-item template="addFromPlan" location="before" :visible="!vars.formState.readOnly" />
+              <dx-item template="addFromPlan" location="before" :visible="false" />
               <dx-grid-item name="addRowButton" :options="{ onClick: methods.showAddPopup }" />
               <dx-grid-item name="saveButton" :visible="!!vars.formData.id" />
               <dx-grid-item name="revertButton" />
               <dx-grid-item name="columnChooserButton" />
             </dx-grid-toolbar>
             <template #addFromPlan>
-              <dx-button text="발주계획에서 가져오기" icon="add" @click="methods.showAddOrderPlanPopup" />
+              <dx-button text="발주계획에서 가져오기" icon="add" @click="methods.showAddOrderPlanPopup" :visible="false"/>
             </template>
 
             <dx-column caption="품목코드" data-field="item_code" width="180" :allow-editing="false" />

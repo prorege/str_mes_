@@ -45,11 +45,10 @@
               <div class="content-header">
                 <dx-toolbar>
                   <dx-item location="before">
-                    <div class="content-title">수주 미확정 현황</div>
+                    <div class="content-title">외근/출장관리</div>
                   </dx-item>
                 </dx-toolbar>
               </div>
-
               <dx-data-grid
                 class="fixed-header-table"
                 height="calc(100% - 40px)"
@@ -58,21 +57,16 @@
                 :remote-operations="true"
                 :hover-state-enabled="true"
                 :allow-column-resizing="true"
-                :allow-column-reordering="true"
-                :data-source="store.orderNotConfirmedItem"
-                @cell-dbl-click="methods.orderItemDblClk"
-                @initialized="evt => methods.initialized(evt, 'dashboard-not-confirmed-item-grid')"
+                :data-source="store.businessTripLog"
+                @row-dbl-click="methods.tripLogDblClk"
+                @initialized="evt => methods.initialized(evt, 'dashboard-trip-log-grid')"
               >
-                <dx-column caption="수주번호" data-field="order.order_number" />
-                <dx-column caption="수주일자" data-field="order.order_date" data-type="date" format="yyyy-MM-dd" />
-                <dx-column caption="담당자" data-field="order.order_manager" />
-                <dx-column caption="품목코드" data-field="item_code" />
-                <dx-column caption="품명" data-field="item.item_name" />
-                <dx-column caption="수주수량" data-field="order_quantity" data-type="number" format="fixedPoint" />
-                <dx-column caption="할당수량" data-field="assign_quantity" data-type="number" format="fixedPoint" />
-                <dx-column caption="프로젝트번호" data-field="project_management.project_number" />
-
-                <dx-filter-row :visible="false" />
+                <dx-column caption="담당자" data-field="manager" />
+                <dx-column caption="구분" data-field="trip_type" />
+                <dx-column caption="시작날짜" data-field="trip_start_date" data-type="datetime" format="yyyy-MM-dd HH:mm" />
+                <dx-column caption="종료날짜" data-field="trip_end_date" data-type="datetime" format="yyyy-MM-dd HH:mm" />
+                <dx-column caption="프로젝트명" data-field="project_name" />
+                <dx-column caption="업무내용" data-field="note" />
                 <dx-paging :page-size="20" />
               </dx-data-grid>
             </div>
@@ -83,11 +77,10 @@
               <div class="content-header">
                 <dx-toolbar>
                   <dx-item location="before">
-                    <div class="content-title">출고요청 미확인 현황</div>
+                    <div class="content-title">A/S접수</div>
                   </dx-item>
                 </dx-toolbar>
               </div>
-
               <dx-data-grid
                 class="fixed-header-table"
                 height="calc(100% - 40px)"
@@ -96,23 +89,16 @@
                 :remote-operations="true"
                 :hover-state-enabled="true"
                 :allow-column-resizing="true"
-                :allow-column-reordering="true"
-                :data-source="store.purchaseOrderPlanItem"
-                @cell-dbl-click="methods.purchaseOrderPlanItemDblClk"
-                @initialized="evt => methods.initialized(evt,'dashboard-purhcase-order-plan-item-grid')"
+                :data-source="store.asReceipt"
+                @row-dbl-click="methods.asReceiptDblClk"
+                @initialized="evt => methods.initialized(evt, 'dashboard-as-receipt-grid')"
               >
-                <dx-column caption="생성시간" data-field="created" data-type="date" format="yyyy-MM-dd" :allow-editing="false" :visible="false" />
-                <dx-column caption="발주계획번호" data-field="order_plan.order_plan_number" />
-                <dx-column caption="계획일자" data-field="order_plan.order_plan_date" data-type="date" format="yyyy-MM-dd" />
-                <dx-column caption="담당자" data-field="order_plan.order_plan_manager" />
-                <dx-column caption="품목코드" data-field="item_code" />
-                <dx-column caption="품명" data-field="item.item_name" />
-                <dx-column caption="수량" data-field="order_plan_quantity" data-type="number" format="fixedPoint" />
-                <dx-column caption="미발주수량" data-field="unordered_quantity" data-type="number" format="fixedPoint" />
-                <dx-column caption="프로젝트번호" data-field="project_management.project_number" />
-                <dx-column caption="회사" data-field="fk_company_id" :allow-editing="false" :visible="false" />
-
-                <dx-filter-row :visible="false" />
+                <dx-column caption="접수번호" data-field="receipt_number" />
+                <dx-column caption="접수일자" data-field="receipt_date" data-type="date" format="yyyy-MM-dd" />
+                <dx-column caption="프로젝트명" data-field="project_name" />
+                <dx-column caption="접수담당자" data-field="receipt_manager" />
+                <dx-column caption="접수내용" data-field="receipt_detail" />
+                <dx-column caption="유무상" data-field="paid_type" />
                 <dx-paging :page-size="20" />
               </dx-data-grid>
             </div>
@@ -185,9 +171,9 @@ import DxToolbar, { DxItem } from 'devextreme-vue/toolbar';
 import { DxPopup, DxToolbarItem } from 'devextreme-vue/popup';
 import { DxDataGrid, DxColumn, DxPaging, DxFilterRow } from 'devextreme-vue/data-grid';
 import { DxScrollView } from 'devextreme-vue/scroll-view';
-import { projectNotice } from '@/data-source/project';
+import { projectNotice, getProjectBusinessTripLog } from '@/data-source/project';
 import { getShipmentOrderItem } from '@/data-source/shipment';
-import { getPurchaseOrderPlanItem } from '@/data-source/purchase';
+import { getAsReceipt } from '@/data-source/as';
 
 import authService from '@/auth';
 import stateStore from '@/utils/state-store';
@@ -213,33 +199,15 @@ export default {
     ];
     store.projectNotice = projectNotice;
 
-    store.orderNotConfirmedItem = getShipmentOrderItem([
-      //{ name: 'order_confirmed', op: 'eq', val: 0 },
-      {
-        name: 'order',
-        op: 'has',
-        val: {
-          name: 'confirmed',
-          op: 'eq',
-          val: 0,
-        },
-      },
-    ]);
+    store.businessTripLog = getProjectBusinessTripLog([]);
+
     store.orderNotReleaseItem = getShipmentOrderItem([
       { name: 'not_shipped', op: 'gt', val: 0 },
     ]);
 
-    store.purchaseOrderPlanItem = getPurchaseOrderPlanItem([
-      {
-        name: 'order_plan',
-        op: 'has',
-        val: {
-          name: 'fk_company_id',
-          op: 'eq',
-          val: authService.getCompanyId(),
-        },
-      },
-      { name: 'unordered_quantity', op: 'gt', val: 0 },
+    store.asReceipt = getAsReceipt([
+      { name: 'closing_yn', op: 'eq', val: false },
+      { name: 'fk_company_id', op: 'eq', val: authService.getCompanyId() },
     ]);
 
     vars.components = {};
@@ -267,10 +235,12 @@ export default {
         path: `/shipment/order/${data.order.id}`,
       });
     };
-    methods.purchaseOrderPlanItemDblClk = ({ column, data }) => {
-      router.replace({ path: `/purchase/order-plan/${data.order_plan.id}` });
+    methods.tripLogDblClk = () => {
+      router.replace({ path: '/project/business-trip-log' });
     };
-
+    methods.asReceiptDblClk = ({ data }) => {
+      router.replace({ path: `/as/receipt/${data.id}` });
+    };
     return { vars, store, methods };
   },
 };
